@@ -52,8 +52,8 @@
 </template>
 
 <script>
-	import { getAdvertisingList,saveStatus} from '../../api/advertising/advertising';
-	import list from '../../assets/list.png'
+	import { getAdvertisingList,saveStatus} from 'api/advertising/advertising';
+	import list from 'assets/list.png'
 	export default {
 		data() {
 			return {

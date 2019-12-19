@@ -8,7 +8,7 @@
         <el-menu-item v-if="!item.children"
             :key="item.path"
             :index="item.path">
-						<router-link :to="item.path">{{ item.meta.title }}</router-link>
+						<router-link class="menu-link" active-class="active-menu-link" :to="`${props.menuData.path}/${item.path}`">{{ item.meta.title }}</router-link>
         </el-menu-item>
         <sub-menu v-else :key="item.path" :menu-data="item"></sub-menu>
     </template>
@@ -24,6 +24,14 @@ export default {
 </script>
 
 <style lang="less">
+.menu-link {
+  color: #ffffffb3;
+}
+
+.active-menu-link {
+  color: #fff;
+}
+
 .el-submenu__title i {
     color: #ffffffb3;
 }

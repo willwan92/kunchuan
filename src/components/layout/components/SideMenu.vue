@@ -18,7 +18,7 @@
 						v-if="!item.children" 
 						:key="item.path"
 						:index="item.path">
-						<router-link :to="item.path">{{ item.meta.title }}</router-link>
+						<router-link class="menu-link" :to="item.path">{{ item.meta.title }}</router-link>
 					</el-menu-item>
 					<sub-menu v-else :key="item.path" :menu-data="item"></sub-menu>
 				</template>

@@ -7,9 +7,11 @@
 			<div class="top clearfix">
 				<div class="fl">云南昆船设计研究院有限公司</div>
 				<div class="fr">
-					<span>欢迎回来</span>
-					<span class="user"><i class="iconfont icon-user"></i> {{ account }}</span>
-					<span class="logout" @click="logout"><i class="iconfont icon-tuichu"></i>退出登陆</span>
+					<!-- <span>用户名：</span> -->
+					<span class="user"><i class="iconfont icon-user"></i> {{ userName }}</span>
+					<span class="user-btn logout" @click="logout">退出</span>
+					<span class="user-btn" >重启</span>
+					<span class="user-btn" >关机</span>
 				</div>
 			</div>
 			<div class="breadcrumb">
@@ -27,14 +29,14 @@
 	export default {
 		data() {
 			return {
-				account: '',
+				userName: '',
 				levelList: null,
 				logoutDialogVisible: false
 			}
 		},
 		created() {
 			this.getLevelList();
-			this.account = sessionStorage.getItem('account');
+			this.userName = 'admin'
 		},
 		methods: {
 			logout() {
@@ -61,7 +63,7 @@
 		text-align: center;
 		line-height: 135px;
 		.logo {
-			width: 136px;
+			width: 75%;
 		}
 	}
 }
@@ -69,18 +71,18 @@
 .navbar {
 	margin-left: @leftWidth;
 	.top {
-		height: 50px;
-		line-height: 50px;
+		height: 70px;
+		line-height: 70px;
 		padding-left: 20px;
 		color: #fff;
 		background-color: @themeColor;
-		font-size: 16px;
-		font-weight: 700;
-
+		font-size: 18px;
+		.user-btn {
+			margin-right: 10px;
+			cursor: pointer;
+		}
 		.user {
-
-			margin-left: 20px;
-			margin-right: 20px;
+			margin-right: 10px;
 			font-weight: 500;
 		}
 
@@ -91,16 +93,15 @@
 			line-height: 26px;
 			text-align: center;
 			color: #d9ecff;
+			font-size: 20px;
 			border-radius: 50%;
 			background-color: @themeColor;
 		}
 		.logout {
 			display: inline-block;
-			width: 150px;
 			height: 50px;
 			text-align: center;
 			color: #fff;
-			cursor: pointer;
 			background-color: @themeColor;
 			.iconfont {
 				font-weight: 400;

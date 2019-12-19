@@ -2,7 +2,7 @@
 	<div id="app-wrapper">
 		<Header @logout="handleLogout" id="header"/>
 		<div class="clearfix" id="main-container">
-			<SideBar id="sidebar"/>
+			<SideMenu id="sidebar"/>
 			<AppMain id="app-main"/>
 			<el-dialog
 			  :visible.sync="logoutDialogVisible"
@@ -19,14 +19,14 @@
 
 <script>
 import Header from './components/Header';
-import SideBar from './components/SideBar';
+import SideMenu from './components/SideMenu';
 import AppMain from './components/AppMain';
 import { removeToken } from 'common/utils';
 
 export default {
 	components: {
 		Header,
-		SideBar,
+		SideMenu,
 		AppMain
 	},
 	data() {
@@ -71,13 +71,12 @@ export default {
 			width: @leftWidth;
 			height: 100%;
 			background-color: @themeColor;
-
-			
 		}
 		
 
 		#app-main {
 			margin-left: @leftWidth;
+			margin-top: 20px;
 			padding: 20px;
 			min-height: 100%;
 			background-color: @light-blue;
