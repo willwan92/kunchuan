@@ -1,47 +1,12 @@
 <template>
 	<div class="page">
 		<div class="section query">
-			<div class="query-title">
-				<img :src="searchImg" class="icon">
-				<span>筛选查询</span>
-			</div>
-			<el-form 
-				:inline="true"
-				label-width="75px">
-				<el-row class="form-input">
-					<el-form-item label="昵称:">
-						<el-input v-model="searchParams.nickname" placeholder="请输入用户昵称"></el-input>
-					</el-form-item>
-					<el-form-item label="用户名:">
-						<el-input v-model="searchParams.account" placeholder="请输入用户名"></el-input>
-					</el-form-item>
-				  	<el-form-item label="手机:">
-				  		<el-input v-model="searchParams.mobile" placeholder="请输入手机"></el-input>
-				  	</el-form-item>
-				  	<el-form-item label="BRM账号:">
-				  		<el-input v-model="searchParams.brmid" placeholder="请输入BRM账号"></el-input>
-				  	</el-form-item>
-				</el-row>
-				<el-row type="flex" justify="center">
-					<el-button class="btn-lg" type="primary" @click="search">查 询</el-button>
-					<el-button class="btn-lg" @click="reset">重 置</el-button>
-				</el-row>
-			</el-form>
-		</div>
-
-		<div class="section list">
 			<div class="list-title">
-				<div class="fl">
-					<img :src="listImg" class="icon">
-					<span>用户列表</span>
-				</div>
-				<div class="fr btn-wrapper">
-					<el-button class="fr" size="small" @click="exportList">导出报表</el-button>
-				</div>
+				<span>网卡设置</span>
 			</div>
-		
+
 			<div class="list-table" v-loading="isFetchingData">
-				<el-table :data="userList" style="width: 100%" border ref="multipleTable" tooltip-effect="dark">
+				<!-- <el-table :data="userList" style="width: 100%" border ref="multipleTable" tooltip-effect="dark">
 					<el-table-column label='用户ID' prop="userId" align="center">
 					</el-table-column>
 					<el-table-column label="昵称" prop="nickname" align="center">
@@ -63,13 +28,32 @@
 							<el-button type="text" @click="viewDetail(scope.row)">详情</el-button>
 						</template>
 					</el-table-column>
-				</el-table>
-				<!-- 分页 -->
-				<div class="pagination" v-if="curPageSize">
-					<el-pagination @current-change="handleCurrentChange" :current-page="currentPage"  :page-size="curPageSize" layout="prev, pager, next" background :total="curTotal">
-					</el-pagination>
+				</el-table> -->
+			</div>
+		</div>
+
+		<div class="section list">
+			<div class="query-title">
+				<div class="fl">
+					<span>路由设置</span>
+				</div>
+				<div class="fr btn-wrapper">
+					<el-button class="fr" type="" size="small" @click="exportList">保存设置</el-button>
 				</div>
 			</div>
+			<el-form 
+				width="600px"
+				label-width="90px">
+				<el-form-item label="目的地址:">
+					<el-input v-model="searchParams.nickname"></el-input>
+				</el-form-item>
+				<el-form-item label="目的掩码:">
+					<el-input v-model="searchParams.account"></el-input>
+				</el-form-item>
+				<el-form-item label="下一跳地址:">
+					<el-input v-model="searchParams.mobile"></el-input>
+				</el-form-item>
+			</el-form>
 		</div>
 	</div>
 </template>
@@ -191,6 +175,9 @@
 		&:hover{
 			box-shadow:0 4px 8px rgba(0,0,0,.15);
 			-webkit-box-shadow: 0 4px 8px rgba(0,0,0,.15);
+		}
+		.el-form {
+			width: 60%;
 		}
 	}
 }

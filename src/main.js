@@ -7,11 +7,17 @@ import 'normalize.css/normalize.css'
 import './assets/styles/common.less'
 import './theme/index.css'
 import ElementUI from 'element-ui'
+import * as Components from '@/components'
 // import './assets/iconfont/iconfont.css'
 
 
 Vue.use(ElementUI);
 Vue.config.productionTip = false;
+
+Object.keys(Components).forEach(key => {
+  const component = Components[key];
+  Vue.component(component.name, component)
+})
 
 /* eslint-disable no-new */
 new Vue({

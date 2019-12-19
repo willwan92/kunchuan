@@ -6,7 +6,7 @@
           <img class="logo" src="../../assets/images/logo.png" alt="logo" />
         </el-col>
         <el-col class="separation" :span="2">|</el-col>
-        <el-col :span="14">云南昆船设计研究院有限公司</el-col>
+        <el-col :span="14" class="system-name">烟草行业关键信息基础设施<br/>安全评估管理系统</el-col>
       </el-row>
       <el-form>
         <el-form-item>
@@ -47,7 +47,7 @@ export default {
         return this.$message.error("账号和密码不能为空！");
 	  }
 	  
-	  	this.$message.info('正在登录...');
+	  this.$message.info('正在登录...');
 		this.$router.push({
 			path: "/user/userManage"
 		});
@@ -98,6 +98,10 @@ export default {
       height: 60px;
     }
     .separation {
+      text-align: center;
+    }
+    .system-name {
+      line-height: 1.4;
       text-align: center;
     }
   }

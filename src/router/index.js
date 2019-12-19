@@ -78,6 +78,7 @@ export const routes = [
       title: '信息调查收集'
     },
     component: Layout,
+    redirect: '/info/projectInfo',
     children: [
       {
         path: 'projectInfo',
@@ -167,6 +168,7 @@ export const routes = [
     meta: {
       title: 'CII识别认定'
     },
+    redirect: '/ciiIdent/criticalBusiness',
     children: [
       {
         path: 'criticalBusiness',
@@ -228,6 +230,7 @@ export const routes = [
     meta: {
       title: 'CII对象管理'
     },
+    redirect: '/ciiObject/infoMainten',
     component: Layout,
     children: [
       {
@@ -265,6 +268,7 @@ export const routes = [
       title: '安全评估工具'
     },
     component: Layout,
+    redirect: '/evaluationTool/templateManage',
     children: [
       {
         path: 'templateManage',
@@ -293,7 +297,7 @@ export const routes = [
     meta: {
       title: '安全检查工具'
     },
-    redirect: '/securityCheck/msgManage',
+    redirect: '/securityCheck/vulnerabilityQuery',
     children: [
       {
         path: 'vulnerabilityQuery',

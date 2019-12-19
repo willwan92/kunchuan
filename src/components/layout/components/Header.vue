@@ -5,7 +5,7 @@
 		</div>
 		<div class="navbar">
 			<div class="top clearfix">
-				<div class="fl">云南昆船设计研究院有限公司</div>
+				<div class="fl">烟草行业关键信息基础设施安全评估管理系统</div>
 				<div class="fr">
 					<!-- <span>用户名：</span> -->
 					<span class="user"><i class="iconfont icon-user"></i> {{ userName }}</span>
