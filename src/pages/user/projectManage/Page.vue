@@ -3,14 +3,14 @@
 		<div class="section list">
 			<div class="tabs-wrapper">
 				<el-tabs v-model="tabName" type="card" @tab-click="handleClick">
-					<el-tab-pane label="单系统用户项目" name="1">
+					<el-tab-pane label="单系统用户项目" name="2">
 					</el-tab-pane>
-					<el-tab-pane label="集团用户项目" name="2">
+					<el-tab-pane label="集团用户项目" name="1">
 					</el-tab-pane>
 					<!-- <app-table :table-data="tableData" :table-titles="tableTitles" @operate="handleOperate"></app-table> -->
 				</el-tabs>
 
-				<el-button class="btn" type="primary" size="small" @click="add">添加</el-button>
+				<el-button class="btn" type="primary" size="small" @click="handleAddClick">添加</el-button>
 			</div>
 			
 			<el-table :data="tableData" border>
@@ -26,6 +26,38 @@
 					</template>
 				</el-table-column>
 			</el-table>
+
+			<el-dialog
+				title="添加项目"
+				:visible.sync="dialogShow"
+				width="600px"
+				@close="dialogShow = false">
+				<el-form :model="form" ref="form" label-width="80px">
+					<el-form-item label="项目名称">
+						<el-input v-model="form.pjname"></el-input>
+					</el-form-item>
+					<el-form-item label="项目类型">
+						<el-cascader :options="pjOptions" v-model="form.pjtype">
+						</el-cascader>
+					</el-form-item>
+					<el-form-item label="项目地点">
+						<el-input v-model="form.address"></el-input>
+					</el-form-item>
+					<el-form-item label="项目描述">
+						<el-input v-model="form.description"></el-input>
+					</el-form-item>
+					<el-form-item label="Ip范围">
+						<el-input v-model="form.ip" placeholder="ip格式为192.168.1-2.2-1或192.168.1.1-255和192.168.1.1"></el-input>
+					</el-form-item>
+				</el-form>
+				
+				
+				<span slot="footer">
+					<el-button @click="dialogShow = false">取 消</el-button>
+					<el-button type="primary" @click="addProject">确 定</el-button>
+				</span>
+			</el-dialog>
+			
 		</div>
 	</div>
 </template>
@@ -36,19 +68,33 @@
 	export default {
 		data() {
 			return {
-				tabName: '1',
+				tabName: '2',
+				dialogShow: false,
+				form: {
+					pjname: '',
+					pjtype: [],
+					address: '',
+					description: '',
+					ip: ''
+				},
+				pjOptions: [],
 				tableData: []
 			}
 		},
 		created() {
 			this.fetchTableData();
-			
+			this.fetchPjTreeData();
 		},
 		methods: {
 			async fetchTableData() {
 				let url = this.tabName === '1' ? '/projectInfo/getProjectInfoList' : '/projectInfo/getProjectInfosList';
 				const data = await this.fetch({url: url, vm: this});
 				this.tableData = this._.clone(data);
+			},
+			async fetchPjTreeData() {
+				const data = await this.fetch({url: '/project/getProjectList', vm: this});
+				// this.tableData = this._.clone(data);
+				console.log(data);
 			},
 			//查询
 			search(){
@@ -57,41 +103,35 @@
 			handleClick(tab) {
 				this.fetchTableData();
 			},
-			handleEditClick(id) {
+			addProject() {
 
 			},
-			handleDelClick(id) {
+			async handleAddClick() {
+				this.dialogShow = true;
 
-			},
-			editItem(id) {
+				let params = this._.clone(this.form);
+				params.pid = this.tabName;
 
-			},
-			createParams() {
-				let params = deepCopy(this.searchParams);
-				params.pageNum = this.currentPage;
-				return params;
-			},
-			
-			viewDetail(row) {
-				this.$router.push({
-					path: '/user/userDetail',
-					query: {
-						id: row.userId
-					}
-				})
-			}
-		},
-		beforeRouteEnter(to, from, next) {
-			next( vm => {
-				vm.$nextTick( () => {
-					// vm.fetchData();
+				const data = await this.fetch({
+					'url': '/projectInfo/getProjectInfoAdd', 
+					'params': params, 
+					'vm': this
 				});
-			})
-		},
-		mounted() {
-			this.$nextTick(() => {
-				// this.fetchData();
-			})
+				// this.tableData = this._.clone(data);
+				console.log(data);
+			},
+			async handleEditClick(id) {
+				this.dialogShow = true;
+				const data = await this.fetch({'url': '/projectInfo/getProjectInfoFind', 'id': id, 'vm': this});
+				// this.tableData = this._.clone(data);
+				console.log(data);
+
+			},
+			async handleDelClick(id) {
+				const data = await this.fetch({'url': '/projectInfo/getProjectInfoDeleteid', 'id': id, 'vm': this});
+				// this.tableData = this._.clone(data);
+				console.log(data);
+			}
 		}
 	}
 </script>

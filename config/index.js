@@ -12,10 +12,17 @@ module.exports = {
     assetsPublicPath: '/',
     proxyTable: {
         '/api': {
-          target: 'http://10.60.4.2:8080/',
+          target: 'http://10.60.4.3:8081',
           changeOrigin: true,
           pathRewrite: {
             '^/api': '/'
+          }
+        },
+        '/fuzzApi': {
+          target: 'http://10.60.4.3:8080',
+          changeOrigin: true,
+          pathRewrite: {
+            '^/fuzzApi': '/'
           }
         }
     },

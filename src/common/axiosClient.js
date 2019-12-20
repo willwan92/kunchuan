@@ -3,17 +3,32 @@ import qs from 'qs';
 // import createSign from 'api/sign';
 import { getToken } from './utils';
 
-// const HOST_DEVELOPMENT = '';
-const HOST_PRODUCTION = '10.60.4.2:8080';
+const HOST_DEVELOPMENT = '';
+const HOST_PRODUCTION = '10.60.4.3:8080';
 
-// const URL_DEVELOPMENT = '';
-const URL_PRODUCTION = 'http://10.60.4.2:8080/';
+const URL_DEVELOPMENT = '';
+const URL_PRODUCTION = 'http://10.60.4.3:8081';
+const URL_PRODUCTION_FUZZ = 'http://10.60.4.3:8080';
 
 const HOST = window.location.host;
 
 const axiosClient = axios.create({
-  // baseURL: process.env.NODE_ENV === 'development' ? '/api' : 'http://api-control.test.hxsapp.com/',
   baseURL: HOST === HOST_PRODUCTION ? URL_PRODUCTION : process.env.NODE_ENV === 'development' ? '/api' : URL_DEVELOPMENT,
+  withCredentials: true,
+  timeout: 10000,
+  responseType: 'json',
+  headers: {
+    'Content-Type': 'application/x-www-form-urlencoded'
+  },
+  transformRequest: [
+    function(data, headers) {
+      return qs.stringify(data);
+    }
+  ]
+});
+
+const axiosClientFuzz = axios.create({
+  baseURL: HOST === HOST_PRODUCTION ? URL_PRODUCTION_FUZZ : process.env.NODE_ENV === 'development' ? '/fuzzApi' : URL_DEVELOPMENT,
   withCredentials: true,
   timeout: 10000,
   responseType: 'json',
@@ -58,7 +73,5 @@ axiosClient.interceptors.request.use(
 //   return response;
 // })
 
-//上传图片
-export const uploadFileApi = HOST ===HOST_PRODUCTION ? URL_PRODUCTION : process.env.NODE_ENV === 'development' ? 'http://172.30.10.18:8080/api/pj-operation/file/uploadFile' : URL_DEVELOPMENT;
 
-export { axiosClient };
+export { axiosClient, axiosClientFuzz };

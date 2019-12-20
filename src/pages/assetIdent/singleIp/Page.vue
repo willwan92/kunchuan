@@ -5,18 +5,18 @@
 				:inline="true"
 				label-width="75px">
 				<el-form-item label="目标IP">
-					<el-input v-model="searchParams.nickname" placeholder=""></el-input>
+					<el-input v-model="searchParams.startIp" placeholder=""></el-input>
 				</el-form-item>
 				<el-form-item label="端口范围">
-					<el-input v-model="searchParams.nickname" placeholder=""></el-input>
+					<el-input v-model="searchParams.startPort" placeholder=""></el-input>
 				</el-form-item>
-				<span style="line-height: 36px;">——</span>
+				<span style="display: inline-block; width: 24px; line-height: 36px;">— </span>
 				<el-form-item label="">
-					<el-input v-model="searchParams.nickname" placeholder=""></el-input>
+					<el-input v-model="searchParams.endPort" placeholder=""></el-input>
 				</el-form-item>
 				<el-form-item label="扫描方式">
-					<el-select v-model="searchParams.nickname" placeholder="">
-						<el-option v-for="item in []"
+					<el-select v-model="searchParams.scannerType" placeholder="">
+						<el-option v-for="item in scanTypes"
 							:key="item.value"
 							:label="item.label"
 							:value="item.value">
@@ -25,8 +25,8 @@
 					
 				</el-form-item>
 				<el-form-item label="">
-					<el-button class="btn-lg" type="primary" @click="search">网络端口分析</el-button>
-					<el-button class="btn-lg" @click="search">停止扫描</el-button>
+					<el-button type="primary" @click="startScan">网络端口分析</el-button>
+					<el-button @click="stopScan">停止扫描</el-button>
 				</el-form-item>
 			</el-form>
 		
@@ -42,8 +42,25 @@
 	export default {
 		data() {
 			return {
+				scanTypes: [
+					{
+						label: 'TCP',
+						value: 2
+					},
+					{
+						label: 'UDP',
+						value: 3
+					},
+					{
+						label: 'TCP&UDP',
+						value: 4
+					}
+				],
 				searchParams: {
-					nickname: ''
+					startIp: '',
+					scannerType: 2,
+					startPort: '1',
+					endPort: '65535',
 				},
 				tableTitles: [
 					{
@@ -87,9 +104,11 @@
 			}
 		},
 		methods: {
-			//查询
-			search(){
+			startScan(){
 				this.fetchData();
+			},
+			stopScan(){
+
 			},
 			handleOperate(row, type, target) {
 				this.editItem({ id: row.id })
@@ -97,40 +116,23 @@
 			editItem(id) {
 
 			},
+			async fetchData() {
+				let params = this._.clone(this.searchParams)
+				params.endIp = params.startIp;
+				console.log(params);
+				const data = await this.fetchFuzz({
+					url: '/fuzz/page/view/scanner!scannerSigPort.action',
+					params: params,
+					type: 'get',
+					vm: this
+				});
+
+				console.log(data);
+			},
 			createParams() {
 				let params = deepCopy(this.searchParams);
 				params.pageNum = this.currentPage;
 				return params;
-			},
-			// 请求列表数据
-			fetchData() {
-				this.isFetchingData = true;
-
-				// let params = 
-				getUserList(this.createParams())
-					.then((res) => {
-						let data = res.data;
-						if (data.code === 2000000 && data.data) {
-							this.userList = data.data.dataList.map(item => {
-								return {
-						            birthday: item.birthday,
-						            brmid: item.brmid,
-						            gender: item.gender === 1 ? '男' : item.gender === '2' ? '女' : '未知' ,
-						            createTime: item.createTime,
-						            nickname: item.nickname,
-						            mobile: item.mobile,
-						            userId: item.userId,
-						            account: item.account
-						        }
-							});
-							this.currentPage = data.data.pageNum;
-							this.curTotal = data.data.total;
-						}
-						this.isFetchingData = false;
-					})
-					.catch(err => {
-						this.isFetchingData = false;
-					})
 			},
 			viewDetail(row) {
 				this.$router.push({

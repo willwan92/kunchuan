@@ -9,7 +9,7 @@ import './assets/styles/common.less'
 import './theme/index.css'
 import ElementUI from 'element-ui'
 import * as Components from '@/components'
-import { fetch } from "common/fetch"
+import { fetch, fetchFuzz } from "common/fetch"
 // import './assets/iconfont/iconfont.css'
 
 
@@ -19,6 +19,7 @@ Vue.config.productionTip = false;
 
 Vue.prototype._ = lodash;
 Vue.prototype.fetch = fetch;
+Vue.prototype.fetchFuzz = fetchFuzz;
 
 Object.keys(Components).forEach(key => {
   const component = Components[key];
