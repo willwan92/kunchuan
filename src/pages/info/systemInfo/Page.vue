@@ -1,75 +1,43 @@
 <template>
 	<div class="page">
-		<div class="section query">
-			<div class="query-title">
-				<img :src="searchImg" class="icon">
-				<span>筛选查询</span>
-			</div>
+		<div class="section">
 			<el-form 
 				:inline="true"
-				label-width="75px">
+				label-width="100px">
 				<el-row class="form-input">
-					<el-form-item label="昵称:">
-						<el-input v-model="searchParams.nickname" placeholder="请输入用户昵称"></el-input>
+					<el-form-item label="CPU使用率:">
+						<el-input v-model="searchParams.nickname" readonly placeholder=""></el-input>
 					</el-form-item>
-					<el-form-item label="用户名:">
-						<el-input v-model="searchParams.account" placeholder="请输入用户名"></el-input>
+					<el-form-item label=" 当前系统时间:">
+						<el-input v-model="searchParams.account" readonly placeholder=""></el-input>
 					</el-form-item>
-				  	<el-form-item label="手机:">
-				  		<el-input v-model="searchParams.mobile" placeholder="请输入手机"></el-input>
-				  	</el-form-item>
-				  	<el-form-item label="BRM账号:">
-				  		<el-input v-model="searchParams.brmid" placeholder="请输入BRM账号"></el-input>
+				  	<el-form-item label="系统运行时间:">
+				  		<el-input v-model="searchParams.mobile" readonly placeholder=""></el-input>
 				  	</el-form-item>
 				</el-row>
-				<el-row type="flex" justify="center">
-					<el-button class="btn-lg" type="primary" @click="search">查 询</el-button>
-					<el-button class="btn-lg" @click="reset">重 置</el-button>
+				<el-row class="form-input">
+					<el-form-item label="总内存:">
+						<el-input v-model="searchParams.nickname" readonly placeholder=""></el-input>
+					</el-form-item>
+					<el-form-item label=" 已使用内存:">
+						<el-input v-model="searchParams.account" readonly placeholder=""></el-input>
+					</el-form-item>
+				  	<el-form-item label=" 内存使用率:">
+				  		<el-input v-model="searchParams.mobile" readonly placeholder=""></el-input>
+				  	</el-form-item>
+				</el-row>
+				<el-row class="form-input">
+					<el-form-item label="硬盘总空间:">
+						<el-input v-model="searchParams.nickname" readonly placeholder=""></el-input>
+					</el-form-item>
+					<el-form-item label="已用硬盘空间:">
+						<el-input v-model="searchParams.account" readonly placeholder=""></el-input>
+					</el-form-item>
+				  	<el-form-item label=" 硬盘使用率:">
+				  		<el-input v-model="searchParams.mobile" readonly placeholder=""></el-input>
+				  	</el-form-item>
 				</el-row>
 			</el-form>
-		</div>
-
-		<div class="section list">
-			<div class="list-title">
-				<div class="fl">
-					<img :src="listImg" class="icon">
-					<span>用户列表</span>
-				</div>
-				<div class="fr btn-wrapper">
-					<el-button class="fr" size="small" @click="exportList">导出报表</el-button>
-				</div>
-			</div>
-		
-			<div class="list-table" v-loading="isFetchingData">
-				<el-table :data="userList" style="width: 100%" border ref="multipleTable" tooltip-effect="dark">
-					<el-table-column label='用户ID' prop="userId" align="center">
-					</el-table-column>
-					<el-table-column label="昵称" prop="nickname" align="center">
-					</el-table-column>
-					<el-table-column label="用户名" prop="account" align="center">
-					</el-table-column>
-					<el-table-column label="手机" prop="mobile" align="center">
-					</el-table-column> 
-					<el-table-column label="性别" prop="gender" align="center">
-					</el-table-column>
-					<el-table-column label="生日" prop="birthday" align="center">
-					</el-table-column>
-					<el-table-column label="注册时间" prop="createTime" align="center">
-					</el-table-column>
-					<el-table-column label="BRM账号" prop="brmid" align="center">
-					</el-table-column>
-					<el-table-column label="操作" align="center">
-						<template slot-scope="scope">
-							<el-button type="text" @click="viewDetail(scope.row)">详情</el-button>
-						</template>
-					</el-table-column>
-				</el-table>
-				<!-- 分页 -->
-				<div class="pagination" v-if="curPageSize">
-					<el-pagination @current-change="handleCurrentChange" :current-page="currentPage"  :page-size="curPageSize" layout="prev, pager, next" background :total="curTotal">
-					</el-pagination>
-				</div>
-			</div>
 		</div>
 	</div>
 </template>

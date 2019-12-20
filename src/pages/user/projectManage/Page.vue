@@ -1,72 +1,67 @@
 <template>
 	<div class="page">
 		<div class="section list">
-			<!-- <el-form 
-				:inline="true"
-				label-width="75px">
-				<el-form-item label="策略类别">
-					<el-input v-model="searchParams.nickname" placeholder="请输入策略类别"></el-input>
-				</el-form-item>
-				<el-form-item label="">
-					<el-button class="btn-lg" type="primary" @click="search">查 询</el-button>
-				</el-form-item>
-			</el-form> -->
-		
-			<app-table :table-data="tableData" :table-titles="tableTitles" @operate="handleOperate"></app-table>
+			<div class="tabs-wrapper">
+				<el-tabs v-model="tabName" type="card" @tab-click="handleClick">
+					<el-tab-pane label="单系统用户项目" name="1">
+					</el-tab-pane>
+					<el-tab-pane label="集团用户项目" name="2">
+					</el-tab-pane>
+					<!-- <app-table :table-data="tableData" :table-titles="tableTitles" @operate="handleOperate"></app-table> -->
+				</el-tabs>
+
+				<el-button class="btn" type="primary" size="small" @click="add">添加</el-button>
+			</div>
+			
+			<el-table :data="tableData" border>
+				<el-table-column label="项目名称" prop="pjname"></el-table-column>
+				<el-table-column label="项目类型" prop="pjtype"></el-table-column>
+				<el-table-column label="项目地点" prop="address"></el-table-column>
+				<el-table-column label="开始时间" prop="createTime"></el-table-column>
+				<el-table-column label="项目描述" prop="description"></el-table-column>
+				<el-table-column label="操作">
+					<template slot-scope="scope">
+						<el-button type="text" @click="handleEditClick(scope.row.id)">编辑</el-button>
+						<el-button type="text" @click="handleDelClick(scope.row.id)">删除</el-button>
+					</template>
+				</el-table-column>
+			</el-table>
 		</div>
 	</div>
 </template>
 
 <script>
-	import { getUserList } from 'api/user/user'
-	import { judgeGender, deepCopy, commonExport } from 'common/utils'
+	// import { judgeGender, deepCopy, commonExport } from 'common/utils'
 
 	export default {
 		data() {
 			return {
-				searchParams: {
-					nickname: ''
-				},
-				tableTitles: [
-					{
-						prop: 'serial',
-						title: '项目名称'
-					},
-					{
-						prop: 'pushTime',
-						title: '项目类型'
-					},
-					{
-						prop: 'serial',
-						title: '项目地点'
-					},
-					{
-						prop: 'pushTime',
-						title: '开始时间'
-					},
-					{
-						prop: 'pushTime',
-						title: '项目描述'
-					},
-					{
-						title: '操作',
-						prop: 'id',
-						isTemplate: true,
-						width: 150,
-						templateType: 'check',
-						operate: '修改'
-					}
-				],
+				tabName: '1',
 				tableData: []
 			}
 		},
+		created() {
+			this.fetchTableData();
+			
+		},
 		methods: {
+			async fetchTableData() {
+				let url = this.tabName === '1' ? '/projectInfo/getProjectInfoList' : '/projectInfo/getProjectInfosList';
+				const data = await this.fetch({url: url, vm: this});
+				this.tableData = this._.clone(data);
+			},
 			//查询
 			search(){
 				this.fetchData();
 			},
-			handleOperate(row, type, target) {
-				this.editItem({ id: row.id })
+			handleClick(tab) {
+				this.fetchTableData();
+			},
+			handleEditClick(id) {
+
+			},
+			handleDelClick(id) {
+
 			},
 			editItem(id) {
 
@@ -76,36 +71,7 @@
 				params.pageNum = this.currentPage;
 				return params;
 			},
-			// 请求列表数据
-			fetchData() {
-				this.isFetchingData = true;
-
-				// let params = 
-				getUserList(this.createParams())
-					.then((res) => {
-						let data = res.data;
-						if (data.code === 2000000 && data.data) {
-							this.userList = data.data.dataList.map(item => {
-								return {
-						            birthday: item.birthday,
-						            brmid: item.brmid,
-						            gender: item.gender === 1 ? '男' : item.gender === '2' ? '女' : '未知' ,
-						            createTime: item.createTime,
-						            nickname: item.nickname,
-						            mobile: item.mobile,
-						            userId: item.userId,
-						            account: item.account
-						        }
-							});
-							this.currentPage = data.data.pageNum;
-							this.curTotal = data.data.total;
-						}
-						this.isFetchingData = false;
-					})
-					.catch(err => {
-						this.isFetchingData = false;
-					})
-			},
+			
 			viewDetail(row) {
 				this.$router.push({
 					path: '/user/userDetail',
@@ -118,13 +84,13 @@
 		beforeRouteEnter(to, from, next) {
 			next( vm => {
 				vm.$nextTick( () => {
-					vm.fetchData();
+					// vm.fetchData();
 				});
 			})
 		},
 		mounted() {
 			this.$nextTick(() => {
-				this.fetchData();
+				// this.fetchData();
 			})
 		}
 	}
@@ -143,6 +109,15 @@
 			box-shadow:0 4px 8px rgba(0,0,0,.15);
 			-webkit-box-shadow: 0 4px 8px rgba(0,0,0,.15);
 		}
+	}
+}
+
+.tabs-wrapper {
+	position: relative;
+	.btn {
+		position: absolute;
+		right: 5px;
+		top: 5px;
 	}
 }
 

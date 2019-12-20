@@ -1,103 +1,15 @@
 <template>
 	<div class="goodsPage">
-		<div class="goodsTop">
-			<div class="query">
-				<img :src="sousuo" class="sousuo">
-				<span>筛选查询</span>
-			</div>
-			<div class="queryConent">
-				<div class="searchBar">
-					<div class="statusSelect">商品编号:</div>
-					<el-input placeholder="请输入商品编号" v-model="goodsNumber">
-					</el-input>
-				</div>
-				<div class="searchBar">
-					<div class="statusSelect">商品名称:</div>
-					<el-input placeholder="请输入商品名称" v-model="goodsName">
-					</el-input>
-				</div>
-			</div>
-			<div class="searchBtn">
-				<el-button class="btnSearch" @click="search">查询</el-button>
-				<el-button class="btnReset" @click="reset">重置</el-button>
-			</div>
-		</div>
 		<div class="goodsContent">
 			<div class="goodsContentTop">
-				<div class="goodsLeft"><img :src="list" class="sousuo">回收站商品列表</div>
+				<div class="goodsLeft"><img :src="list" class="sousuo">关键信息基础实施清单</div>
 				<div class="goodsRight">
-					<el-button class="btnBatch" @click="batchShelves()">批量上架</el-button>
-					<el-button class="btnBatch" @click="batchDelete()">批量删除</el-button>
-					<el-button class="btnBatch" @click="exportList()">导出报表</el-button>
+					<el-button class="btnBatch" @click="exportList()">导出</el-button>
 				</div>
 			</div>
-			<div class="userWallTable">
-				<el-table :data="datas" style="width: 100%" border ref="multipleTable" tooltip-effect="dark" @selection-change="handleSelectionChange">
-					<el-table-column
-						type="selection"
-						width="55"  align='center'>
-					</el-table-column>
-					<el-table-column label='商品编号' prop="id" align="center" width='80'>
-					</el-table-column>
-					<el-table-column label="商品名称" prop="name" align="center">
-					</el-table-column>
-					<el-table-column label="商品简介" prop="summary" align="center">
-					</el-table-column>
-					<el-table-column label="原价" align="center" width="100">
-						<template slot-scope="scope">
-							<span>{{(scope.row.price / 100).toFixed(2)}}</span>
-						</template>
-					</el-table-column> 
-					<el-table-column label="单买价" align="center" width="100">
-						<template slot-scope="scope">
-							<span>{{(scope.row.singlePrice / 100).toFixed(2)}}</span>
-						</template>
-					</el-table-column>
-					<el-table-column label="拼团价" align="center" width="100">
-						<template slot-scope="scope">
-							<span>{{(scope.row.groupPrice / 100).toFixed(2)}}</span>
-						</template>
-					</el-table-column>
-					<el-table-column label="拼团限制（人）" prop="groupManCount" align="center" width="120">
-					</el-table-column>
-					<el-table-column label="更新时间" prop="updateTime" align="center">
-					</el-table-column>
-					<el-table-column label="商品状态" align="center" width="120">
-						<template slot-scope="scope">
-							<span>{{scope.row.status == 0 ? '已下架':scope.row.status == 1 ? '已上架':scope.row.status == -1 ? '回收站':'删除'}}</span>
-						</template>
-					</el-table-column> 
-					<el-table-column label="操作" align="center" width="120">
-						<template slot-scope="scope">
-							<span @click="deleteDetail(scope.row)" class="button">删除</span>
-						</template>
-					</el-table-column>
-				</el-table>
-				<!-- 分页 -->
-				<div class="paging">
-					<el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage"  :page-size="curPageSize" layout="prev, pager, next" background :total="curTotal">
-					</el-pagination>
-				</div>
-			</div>
+			
+			<app-table :table-data="tableData" :table-titles="tableTitles" @operate="handleOperate"></app-table>
 		</div>
-		<!-- 删除 -->
-		<el-dialog title="删除" :visible.sync="dialogVisible" width="20%" :before-close="handleClose">
-		<div class="facility">确定要删除商品吗？</div>
-		<div class="facility">删除后不可恢复！</div>
-		<span slot="footer" class="dialog-footer">
-			<el-button @click="dialogVisible = false">取 消</el-button>
-			<el-button type="primary" @click="confirm()">确 定</el-button>
-		</span>
-		</el-dialog>
-		<!-- 批量删除 -->
-		<el-dialog title="批量删除" :visible.sync="dialogVisible1" width="20%" :before-close="handleClose">
-		<div class="facility">确定要删除商品吗？</div>
-		<div class="facility">删除后不可恢复！</div>
-		<span slot="footer" class="dialog-footer">
-			<el-button @click="dialogVisible1 = false">取 消</el-button>
-			<el-button type="primary" @click="confirm1()">确 定</el-button>
-		</span>
-		</el-dialog>
 	</div>
 </template>
 
@@ -110,20 +22,41 @@
 	export default {
 		data() {
 			return {
-				sousuo,
-				list,
-				goodsNumber:'',
-				goodsName:'',
-				datas:[],
-				isFetchingData:false,
-				multipleSelection: [],
-				exportDetail:'',
-				currentPage: 1,
-				curPageSize: 10,
-				curTotal: 0,
-				dialogVisible:false,
-				dataList:'',
-				dialogVisible1:false,
+				tableTitles: [
+					{
+						prop: 'serial',
+						title: '序号'
+					},
+					{
+						prop: 'serial',
+						title: 'IP地址'
+					},
+					{
+						prop: 'pushTime',
+						title: '资产类型'
+					},
+					{
+						prop: 'userId',
+						title: '设备型号'
+					},
+					{
+						prop: 'mobile',
+						title: '版本号'
+					},
+					{
+						prop: 'userId',
+						title: '操作系统'
+					},
+					{
+						prop: 'mobile',
+						title: '所属关键业务'
+					},
+					{
+						prop: 'mobile',
+						title: '关键性'
+					}
+				],
+				tableData: []
 			}
 		},
 		methods: {

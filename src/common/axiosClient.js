@@ -3,16 +3,11 @@ import qs from 'qs';
 // import createSign from 'api/sign';
 import { getToken } from './utils';
 
-// const URL_DEVELOPMENT = 'http://api-control.test.hxsapp.com/';
-// const URL_PRODUCTION = 'http://api-control.hxsapp.com/';
-// const HOST_DEVELOPMENT = 'admin-gym.test.hxsapp.com';
-// const HOST_PRODUCTION = 'admin-gym.hxsapp.com';
+// const HOST_DEVELOPMENT = '';
+const HOST_PRODUCTION = '10.60.4.2:8080';
 
-const HOST_DEVELOPMENT = 'admin-gym.test.hxsapp.com';
-const HOST_PRODUCTION = 'admin-gym.hxsapp.com';
-
-const URL_DEVELOPMENT = 'https://pjjtest.yibung.net/api/';
-const URL_PRODUCTION = 'https://pjjtest.yibung.net/api/';
+// const URL_DEVELOPMENT = '';
+const URL_PRODUCTION = 'http://10.60.4.2:8080/';
 
 const HOST = window.location.host;
 
