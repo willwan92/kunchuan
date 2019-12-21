@@ -49,29 +49,32 @@ export default {
       let loginParams = this.loginParams;
       if (loginParams.account === "" || loginParams.passwd === "") {
         return this.$message.error("请输入账号和密码！");
-    }
+      }
     
-    this.$message.info('正在登录...');
+      this.$message.info('正在登录...');
 
-    let params = {
-      userName: this.loginParams.account,
-      password: md5(sha1(this.loginParams.passwd)),
-    };
+      let params = {
+        userName: this.loginParams.account,
+        password: md5(sha1(this.loginParams.passwd)),
+      };
 
-    const data = await this.postFuzz({
-      url: '/fuzz/login/login!userLogin.action',
-      params: params,
-      vm: this
-    });
+      const data = await this.postFuzz({
+        url: '/fuzz/login/login!userLogin.action',
+        params: params,
+        vm: this
+      });
 
-    console.log(data);
-	  
-	  
-		// this.$router.push({
-		// 	path: "/user/userManage"
-		// });
-		this.$message.success('登录成功！');
-   
+      const state = data.sate ? data.sate : '';
+      const info = data.info ? data.info : '';
+      
+      if (state === '8') {
+        this.$message.success('登录成功！');
+        this.$router.push({
+          path: "/user/userManage"
+        });
+      } else {
+        this.$message.error(info);
+      }
     }
   }
 };

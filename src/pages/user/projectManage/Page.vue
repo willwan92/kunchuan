@@ -77,8 +77,8 @@
 					description: '',
 					ip: ''
 				},
-				pjOptions: [],
-				tableData: []
+				pjOptions: null,
+				tableData: [],
 			}
 		},
 		created() {
@@ -92,23 +92,14 @@
 				this.tableData = this._.clone(data);
 			},
 			async fetchPjTreeData() {
-				const data = await this.fetch({url: '/project/getProjectList', vm: this});
+				const data = await this.fetch({url: '/porject/getProjectList', vm: this});
 				// this.tableData = this._.clone(data);
 				console.log(data);
-			},
-			//查询
-			search(){
-				this.fetchData();
 			},
 			handleClick(tab) {
 				this.fetchTableData();
 			},
-			addProject() {
-
-			},
-			async handleAddClick() {
-				this.dialogShow = true;
-
+			async addProject() {
 				let params = this._.clone(this.form);
 				params.pid = this.tabName;
 
@@ -117,20 +108,42 @@
 					'params': params, 
 					'vm': this
 				});
-				// this.tableData = this._.clone(data);
+
 				console.log(data);
+			},
+			async handleAddClick() {
+				this.dialogShow = true;
+				this.form = {
+					pjname: '',
+					pjtype: [],
+					address: '',
+					description: '',
+					ip: ''
+				};
 			},
 			async handleEditClick(id) {
 				this.dialogShow = true;
-				const data = await this.fetch({'url': '/projectInfo/getProjectInfoFind', 'id': id, 'vm': this});
-				// this.tableData = this._.clone(data);
+				const data = await this.fetch({'url': '/projectInfo/getProjectInfoFind', params: {'id': id}, 'vm': this});
 				console.log(data);
-
+				let pjData = data[0];
+				this.form = {
+					pjname: pjData.pjname,
+					pjtype: pjData.pjtype,
+					address: pjData.address,
+					description: pjData.description,
+					ip: pjData.ip,
+				};
+				// if (data === 1) {
+				// 	this.$message.success('修改成功！');
+				// 	this.fetchTableData();
+				// }
 			},
 			async handleDelClick(id) {
-				const data = await this.fetch({'url': '/projectInfo/getProjectInfoDeleteid', 'id': id, 'vm': this});
-				// this.tableData = this._.clone(data);
-				console.log(data);
+				const data = await this.fetch({'url': '/projectInfo/getProjectInfoDeleteid', params: {'id': id}, 'vm': this});
+				if (data === 1) {
+					this.$message.success('删除成功！');
+					this.fetchTableData();
+				}
 			}
 		}
 	}
