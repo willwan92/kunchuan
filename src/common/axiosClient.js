@@ -13,54 +13,54 @@ const URL_PRODUCTION_FUZZ = 'http://10.60.4.3:8080';
 const HOST = window.location.host;
 
 const axiosClient = axios.create({
-  baseURL: HOST === HOST_PRODUCTION ? URL_PRODUCTION : process.env.NODE_ENV === 'development' ? '/api' : URL_DEVELOPMENT,
-  withCredentials: true,
-  timeout: 10000,
-  responseType: 'json',
-  headers: {
-    'Content-Type': 'application/x-www-form-urlencoded'
-  },
-  transformRequest: [
-    function(data, headers) {
-      return qs.stringify(data);
-    }
-  ]
+    baseURL: HOST === HOST_PRODUCTION ? URL_PRODUCTION : process.env.NODE_ENV === 'development' ? '/api' : URL_DEVELOPMENT,
+    withCredentials: true,
+    timeout: 100000,
+    responseType: 'json',
+    headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    transformRequest: [
+        function(data, headers) {
+            return qs.stringify(data);
+        }
+    ]
 });
 
 const axiosClientFuzz = axios.create({
-  baseURL: HOST === HOST_PRODUCTION ? URL_PRODUCTION_FUZZ : process.env.NODE_ENV === 'development' ? '/fuzzApi' : URL_DEVELOPMENT,
-  withCredentials: true,
-  timeout: 10000,
-  responseType: 'json',
-  headers: {
-    'Content-Type': 'application/x-www-form-urlencoded'
-  },
-  transformRequest: [
-    function(data, headers) {
-      return qs.stringify(data);
-    }
-  ]
+    baseURL: HOST === HOST_PRODUCTION ? URL_PRODUCTION_FUZZ : process.env.NODE_ENV === 'development' ? '/fuzzApi' : URL_DEVELOPMENT,
+    withCredentials: true,
+    timeout: 100000,
+    responseType: 'json',
+    headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+    },
+    transformRequest: [
+        function(data, headers) {
+            return qs.stringify(data);
+        }
+    ]
 });
 
 // 拦截请求, 登录接口不传token
 axiosClient.interceptors.request.use(
-  config => {
-    if (config.url === 'pj-operation/open/login') {
-      config.headers.common = {'Content-Type': 'application/x-www-form-urlencoded'};
-    } else {
-      
-      let token = getToken();
-      if (token) {
-        config.headers.common['Authorization'] = 'Bearer ' + token;
-      }
-      
+    config => {
+        if (config.url === 'pj-operation/open/login') {
+            config.headers.common = { 'Content-Type': 'application/x-www-form-urlencoded' };
+        } else {
+
+            let token = getToken();
+            if (token) {
+                config.headers.common['Authorization'] = 'Bearer ' + token;
+            }
+
+        }
+        return config;
+    },
+    error => {
+        // 对请求错误做些什么
+        return Promise.reject(error);
     }
-    return config;
-  }, 
-  error => {
-    // 对请求错误做些什么
-    return Promise.reject(error);
-  }
 );
 
 // 拦截返回值

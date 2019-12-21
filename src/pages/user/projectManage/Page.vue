@@ -91,10 +91,29 @@
 				const data = await this.fetch({url: url, vm: this});
 				this.tableData = this._.clone(data);
 			},
+			
 			async fetchPjTreeData() {
-				const data = await this.fetch({url: '/porject/getProjectList', vm: this});
-				// this.tableData = this._.clone(data);
-				console.log(data);
+				const { data } = await this.fetch({url: '/porject/getProjectList', vm: this});
+				this.pjOptions = this.traverseArr(data);
+			},
+			traverseArr(arr) {
+				let tmpArr = [];
+				let tmpObj = {};
+
+				arr.forEach(item => {
+					tmpObj = {
+						label: item.pjname,
+						value: item.id
+					}
+
+					if (item.children && item.children[0]) {
+						tmpObj.children = this.traverseArr(item.children);
+					}
+
+					tmpArr.push(tmpObj);
+				});
+
+				return tmpArr;
 			},
 			handleClick(tab) {
 				this.fetchTableData();
@@ -102,6 +121,7 @@
 			async addProject() {
 				let params = this._.clone(this.form);
 				params.pid = this.tabName;
+				params.pjtype = params.pjtype.join('/');
 
 				const data = await this.fetch({
 					'url': '/projectInfo/getProjectInfoAdd', 

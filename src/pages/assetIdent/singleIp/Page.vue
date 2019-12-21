@@ -30,7 +30,27 @@
 				</el-form-item>
 			</el-form>
 		
-			<app-table :table-data="tableData" :table-titles="tableTitles" @operate="handleOperate"></app-table>
+			<!-- <app-table :table-data="tableData" :table-titles="tableTitles" @operate="handleOperate"></app-table> -->
+
+			<el-table :data="tableData" border :span-method="objectSpanMethod" v-loading="isLoading" :element-loading-text="loadingText">
+				<el-table-column label="IP地址" prop="ip"></el-table-column>
+				<el-table-column label="端口" prop="port"></el-table-column>
+				<el-table-column label="协议名称" prop="protoName"></el-table-column>
+				<el-table-column label="协议类型" prop="protoType"></el-table-column>
+				<el-table-column label="协议分析" prop="">
+					<template slot-scope="scope">
+						<el-button type="text" @click="handleProtoClick(scope.row.index)">网络类型分析</el-button>
+					</template>
+				</el-table-column>
+				<el-table-column label="确认结果" prop="result"></el-table-column>
+				<el-table-column label="内容分析" prop="">
+					<template slot-scope="scope">
+						<el-button type="text" @click="handleContentClick(scope.row.index)">网络资产确认</el-button>
+					</template>
+				</el-table-column>
+				<el-table-column label="设备类型" prop="deviceType"></el-table-column>
+				<el-table-column label="CVE ID" prop="cveId"></el-table-column>
+			</el-table>
 		</div>
 	</div>
 </template>
@@ -42,6 +62,9 @@
 	export default {
 		data() {
 			return {
+				isLoading: false,
+				timer: null,
+				loadingText: '正在扫描',
 				scanTypes: [
 					{
 						label: 'TCP',
@@ -57,69 +80,111 @@
 					}
 				],
 				searchParams: {
-					startIp: '',
+					startIp: '10.60.4.99',
 					scannerType: 2,
 					startPort: '1',
-					endPort: '65535',
+					endPort: '100',
 				},
-				tableTitles: [
-					{
-						prop: 'serial',
-						title: 'IP地址'
-					},
-					{
-						prop: 'pushTime',
-						title: '端口'
-					},
-					{
-						prop: 'userId',
-						title: '协议名称'
-					},
-					{
-						prop: 'mobile',
-						title: '协议类型'
-					},
-					{
-						prop: 'pushTime',
-						title: '协议分析'
-					},
-					{
-						prop: 'userId',
-						title: '确认结果'
-					},
-					{
-						prop: 'mobile',
-						title: '内容分析'
-					},
-					{
-						prop: 'mobile',
-						title: '设备类型'
-					},
-					{
-						prop: 'mobile',
-						title: 'CVE ID'
-					}
-				],
 				tableData: []
 			}
 		},
+		created() {
+			this.fetchScanResult();
+		},
 		methods: {
-			startScan(){
-				this.fetchData();
+			objectSpanMethod({ row, column, rowIndex, columnIndex }) {
+				if (columnIndex > 5) {
+					if (rowIndex === 0) {
+						return {
+							rowspan: this.tableData.length,
+              				colspan: 1
+						}
+					}
+				}
 			},
-			stopScan(){
+			async handleContentClick(index) {
+				const current = this.tableData[index];
+				let params = {
+					ip: current.ip,
+					port: current.port,
+					protocol: current.protoType
+				};
+				
+				this.loadingText = '正在确认...';
+				this.isLoading = true;
+
+				const data = await this.fetchFuzz({
+					url: '/fuzz/page/view/scanner!assetsConfirm.action',
+					params: params,
+					type: 'get',
+					vm: this
+				});
+
+				this.isLoading = false;
+				
+				this.tableData[index].deviceType = data.name;
+				this.tableData[index].cveId = data.cveid;
+				// if (data.state === 1) {
+					
+				// 	// this.timer = setInterval(this.fetchScanResult, 3000);
+				// } else {
+				// 	// this.$message.info(data.msg);
+				// }
+			},
+			async handleProtoClick(index) {
+				const current = this.tableData[index];
+				let params = {
+					ip: current.ip,
+					port: current.port,
+					protocolName: current.protoName,
+					type: current.protoType
+				};
+				
+				this.loadingText = '正在分析...';
+				this.isLoading = true;
+
+				const data = await this.fetchFuzz({
+					url: '/fuzz/page/view/scanner!procotolConfirm.action',
+					params: params,
+					type: 'get',
+					vm: this
+				});
+
+				this.isLoading = false;
+
+				if (data.state === 1) {
+					this.tableData[index].result = data.msg;
+					// this.timer = setInterval(this.fetchScanResult, 3000);
+				} else {
+					this.tableData[index].result = 'unknown';
+					// this.$message.error(data.msg);
+				}
+			},
+			async stopScan(){
+				this.isLoading = false;
+
+				const data = await this.fetchFuzz({
+					url: '/fuzz/page/view/scanner!scannerStopPort.action',
+					type: 'get',
+					vm: this
+				});
+
+				if (data.state === "true") {
+					this.$message.info('扫描已停止！');
+					clearInterval(this.timer);
+				}
 
 			},
-			handleOperate(row, type, target) {
-				this.editItem({ id: row.id })
-			},
-			editItem(id) {
+			async startScan() {
+				if (this.isLoading) return;
 
-			},
-			async fetchData() {
 				let params = this._.clone(this.searchParams)
 				params.endIp = params.startIp;
-				console.log(params);
+
+				this.tableData = [];
+				this.loadingText = '正在扫描...';
+				this.isLoading = true;
+				
 				const data = await this.fetchFuzz({
 					url: '/fuzz/page/view/scanner!scannerSigPort.action',
 					params: params,
@@ -127,33 +192,49 @@
 					vm: this
 				});
 
-				console.log(data);
+				if (data.state === 1) {
+					this.timer = setInterval(this.fetchScanResult, 3000);
+				} else {
+					this.$message.info(data.msg);
+				}
+
 			},
-			createParams() {
-				let params = deepCopy(this.searchParams);
-				params.pageNum = this.currentPage;
-				return params;
-			},
-			viewDetail(row) {
-				this.$router.push({
-					path: '/user/userDetail',
-					query: {
-						id: row.userId
-					}
-				})
-			}
-		},
-		beforeRouteEnter(to, from, next) {
-			next( vm => {
-				vm.$nextTick( () => {
-					vm.fetchData();
+			async fetchScanResult() {
+				let params = {
+					_current: Date.now()
+				};
+
+				const data = await this.fetchFuzz({
+					url: '/fuzz/page/view/scanner!scannerSigResult.action',
+					params: params,
+					type: 'get',
+					vm: this
 				});
-			})
-		},
-		mounted() {
-			this.$nextTick(() => {
-				this.fetchData();
-			})
+
+				if (data.data && data.data.length === 0) {
+					this.timer && this.$message.info('扫描结束，未发现开放端口!')
+				} else {
+					this.tableData = data.data.map((item, idx) => {
+						return {
+							index: idx,
+							ip: item['0'],
+							port: item['1'],
+							protoName: item['2'],
+							protoType: item['3'],
+							result: '',
+							deviceType: '',
+							cveId: ''
+						}
+					})
+				}
+
+				if (data.state && data.state === 1) {
+					this.isLoading = false;
+					this.timer && clearInterval(this.timer);
+					this.timer = null;
+				}
+				
+			}
 		}
 	}
 </script>

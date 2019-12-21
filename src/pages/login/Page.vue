@@ -31,6 +31,7 @@
 import sha1 from 'js-sha1';
 import md5 from 'md5';
 import { login } from "api/login";
+import cookies from 'js-cookies';
 import { getToken, setToken, removeToken } from "common/utils";
 
 export default {
@@ -43,8 +44,18 @@ export default {
     };
   },
   created() {
+
+    this.getLoginPage();
   },
   methods: {
+    async getLoginPage() {
+      const data = await this.fetchFuzz({
+      url: '/fuzz/login/login.jsp',
+      vm: this
+    });
+
+    console.log(data)
+    },
     async login() {
       let loginParams = this.loginParams;
       if (loginParams.account === "" || loginParams.passwd === "") {
@@ -58,11 +69,15 @@ export default {
         password: md5(sha1(this.loginParams.passwd)),
       };
 
+
+
       const data = await this.postFuzz({
         url: '/fuzz/login/login!userLogin.action',
         params: params,
         vm: this
       });
+
+      
 
       const state = data.sate ? data.sate : '';
       const info = data.info ? data.info : '';
