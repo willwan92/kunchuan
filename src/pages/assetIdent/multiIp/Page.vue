@@ -1,203 +1,278 @@
 <template>
-	<div class="goodsPage">
-		<div class="goodsContent">
-			<div class="goodsContentTop">
-				<div class="goodsLeft"><img :src="list" class="sousuo">广告列表</div>
-			</div>
-			<div class="userWallTable">
-				<el-table :data="datas" style="width: 100%" border ref="multipleTable" tooltip-effect="dark">
-					<el-table-column label='广告位ID' prop="id" align="center">
-					</el-table-column>
-					<el-table-column label="广告位类型" prop="adType" align="center">
-						<template slot-scope="scope">
-							<span>{{scope.row.adType == 1 ? '首页顶部广告图':''}}</span>
-						</template>
-					</el-table-column>
-					<el-table-column label="描述" prop="comment" align="center">
-					</el-table-column>
-					<el-table-column label="广告图" align="center">
-						<template slot-scope="scope">
-							<img :src="scope.row.adUrl" style="max-width: 150px">
-						</template>
-					</el-table-column> 
-					<el-table-column label="发布状态" align="center">
-						<template slot-scope="scope">
-							<span  @click="release(scope.row)" class="button">{{scope.row.isOnline == true ? '发布':'不发布'}}</span>
-						</template>
-					</el-table-column>
-					<el-table-column label="更新时间" prop="updateTime" align="center">
-					</el-table-column>
-					<el-table-column label="操作" align="center">
-						<template slot-scope="scope">
-							<span @click="editorDetail(scope.row)" class="button">编辑</span>
-						</template>
-					</el-table-column>
-				</el-table>
-				<!-- 分页 -->
-				<div class="paging">
-					<el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage"  :page-size="curPageSize" layout="prev, pager, next" background :total="curTotal">
-					</el-pagination>
-				</div>
-			</div>
+	<div class="page">
+		<div class="section list">
+			<el-form 
+				:inline="true"
+				label-width="75px">
+				<el-form-item label="起始IP">
+					<el-input v-model="searchParams.startIp" placeholder=""></el-input>
+				</el-form-item>
+				<el-form-item label="结束IP">
+					<el-input v-model="searchParams.endIp" placeholder=""></el-input>
+				</el-form-item>
+				<el-form-item label="端口范围">
+					<el-input v-model="searchParams.startPort" placeholder=""></el-input>
+				</el-form-item>
+				<span style="display: inline-block; width: 24px; line-height: 36px;">— </span>
+				<el-form-item label="">
+					<el-input v-model="searchParams.endPort" placeholder=""></el-input>
+				</el-form-item>
+				<el-form-item label="扫描方式">
+					<el-select v-model="searchParams.scannerType" placeholder="">
+						<el-option v-for="item in scanTypes"
+							:key="item.value"
+							:label="item.label"
+							:value="item.value">
+						</el-option>
+					</el-select>
+					
+				</el-form-item>
+				<el-form-item label="">
+					<el-button type="primary" @click="startScan">网络端口分析</el-button>
+					<el-button @click="stopScan">停止扫描</el-button>
+				</el-form-item>
+			</el-form>
+		
+			<!-- <app-table :table-data="tableData" :table-titles="tableTitles" @operate="handleOperate"></app-table> -->
+
+			<el-table :data="tableData" border :span-method="objectSpanMethod" v-loading="isLoading" :element-loading-text="loadingText">
+				<el-table-column label="IP地址" prop="ip"></el-table-column>
+				<el-table-column label="端口" prop="port"></el-table-column>
+				<el-table-column label="协议名称" prop="protoName"></el-table-column>
+				<el-table-column label="协议类型" prop="protoType"></el-table-column>
+				<el-table-column label="协议分析" prop="">
+					<template slot-scope="scope">
+						<el-button type="text" @click="handleProtoClick(scope.row.index)">网络类型分析</el-button>
+					</template>
+				</el-table-column>
+				<el-table-column label="确认结果" prop="result"></el-table-column>
+				<el-table-column label="内容分析" prop="">
+					<template slot-scope="scope">
+						<el-button type="text" @click="handleContentClick(scope.row.index)">网络资产确认</el-button>
+					</template>
+				</el-table-column>
+				<el-table-column label="设备类型" prop="deviceType"></el-table-column>
+				<el-table-column label="CVE ID" prop="cveId"></el-table-column>
+			</el-table>
 		</div>
-		<!-- 状态发布 -->
-		<el-dialog title="状态" :visible.sync="dialogVisible" width="20%" :before-close="handleClose">
-		<div class="facility">你要{{this.isOnline == false?'不发布':'发布'}}首页广告图吗？</div>
-		<span slot="footer" class="dialog-footer">
-			<el-button @click="dialogVisible = false">取 消</el-button>
-			<el-button type="primary" @click="confirm()">确 定</el-button>
-		</span>
-		</el-dialog>
 	</div>
 </template>
 
 <script>
-	import { getAdvertisingList,saveStatus} from 'api/advertising/advertising';
-	import list from 'assets/list.png'
+	import { getUserList } from 'api/user/user'
+	import { judgeGender, deepCopy, commonExport } from 'common/utils'
+
 	export default {
 		data() {
 			return {
-				list,
-				datas:[],
-				currentPage: 1,
-				curPageSize: 10,
-				curTotal: 0,
-				isFetchingData:false,
-				dialogVisible:false,
-				statusId:0,
-				isOnline:false,
+				isLoading: false,
+				timer: null,
+				loadingText: '正在扫描',
+				scanTypes: [
+					{
+						label: 'TCP',
+						value: 2
+					},
+					{
+						label: 'UDP',
+						value: 3
+					},
+					{
+						label: 'TCP&UDP',
+						value: 4
+					}
+				],
+				searchParams: {
+					startIp: '',
+					endIp: '',
+					scannerType: 2,
+					startPort: '1',
+					endPort: '100',
+				},
+				tableData: [],
+				currentRowIp: '',
 			}
 		},
+		created() {
+			this.fetchScanResult();
+		},
 		methods: {
-			handleSizeChange(size) {
-				this.curPageSize = size;
-				this.fetchData();
-			},
-			handleCurrentChange(page) {
-				this.currentPage = page;
-				this.fetchData();
-			},
-			//发布
-			release(row){
-				this.dialogVisible = true;
-				this.statusId = row.id;
-				this.isOnline = (row.isOnline == false?true:false);
-			},
-			//发布确定
-			confirm(){
-				this.dialogVisible = false;
-				let params = {};
-				params.id = this.statusId;
-				params.isOnline = this.isOnline;
-				saveStatus(params)
-				.then((res) => {
-					if (res.data.code === 2000000) {
-						this.$notify.success('更改成功');
-						this.fetchData();
-					}else{
-						this.$notify.error(res.data.msg);
+			objectSpanMethod({ row, column, rowIndex, columnIndex }) {
+				if (columnIndex > 5) {
+					if(rowIndex === 0 || row.ip !== this.tableData[rowIndex - 1].ip) {
+						return {
+							rowspan: this.getIpCount(row.ip),
+							colspan: 1
+						}
 					}
-				})
-				.catch(err => {
-					this.$notify.success('更改失败');
-				})
-			},
-			handleClose(done) {
-				done();
-			},
-			//编辑
-			editorDetail(row){
-				this.$router.push({
-					path:'/advertising/advertisManagementNew',
-					query:{
-						id:row.id,
-						isCreate: 2,
-					}
-				})
-			},
-			createParams() {
-				let params = {};
-				params.pageNum = this.currentPage;
-				params.pageSize = this.curPageSize;
-				return params;
-			},
-			//获取列表数据
-			fetchData() {
-				this.isFetchingData = true;
-				getAdvertisingList(this.createParams())
-				.then((res) => {
-				if (res.data.code === 2000000 && res.data.data) {
-					let data = res.data.data;
-					this.datas = data.dataList;
-					this.currentPage = data.pageNum;
-					this.curTotal = data.total;
-					this.curPageSize = data.pageSize;
 				}
-					this.isFetchingData = false;
-				})
-				.catch(err => {
-					this.isFetchingData = false;
-				})
 			},
-		},
-		beforeRouteEnter(to, from, next) {
-			next( vm => {
-				vm.$nextTick( () => {
-					vm.fetchData();
+			getIpCount(ip) {
+				let count = 0;
+				this.tableData.forEach(item => {
+					if (item.ip === ip) {
+						count ++;
+					}
+				})
+
+				return count;
+			},
+			async handleContentClick(index) {
+				const current = this.tableData[index];
+				let params = {
+					ip: current.ip,
+					port: current.port,
+					protocol: current.protoType
+				};
+				
+				this.loadingText = '正在确认...';
+				this.isLoading = true;
+
+				const data = await this.fetchFuzz({
+					url: '/fuzz/page/view/scanner!assetsConfirm.action',
+					params: params,
+					type: 'get',
+					vm: this
 				});
-			})
-		},
-		mounted() {
-			this.$nextTick(() => {
-				this.fetchData();
-			})
+
+				this.isLoading = false;
+				
+				this.tableData[index].deviceType = data.name;
+				this.tableData[index].cveId = data.cveid;
+				// if (data.state === 1) {
+					
+				// 	// this.timer = setInterval(this.fetchScanResult, 3000);
+				// } else {
+				// 	// this.$message.info(data.msg);
+				// }
+			},
+			async handleProtoClick(index) {
+				const current = this.tableData[index];
+				let params = {
+					ip: current.ip,
+					port: current.port,
+					protocolName: current.protoName,
+					type: current.protoType
+				};
+				
+				this.loadingText = '正在分析...';
+				this.isLoading = true;
+
+				const data = await this.fetchFuzz({
+					url: '/fuzz/page/view/scanner!procotolConfirm.action',
+					params: params,
+					type: 'get',
+					vm: this
+				});
+
+				this.isLoading = false;
+
+				if (data.state === 1) {
+					this.tableData[index].result = data.msg;
+					// this.timer = setInterval(this.fetchScanResult, 3000);
+				} else {
+					this.tableData[index].result = 'unknown';
+					// this.$message.error(data.msg);
+				}
+			},
+			async stopScan(){
+				this.isLoading = false;
+
+				const data = await this.fetchFuzz({
+					url: '/fuzz/page/view/scanner!scannerStopPort.action',
+					type: 'get',
+					vm: this
+				});
+
+				if (data.state === "true") {
+					this.$message.info('扫描已停止！');
+					clearInterval(this.timer);
+				}
+
+			},
+			async startScan() {
+				if (this.isLoading) return;
+
+				this.tableData = [];
+				this.loadingText = '正在扫描...';
+				this.isLoading = true;
+				
+				const data = await this.fetchFuzz({
+					url: '/fuzz/page/view/scanner!scannerPort.action',
+					params: this.searchParams,
+					type: 'get',
+					vm: this
+				});
+
+				if (data.state === 1) {
+					this.timer = setInterval(this.fetchScanResult, 3000);
+				} else {
+					this.$message.info(data.msg);
+				}
+
+			},
+			async fetchScanResult() {
+				let params = {
+					_current: Date.now()
+				};
+
+				
+				this.isLoading = true;
+				
+				const data = await this.fetchFuzz({
+					url: '/fuzz/page/view/scanner!scannerResult.action',
+					params: params,
+					type: 'get',
+					vm: this
+				});
+
+				if (data.data && data.data.length) {
+					this.tableData = data.data.map((item, idx) => {
+						return {
+							index: idx,
+							ip: item['0'],
+							port: item['1'],
+							protoName: item['2'],
+							protoType: item['3'],
+							result: '',
+							deviceType: '',
+							cveId: ''
+						}
+					})
+				} else {
+					this.timer && this.$message.info('扫描结束，未发现开放端口!')
+				}
+
+				if (data.state && data.state === 1) {
+					this.isLoading = false;
+					if (this.timer) {
+						clearInterval(this.timer);
+						this.timer = null;
+					}
+				}
+			}
 		}
 	}
 </script>
-<style scoped>
-.goodsContent{
-    padding:20px;
-	border:1px solid #ccc;
-	border-radius: 5px;
-	background:#fff;
-	box-shadow:0 2px 4px rgba(0,0,0,.15);
-	-webkit-box-shadow: 0 2px 4px rgba(0,0,0,.15);
-	margin-bottom:30px;
+<style lang="less" scoped>
+.page {
+	.section {
+		padding: 20px;
+		border:1px solid #ccc;
+		border-radius: 5px;
+		background:#fff;
+		box-shadow:0 2px 4px rgba(0,0,0,.15);
+		-webkit-box-shadow: 0 2px 4px rgba(0,0,0,.15);
+		margin-bottom:30px;
+		&:hover{
+			box-shadow:0 4px 8px rgba(0,0,0,.15);
+			-webkit-box-shadow: 0 4px 8px rgba(0,0,0,.15);
+		}
+	}
 }
-.goodsContent:hover{
-	box-shadow:0 4px 8px rgba(0,0,0,.15);
-	-webkit-box-shadow: 0 4px 8px rgba(0,0,0,.15);
-}
-.goodsContent{
-	min-height:300px;
-}
-.goodsContentTop{
-	/* display: flex;
-	display: -webkit-box;
-	align-content: space-between;
-	align-items: center; */
-	height:50px;
-}
-.goodsLeft{
-	color:#409EFF;
-}
-.paging{
-	margin-top:15px;
-	text-align: right;
-}
-.button{
-	cursor: pointer;
-	color:#409EFF;
-}
-.sousuo{
-	width: 22px;
-	float:left;
-	margin:-1px 8px 0 0;
-}
-.facility{
-  margin-bottom:10px;
-  font-size:16px;
-  text-align: center;
-  color:#409EFF;
+
+.btn-lg {
+	width:150px;
+	margin-right:30px;
 }
 </style>

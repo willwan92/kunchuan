@@ -204,6 +204,8 @@
 					_current: Date.now()
 				};
 
+				this.isLoading = true;
+
 				const data = await this.fetchFuzz({
 					url: '/fuzz/page/view/scanner!scannerSigResult.action',
 					params: params,
@@ -211,9 +213,7 @@
 					vm: this
 				});
 
-				if (data.data && data.data.length === 0) {
-					this.timer && this.$message.info('扫描结束，未发现开放端口!')
-				} else {
+				if (data.data && data.data.length) {
 					this.tableData = data.data.map((item, idx) => {
 						return {
 							index: idx,
@@ -226,6 +226,8 @@
 							cveId: ''
 						}
 					})
+				} else {
+					this.timer && this.$message.info('扫描结束，未发现开放端口!')
 				}
 
 				if (data.state && data.state === 1) {
