@@ -28,6 +28,8 @@
 </template>
 
 <script>
+import sha1 from 'js-sha1';
+import md5 from 'md5';
 import { login } from "api/login";
 import { getToken, setToken, removeToken } from "common/utils";
 
@@ -40,34 +42,36 @@ export default {
       }
     };
   },
+  created() {
+  },
   methods: {
-    login() {
+    async login() {
       let loginParams = this.loginParams;
       if (loginParams.account === "" || loginParams.passwd === "") {
-        return this.$message.error("账号和密码不能为空！");
-	  }
+        return this.$message.error("请输入账号和密码！");
+    }
+    
+    this.$message.info('正在登录...');
+
+    let params = {
+      userName: this.loginParams.account,
+      password: md5(sha1(this.loginParams.passwd)),
+    };
+
+    const data = await this.postFuzz({
+      url: '/fuzz/login/login!userLogin.action',
+      params: params,
+      vm: this
+    });
+
+    console.log(data);
 	  
-	  this.$message.info('正在登录...');
-		this.$router.push({
-			path: "/user/userManage"
-		});
+	  
+		// this.$router.push({
+		// 	path: "/user/userManage"
+		// });
 		this.$message.success('登录成功！');
-    //   login(loginParams)
-    //     .then(res => {
-    //       let data = res.data;
-    //       if (data.code === 2000000) {
-    //         this.$router.push({
-    //           path: "/user/userManage"
-    //         });
-    //         setToken(data.data.opToken);
-    //         sessionStorage.setItem("account", loginParams.account);
-    //       } else {
-    //         this.$message.error(data.msg);
-    //       }
-    //     })
-    //     .catch(err => {
-    //       this.$message.error("登录失败，请稍后再试！");
-    //     });
+   
     }
   }
 };

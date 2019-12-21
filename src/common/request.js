@@ -23,3 +23,11 @@ export const fetchFuzz = async ({ url, params = {}, type = 'get', vm }) => {
     vm.$message.error(data.statusText)
   }
 }
+export const postFuzz = async ({ url, params = {}, type = 'post', vm }) => {
+  const data = await axiosClientFuzz[type](url, params);
+  if (Number(data.status) === 200) {
+    return data.data
+  } else {
+    vm.$message.error(data.statusText)
+  }
+}
