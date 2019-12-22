@@ -64,36 +64,6 @@
 				params.pageNum = this.currentPage;
 				return params;
 			},
-			// 请求列表数据
-			fetchData() {
-				this.isFetchingData = true;
-
-				// let params = 
-				getUserList(this.createParams())
-					.then((res) => {
-						let data = res.data;
-						if (data.code === 2000000 && data.data) {
-							this.userList = data.data.dataList.map(item => {
-								return {
-						            birthday: item.birthday,
-						            brmid: item.brmid,
-						            gender: item.gender === 1 ? '男' : item.gender === '2' ? '女' : '未知' ,
-						            createTime: item.createTime,
-						            nickname: item.nickname,
-						            mobile: item.mobile,
-						            userId: item.userId,
-						            account: item.account
-						        }
-							});
-							this.currentPage = data.data.pageNum;
-							this.curTotal = data.data.total;
-						}
-						this.isFetchingData = false;
-					})
-					.catch(err => {
-						this.isFetchingData = false;
-					})
-			},
 			viewDetail(row) {
 				this.$router.push({
 					path: '/user/userDetail',

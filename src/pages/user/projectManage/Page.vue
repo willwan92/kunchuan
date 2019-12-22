@@ -71,6 +71,7 @@
 	export default {
 		data() {
 			return {
+				id: null,
 				tabName: '2',
 				dialogShow: false,
 				form: {
@@ -98,6 +99,7 @@
 			async fetchPjTreeData() {
 				const { data } = await this.fetch({url: '/porject/getProjectList', vm: this});
 				this.pjOptions = this.traverseArr(data);
+				console.log(this.traverseArr(data));
 			},
 			traverseArr(arr) {
 				let tmpArr = [];
@@ -122,17 +124,24 @@
 				this.fetchTableData();
 			},
 			async handleComfirmClick() {
+				let url = '/projectInfo/getProjectInfoAdd';
 				let params = this._.clone(this.form);
 				params.pid = this.tabName;
 				params.pjtype = params.pjtype.join('/');
 
-				const data = await this.fetch({
-					'url': '/projectInfo/getProjectInfoAdd', 
-					'params': params, 
-					'vm': this
-				});
+				// 编辑
+				if (this.id) {
+					params.id = this.id;
+					url = '/projectInfo/getProjectInfoid';
+				}
 
-				console.log(data);
+				// const data = await this.fetch({
+				// 	'url': url, 
+				// 	'params': params, 
+				// 	'vm': this
+				// });
+
+				console.log(params);
 				// if (data.status === 1) {
 				// 	this.$message.success('添加成功！');
 				// 	this.dialogShow = false;
@@ -143,6 +152,7 @@
 			},
 			async handleAddClick() {
 				this.dialogShow = true;
+				this.id = null;
 				this.form = {
 					pjname: '',
 					pjtype: [],
@@ -153,6 +163,7 @@
 			},
 			async handleEditClick(id) {
 				this.dialogShow = true;
+				this.id = id;
 				const data = await this.fetch({'url': '/projectInfo/getProjectInfoFind', params: {'id': id}, 'vm': this});
 				let pjData = data[0];
 				this.form = {

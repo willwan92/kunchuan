@@ -14,7 +14,6 @@ const HOST = window.location.host;
 
 const axiosClient = axios.create({
     baseURL: HOST === HOST_PRODUCTION ? URL_PRODUCTION : process.env.NODE_ENV === 'development' ? '/api' : URL_DEVELOPMENT,
-    withCredentials: true,
     timeout: 100000,
     responseType: 'json',
     headers: {
@@ -29,7 +28,6 @@ const axiosClient = axios.create({
 
 const axiosClientFuzz = axios.create({
     baseURL: HOST === HOST_PRODUCTION ? URL_PRODUCTION_FUZZ : process.env.NODE_ENV === 'development' ? '/fuzzApi' : URL_DEVELOPMENT,
-    withCredentials: true,
     timeout: 100000,
     responseType: 'json',
     headers: {

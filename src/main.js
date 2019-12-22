@@ -10,7 +10,7 @@ import './theme/index.css'
 import ElementUI from 'element-ui'
 import * as Components from '@/components'
 import { fetch, fetchFuzz, postFuzz } from "common/request"
-// import './assets/iconfont/iconfont.css'
+import './assets/iconfont/iconfont.css'
 
 
 Vue.use(ElementUI);
@@ -23,14 +23,14 @@ Vue.prototype.fetchFuzz = fetchFuzz;
 Vue.prototype.postFuzz = postFuzz;
 
 Object.keys(Components).forEach(key => {
-  const component = Components[key];
-  Vue.component(component.name, component)
+    const component = Components[key];
+    Vue.component(component.name, component)
 })
 
 /* eslint-disable no-new */
 new Vue({
-  el: '#app',
-  router,
-  components: { App },
-  template: '<App/>'
+    el: '#app',
+    router,
+    components: { App },
+    template: '<App/>'
 })
