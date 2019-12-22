@@ -9,7 +9,6 @@
 					</el-tab-pane>
 					<!-- <app-table :table-data="tableData" :table-titles="tableTitles" @operate="handleOperate"></app-table> -->
 				</el-tabs>
-
 				<el-button class="btn" type="primary" size="small" @click="handleAddClick">添加</el-button>
 			</div>
 			
@@ -37,7 +36,11 @@
 						<el-input v-model="form.pjname"></el-input>
 					</el-form-item>
 					<el-form-item label="项目类型">
-						<el-cascader :options="pjOptions" v-model="form.pjtype">
+						<el-cascader
+							:options="pjOptions" 
+							:props="{ expandTrigger: 'hover', checkStrictly: true }" 
+							filterable
+							v-model="form.pjtype">
 						</el-cascader>
 					</el-form-item>
 					<el-form-item label="项目地点">
@@ -54,7 +57,7 @@
 				
 				<span slot="footer">
 					<el-button @click="dialogShow = false">取 消</el-button>
-					<el-button type="primary" @click="addProject">确 定</el-button>
+					<el-button type="primary" @click="handleComfirmClick">确 定</el-button>
 				</span>
 			</el-dialog>
 			
@@ -118,7 +121,7 @@
 			handleClick(tab) {
 				this.fetchTableData();
 			},
-			async addProject() {
+			async handleComfirmClick() {
 				let params = this._.clone(this.form);
 				params.pid = this.tabName;
 				params.pjtype = params.pjtype.join('/');
@@ -130,6 +133,13 @@
 				});
 
 				console.log(data);
+				// if (data.status === 1) {
+				// 	this.$message.success('添加成功！');
+				// 	this.dialogShow = false;
+				// 	this.fetchTableData();
+				// } else {
+				// 	this.$message.success(data.msg);
+				// }
 			},
 			async handleAddClick() {
 				this.dialogShow = true;
@@ -144,7 +154,6 @@
 			async handleEditClick(id) {
 				this.dialogShow = true;
 				const data = await this.fetch({'url': '/projectInfo/getProjectInfoFind', params: {'id': id}, 'vm': this});
-				console.log(data);
 				let pjData = data[0];
 				this.form = {
 					pjname: pjData.pjname,
@@ -153,10 +162,6 @@
 					description: pjData.description,
 					ip: pjData.ip,
 				};
-				// if (data === 1) {
-				// 	this.$message.success('修改成功！');
-				// 	this.fetchTableData();
-				// }
 			},
 			async handleDelClick(id) {
 				const data = await this.fetch({'url': '/projectInfo/getProjectInfoDeleteid', params: {'id': id}, 'vm': this});

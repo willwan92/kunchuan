@@ -1,471 +1,219 @@
 <template>
-	<div class="goodsPage">
-		<div class="goodsTop">
-			<div class="query">
-				<img :src="sousuo" class="sousuo">
-				<span>筛选查询</span>
-			</div>
-			<div class="queryConent">
-				<div class="searchBar">
-					<div class="statusSelect">商品状态:</div>
-					<el-select v-model="value" placeholder="请选择">
-						<el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value">
-						</el-option>
-					</el-select>
-				</div>
-				<div class="searchBar">
-					<div class="statusSelect">商品编号:</div>
-					<el-input placeholder="请输入商品编号" v-model="goodsNumber">
-					</el-input>
-				</div>
-				<div class="searchBar">
-					<div class="statusSelect">商品名称:</div>
-					<el-input placeholder="请输入商品名称" v-model="goodsName">
-					</el-input>
-				</div>
-			</div>
-			<div class="searchBtn">
-				<el-button class="btnSearch" @click="search">查询</el-button>
-				<el-button class="btnReset" @click="reset">重置</el-button>
-			</div>
+	<div class="page">
+		<div class="section list">
+			<el-button class="btn" type="primary" size="small" @click="handleAddClick">添加</el-button>
+			<el-table :data="tableData" border>
+			  <el-table-column label="序号" prop="deviceid"></el-table-column>
+			  <el-table-column label="ip地址" prop="deviceip"></el-table-column>
+			  <el-table-column label="登录方式" prop="devicelogin"></el-table-column>
+			  <el-table-column label="端口" prop="deviceport"></el-table-column>
+			  <el-table-column label="资产类型" prop="devicelist"></el-table-column>
+			  <el-table-column label="厂家名称" prop="deviceEname"></el-table-column>
+			  <el-table-column label="设备型号" prop="deviceSname"></el-table-column>
+			  <el-table-column label="版本号" prop="devicenum"></el-table-column>
+			  <el-table-column label="操作系统" prop="deviceos"></el-table-column>
+				<el-table-column label="操作">
+					<template slot-scope="scope">
+						<el-button type="text" @click="handleEditClick(scope.row.id)">编辑</el-button>
+						<el-button type="text" @click="handleDelClick(scope.row.id)">删除</el-button>
+					</template>
+				</el-table-column>
+			</el-table>
+
+			<el-dialog
+				title="添加资产"
+				:visible.sync="dialogShow"
+				width="600px"
+				@close="dialogShow = false">
+				<el-form :model="form" ref="form" label-width="90px">
+					<el-form-item label="ip地址">
+						<el-input v-model="form.deviceip"></el-input>
+					</el-form-item>
+					<el-form-item label="登录方式">
+						<el-cascader :options="devicelogin" v-model="form.devicelogin">
+						</el-cascader>
+					</el-form-item>
+					<el-form-item label="端口">
+						<el-input v-model="form.deviceport"></el-input>
+					</el-form-item>
+					<el-form-item label="资产类型">
+						<el-input v-model="form.devicelist"></el-input>
+					</el-form-item>
+					<el-form-item label="厂家名称">
+						<el-input v-model="form.deviceEname"></el-input>
+					</el-form-item>
+					<el-form-item label="设备型号">
+						<el-input v-model="form.deviceSname"></el-input>
+					</el-form-item>
+					<el-form-item label="版本号">
+						<el-input v-model="form.devicenum"></el-input>
+					</el-form-item>
+					<el-form-item label="操作系统">
+						<el-cascader :options="deviceo" v-model="form.deviceos"></el-cascader>
+					</el-form-item>
+					<el-form-item label="用户名">
+						<el-input v-model="form.deviceusr"></el-input>
+					</el-form-item>
+					<el-form-item label="登录密码">
+						<el-input v-model="form.devicepass"></el-input>
+					</el-form-item>
+					<el-form-item label="su用户名">
+						<el-input v-model="form.suUserName"></el-input>
+					</el-form-item>
+					<el-form-item label="su密码">
+						<el-input v-model="form.suPassword"></el-input>
+					</el-form-item>
+					<el-form-item label="数据库路径">
+						<el-input v-model="form.databasePath"></el-input>
+					</el-form-item>
+					<el-form-item label="数据库账号">
+						<el-input v-model="form.databaseAccount"></el-input>
+					</el-form-item>
+					<el-form-item label="数据库口令">
+						<el-input v-model="form.databasePassword"></el-input>
+					</el-form-item>
+					<el-form-item label="数据库实例">
+						<el-input v-model="form.databaseInstance"></el-input>
+					</el-form-item>
+				</el-form>
+				
+				
+				<span slot="footer">
+					<el-button @click="dialogShow = false">取 消</el-button>
+					<el-button type="primary" @click="addDevice">确 定</el-button>
+				</span>
+			</el-dialog>
+			
 		</div>
-		<div class="goodsContent">
-			<div class="goodsContentTop">
-				<div class="goodsLeft"><img :src="list" class="sousuo">商品列表</div>
-				<div class="goodsRight">
-					<el-button class="goodsNew" @click="goodsNew()">新增商品</el-button>
-					<el-button class="btnBatch" @click="batchShelves()">批量上架</el-button>
-					<el-button class="btnBatch" @click="batchSoldOut()">批量下架</el-button>
-					<el-button class="btnBatch" @click="batchRecycle()">批量回收</el-button>
-					<el-button class="btnBatch" @click="exportList()">导出报表</el-button>
-				</div>
-			</div>
-			<div class="userWallTable" v-loading="isFetchingData">
-				<el-table :data="datas" style="width: 100%" border ref="multipleTable" tooltip-effect="dark" @selection-change="handleSelectionChange">
-					<el-table-column
-						type="selection"
-						width="50"  align='center'>
-					</el-table-column>
-					<el-table-column label='商品编号' prop="id" align="center" width="80">
-					</el-table-column>
-					<el-table-column label="商品名称" prop="name" align="center" width="150">
-					</el-table-column>
-					<el-table-column label="商品简介" prop="summary" align="center">
-					</el-table-column>
-					<el-table-column label="原价" align="center" width="100">
-						<template slot-scope="scope">
-							<span>{{(scope.row.price / 100).toFixed(2)}}</span>
-						</template>
-					</el-table-column> 
-					<el-table-column label="单买价" align="center" width="100">
-						<template slot-scope="scope">
-							<span>{{(scope.row.singlePrice / 100).toFixed(2)}}</span>
-						</template>
-					</el-table-column>
-					<el-table-column label="拼团价" align="center" width="100">
-						<template slot-scope="scope">
-							<span>{{(scope.row.groupPrice / 100).toFixed(2)}}</span>
-						</template>
-					</el-table-column>
-					<el-table-column label="拼团限制（人）" prop="groupManCount" align="center" width="80">
-					</el-table-column>
-					<el-table-column label="物流保价费" align="center" width="120">
-						<template slot-scope="scope">
-							<span>{{(scope.row.logisticsPrice / 100).toFixed(2)}}</span>
-						</template>
-					</el-table-column>
-					<el-table-column label="更新时间" prop="updateTime" align="center">
-					</el-table-column>
-					<el-table-column label="商品状态" align="center" width="80">
-						<template slot-scope="scope">
-							<span>{{scope.row.status == 0 ? '已下架':scope.row.status == 1 ? '已上架':scope.row.status == -1 ? '回收站':'删除'}}</span>
-						</template>
-					</el-table-column> 
-					<el-table-column label="操作" align="center" width="150">
-						<template slot-scope="scope">
-							<span @click="editorDetail(scope.row)" class="button">编辑</span>
-							<span @click="RecycleDetail(scope.row)" v-if="scope.row.status == 0" class="button">回收站</span>
-							<span class="btnClass" v-if="scope.row.status == 1">回收站</span>
-						</template>
-					</el-table-column>
-				</el-table>
-				<!-- 分页 -->
-				<div class="paging">
-					<el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage"  :page-size="curPageSize" layout="prev, pager, next" background :total="curTotal">
-					</el-pagination>
-				</div>
-			</div>
-		</div>
-		<!-- 回收站 -->
-		<el-dialog title="回收站" :visible.sync="dialogVisible" width="20%" :before-close="handleClose">
-		<div class="facility">确定要将商品放入回收站吗？</div>
-		<span slot="footer" class="dialog-footer">
-			<el-button @click="dialogVisible = false">取 消</el-button>
-			<el-button type="primary" @click="confirm()">确 定</el-button>
-		</span>
-		</el-dialog>
 	</div>
 </template>
 
 <script>
-	import axios from 'axios';
-	import sousuo from '../../../assets/sousuo.png'
-	import list from '../../../assets/list.png'
-	import { getGoodsList,goodsStatus,exportList} from '../../../api/goods/goods';
-	
-	import {commonExport} from 'common/utils'
+	// import { judgeGender, deepCopy, commonExport } from 'common/utils'
 
 	export default {
 		data() {
 			return {
-				sousuo,
-				list,
-				options: [
-					{
-						value: 'all',
-						label: '所有'
-					},
-					{
-						value: '0',
-						label: '已下架'
-					},
-					{
-						value: '1',
-						label: '已上架'
-					}
-				],
-				value: 'all',
-				goodsNumber:'',
-				goodsName:'',
-				datas:[],
-				currentPage: 1,
-				curPageSize: 10,
-				curTotal: 0,
-				isFetchingData:false,
-				multipleSelection: [],
-				exportDetail:'',
-				dialogVisible:false,
-				recycleId:'',
+				//tabName: '2',
+				dialogShow: false,
+				form: {
+					deviceid: '',
+					deviceip: '',
+					devicelogin: [],
+					deviceport: '',
+					devicelist: '',
+					deviceEname: '',
+					deviceSname: '',
+					devicenum: '',
+					deviceos: [],
+					deviceusr: '',
+					devicepass: '',
+					databasePath: '',
+					databaseAccount: '',
+					databasePassword: '',
+					suUserName: '',
+					suPassword: '',
+					databaseInstance: '',
+				},
+				pjOptions: null,
+				tableData: [],
 			}
+		},
+		created() {
+			//this.fetchTableData();
+			this.fetchPjTreeData();
 		},
 		methods: {
-			handleSizeChange(size) {
-				this.curPageSize = size;
-				this.fetchData();
+			/*async fetchTableData() {
+				let url = this.tabName === '1' ? '/projectInfo/getProjectInfoList' : '/projectInfo/getProjectInfosList';
+				const data = await this.fetch({url: url, vm: this});
+				this.tableData = this._.clone(data);
+			},*/
+			async fetchPjTreeData() {
+				const data = await this.fetchFuzz({url: '/fuzz/page/view/station/station!loaddatas.action', vm: this});
+				// this.tableData = this._.clone(data);
+				console.log(data);
 			},
-			handleCurrentChange(page) {
-				this.currentPage = page;
-				this.fetchData();
+			handleClick(tab) {
+				this.fetchTableData();
 			},
-			//查询
-			search(){
-				this.fetchData();
-			},
-			//重置
-			reset(){
-				this.goodsNumber = '';
-				this.goodsName = '';
-				this.value = 'all'
-			},
-			//新增商品
-			goodsNew(){
-				this.$router.push({
-					path:'/goods/goodsManageNew',
-					query:{
-						isCreate:1
-					}
-				})
-			},
-			//批量上架
-			batchShelves(){
-				let params = {};
-				params.ids = this.multipleSelection.join(',');
-				params.status = 1;
-				if(this.multipleSelection.length == 0){
-					this.$notify.error('请勾选要上架的内容！');
-					
-				}else{
-					goodsStatus(params)
-					.then((res) => {
-						if (res.data.code === 2000000) {
-							this.$notify.success('批量上架成功！');
-							this.fetchData();
-						}else{
-							this.$notify.error(res.data.msg);
-							this.fetchData();
-						}	
-					})
-					.catch(err => {
-						this.$notify.error('批量上架失败！');
-						this.fetchData();
-					})
-				}
-			},
-			// 批量下架
-			batchSoldOut(){
-				let params = {};
-				params.ids = this.multipleSelection.join(',');
-				params.status = 0;
-				if(this.multipleSelection.length == 0){
-					this.$notify.error('请勾选要下架的内容！');
-					
-				}else{
-					goodsStatus(params)
-					.then((res) => {
-						if (res.data.code === 2000000) {
-							this.$notify.success('批量下架成功！');
-							this.fetchData();
-						}else{
-							this.$notify.error(res.data.msg);
-							this.fetchData();
-						}	
-					})
-					.catch(err => {
-						this.$notify.error('批量下架失败！');
-						this.fetchData();
-					})
-				}
-			},
-			//批量回收
-			batchRecycle(){
-				let params = {};
-				params.ids = this.multipleSelection.join(',');
-				params.status = -1;
-				if(this.multipleSelection.length == 0){
-					this.$notify.error('请勾选要回收的内容！');
-					
-				}else{
-					goodsStatus(params)
-					.then((res) => {
-						if (res.data.code === 2000000) {
-							this.$notify.success('批量回收成功！');
-							this.fetchData();
-						}else{
-							this.$notify.error(res.data.msg);
-							this.fetchData();
-						}	
-					})
-					.catch(err => {
-						this.$notify.error('批量回收失败！');
-						this.fetchData();
-					})
-				}
-			},
-			//回收站
-			RecycleDetail(row){
-				this.recycleId = row.id;
-				this.dialogVisible = true;
-			},
-			//确定放入回收站
-			confirm(){
-				let params = {};
-				params.ids = this.recycleId;
-				params.status = -1;
-				this.dialogVisible = false;
-				goodsStatus(params)
-				.then((res) => {
-					if (res.data.code === 2000000) {
-						this.$notify.success('回收成功！');
-						this.fetchData();
-					}else{
-						this.$notify.error(res.data.msg);
-						this.fetchData();
-					}	
-				})
-				.catch(err => {
-					this.$notify.error('回收失败！');
-					this.fetchData();
-				})
-			},
-			handleClose(done) {
-				done();
-			},
-			createParams() {
-				let params = {};
-				if (this.goodsNumber) {
-					params.id = this.goodsNumber;
-				}
-				if (this.goodsName) {
-					params.name = this.goodsName;
-				}
-				if (this.value !='all') {
-					params.status = this.value;
-				}
-				params.page = 1;
-				params.pageNum = this.currentPage;
-				params.pageSize = this.curPageSize;
-				return params;
-			},
-			// 请求列表数据
-			fetchData() {
-				this.isFetchingData = true;
-				getGoodsList(this.createParams())
-				.then((res) => {
-				if (res.data.code === 2000000 && res.data.data) {
-					let data = res.data.data;
-					this.datas = data.dataList;
-					this.currentPage = data.pageNum;
-					this.curTotal = data.total;
-					this.curPageSize = data.pageSize;
-				}
-					this.isFetchingData = false;
-				})
-				.catch(err => {
-					this.isFetchingData = false;
-				})
-			},
-			//编辑
-			editorDetail(row){
-				this.$router.push({
-					path:'/goods/goodsManageNew',
-					query:{
-						id:row.id,
-						isCreate:2
-					}
-				})
-			},
-			//选择框
-			handleSelectionChange(val){
-				if(val){
-					this.multipleSelection = [];
-					for(var i = 0;i < val.length;i++){
-						this.exportDetail = val[i].id;
-						this.multipleSelection.push(this.exportDetail);
-					}
-				}
-			},
-			//导出列表
-			exportList(){
-				let params = {};
-				if (this.goodsNumber) {
-					params.id = this.goodsNumber;
-				}
-				if (this.goodsName) {
-					params.name = this.goodsName;
-				}
-				if (this.value !='all') {
-					params.status = this.value;
-				}
-				params.page = 1;
-				let url = '/api/pj-operation/goods/exportInfo';
-				commonExport(params,'商品列表',url)
-			}
-		},
-		beforeRouteEnter(to, from, next) {
-			next( vm => {
-				vm.$nextTick( () => {
-					vm.fetchData();
+			async addDevice() {
+				let params = this._.clone(this.form);
+				//params.pid = this.tabName;
+
+				const data = await this.fetch({
+					'url': '/fuzz/page/view/station/device!adddevice.action', 
+					'params': params, 
+					'vm': this
 				});
-			})
-		},
-		mounted() {
-			this.$nextTick(() => {
-				this.fetchData();
-			})
+
+				console.log(data);
+			},
+			async handleAddClick() {
+				this.dialogShow = true;
+				this.form = {
+					pjname: '',
+					pjtype: [],
+					address: '',
+					description: '',
+					ip: ''
+				};
+			},
+			async handleEditClick(id) {
+				this.dialogShow = true;
+				const data = await this.fetch({'url': '/projectInfo/getProjectInfoFind', params: {'id': id}, 'vm': this});
+				console.log(data);
+				let pjData = data[0];
+				this.form = {
+					pjname: pjData.pjname,
+					pjtype: pjData.pjtype,
+					address: pjData.address,
+					description: pjData.description,
+					ip: pjData.ip,
+				};
+				// if (data === 1) {
+				// 	this.$message.success('修改成功！');
+				// 	this.fetchTableData();
+				// }
+			},
+			async handleDelClick(id) {
+				const data = await this.fetch({'url': '/projectInfo/getProjectInfoDeleteid', params: {'id': id}, 'vm': this});
+				if (data === 1) {
+					this.$message.success('删除成功！');
+					this.fetchTableData();
+				}
+			}
 		}
 	}
 </script>
-<style scoped>
-.goodsTop,.goodsContent{
-    padding:20px;
-	border:1px solid #ccc;
-	border-radius: 5px;
-	background:#fff;
-	box-shadow:0 2px 4px rgba(0,0,0,.15);
-	-webkit-box-shadow: 0 2px 4px rgba(0,0,0,.15);
-	margin-bottom:30px;
+<style lang="less" scoped>
+.page {
+	.section {
+		padding: 20px;
+		border:1px solid #ccc;
+		border-radius: 5px;
+		background:#fff;
+		box-shadow:0 2px 4px rgba(0,0,0,.15);
+		-webkit-box-shadow: 0 2px 4px rgba(0,0,0,.15);
+		margin-bottom:30px;
+		&:hover{
+			box-shadow:0 4px 8px rgba(0,0,0,.15);
+			-webkit-box-shadow: 0 4px 8px rgba(0,0,0,.15);
+		}
+	}
 }
-.goodsTop:hover,.goodsContent:hover{
-	box-shadow:0 4px 8px rgba(0,0,0,.15);
-	-webkit-box-shadow: 0 4px 8px rgba(0,0,0,.15);
+
+.tabs-wrapper {
+	position: relative;
+	.btn {
+		position: absolute;
+		right: 5px;
+		top: 5px;
+	}
 }
-.query{
-	border-bottom:1px solid #ccc;
-	padding:5px;
-	width:100%;
-	height:35px;
-}
-.query span{
-	color:#409EFF;
-}
-.sousuo{
-	width: 22px;
-	float:left;
-	margin:-1px 8px 0 0;
-}
-.queryConent{
-	display: flex;
-	display: -webkit-box;
-	align-content: space-between;
-	align-items: center;
-	margin:30px 0;
-}
-.searchBar{
-	display: -webkit-box;
-	align-content: space-between;
-	align-items: center;
-	width:300px;
-	margin-right:20px;
-}
-.statusSelect{
-	margin-right:20px;
-}
-.searchBtn{
-	text-align: center;
-}
-.btnSearch{
+
+.btn-lg {
 	width:150px;
 	margin-right:30px;
-	background:#409EFF;
-	color:#fff;
-}
-.btnReset{
-	width:150px;
-	margin-right:30px;
-}
-.goodsContent{
-	min-height:300px;
-}
-.goodsContentTop{
-	/* display: flex;
-	display: -webkit-box;
-	align-content: space-between;
-	align-items: center; */
-	height:50px;
-}
-.goodsLeft{
-	float:left;
-	color:#409EFF;
-}
-.goodsRight{
-	float:right;
-}
-.goodsNew{
-	height:30px;
-	line-height:6px;
-	background:#409EFF;
-	color:#fff;
-}
-.btnBatch{
-	height:30px;
-	line-height:6px;
-}
-.paging{
-	margin-top:15px;
-	text-align: right;
-}
-.button{
-	cursor: pointer;
-	color:#409EFF;
-	margin-right:5px;
-}
-.btnClass{
-	color:#ccc;
-}
-.facility{
-  margin-bottom:10px;
-  font-size:16px;
-  text-align: center;
-  color:#409EFF;
 }
 </style>

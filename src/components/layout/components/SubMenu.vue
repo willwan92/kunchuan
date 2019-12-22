@@ -1,5 +1,5 @@
 <template functional>
-  <el-submenu :index="props.menuData.path">
+  <el-submenu :index="props.menuData.path + '/' + props.menuData.children[0].path">
     <template slot="title">
         <i class=""></i>
         <span>{{ props.menuData.meta.title }}</span>
@@ -18,7 +18,7 @@
 export default {
   props: ["menuData"],
   created() {
-    //   console.log(menuData.path)
+    console.log(this.menuData)
   }
 };
 </script>

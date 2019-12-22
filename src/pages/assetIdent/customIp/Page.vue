@@ -5,14 +5,19 @@
 				:inline="true"
 				label-width="75px">
 				<el-form-item label="项目名称">
-					<el-input v-model="searchParams.nickname" placeholder=""></el-input>
+					<el-cascader
+						:options="pjOptions" 
+						:props="{ expandTrigger: 'hover', checkStrictly: true }" 
+						filterable
+						v-model="searchParams.pjtype">
+					</el-cascader>
 				</el-form-item>
 				<el-form-item label="IP范围">
-					<el-input v-model="searchParams.nickname" placeholder=""></el-input>
+					<el-input v-model="searchParams.ipRange" placeholder=""></el-input>
 				</el-form-item>
 				<el-form-item label="扫描类型">
-					<el-select v-model="searchParams.nickname" placeholder="">
-						<el-option v-for="item in []"
+					<el-select v-model="searchParams.scanType" placeholder="">
+						<el-option v-for="item in scanTypes"
 							:key="item.value"
 							:label="item.label"
 							:value="item.value">
@@ -20,8 +25,8 @@
 					</el-select>
 				</el-form-item>
 				<el-form-item label="链接状态">
-					<el-select v-model="searchParams.nickname" placeholder="">
-						<el-option v-for="item in []"
+					<el-select v-model="searchParams.linkStatus" placeholder="">
+						<el-option v-for="item in linkStatusOptions"
 							:key="item.value"
 							:label="item.label"
 							:value="item.value">
@@ -30,20 +35,20 @@
 				</el-form-item>
 				<br>
 				<el-form-item label="端口方式">
-					<el-select v-model="searchParams.nickname" placeholder="">
-						<el-option v-for="item in []"
+					<el-select v-model="searchParams.portMethod" placeholder="">
+						<el-option v-for="item in portMethodOptions"
 							:key="item.value"
 							:label="item.label"
 							:value="item.value">
 						</el-option>
 					</el-select>
 				</el-form-item>
-				<el-form-item label="端口方式">
-					<el-input v-model="searchParams.nickname" placeholder=""></el-input>
+				<el-form-item label="端口">
+					<el-input v-model="searchParams.port" placeholder=""></el-input>
 				</el-form-item>
 				<el-form-item label="扫描方式">
-					<el-select v-model="searchParams.nickname" placeholder="">
-						<el-option v-for="item in []"
+					<el-select v-model="searchParams.scanMethod" placeholder="">
+						<el-option v-for="item in scanMethodOptions"
 							:key="item.value"
 							:label="item.label"
 							:value="item.value">
@@ -51,7 +56,7 @@
 					</el-select>
 				</el-form-item>
 				<el-form-item label="">
-					<el-checkbox v-model="searchParams.nickname" label="自动识别资产"></el-checkbox>
+					<el-checkbox v-model="searchParams.autoIdentAsset" label="自动识别资产"></el-checkbox>
 				</el-form-item>
 				<el-row type="flex" justify="center">
 					<el-button class="btn-lg" type="primary" @click="search">开始</el-button>
@@ -60,7 +65,28 @@
 				<br>
 			</el-form>
 		
-			<app-table :table-data="tableData" :table-titles="tableTitles" @operate="handleOperate"></app-table>
+			<el-table :data="tableData" border :span-method="objectSpanMethod" v-loading="isLoading" :element-loading-text="loadingText">
+				<el-table-column label="IP地址" prop="ip"></el-table-column>
+				<el-table-column label="端口" prop="port"></el-table-column>
+				<el-table-column label="协议名称" prop="protoName"></el-table-column>
+				<el-table-column label="TCP/UDP" prop="protoType"></el-table-column>
+				<el-table-column label="协议分析" prop="">
+					<template slot-scope="scope">
+						<el-button type="text" @click="handleProtoClick(scope.row.index)">网络类型分析</el-button>
+					</template>
+				</el-table-column>
+				<el-table-column label="确认协议" prop="result"></el-table-column>
+				<el-table-column label="资产确认" prop="">
+					<template slot-scope="scope">
+						<el-button type="text" @click="handleContentClick(scope.row.index)">网络资产确认</el-button>
+					</template>
+				</el-table-column>
+				<el-table-column label="资产类型" prop="assetType"></el-table-column>
+				<el-table-column label="厂家名称" prop="manufName"></el-table-column>
+				<el-table-column label="设备型号" prop="deviceType"></el-table-column>
+				<el-table-column label="版本号" prop="version"></el-table-column>
+				<el-table-column label="传统设备" prop="TraditionalDevice"></el-table-column>
+			</el-table>
 		</div>
 	</div>
 </template>
@@ -72,55 +98,74 @@
 	export default {
 		data() {
 			return {
+				isLoading: false,
 				searchParams: {
-					nickname: ''
+					pjtype: '',
+					ipRange: '',
+					scanType: 2,
+					linkStatus: 0,
+					portMethod: 0,
+					port: '',
+					scanMethod: 0,
+					autoIdentAsset: true,
 				},
+				scanTypes: [
+					{
+						label: 'TCP',
+						value: 2
+					},
+					{
+						label: 'UDP',
+						value: 3
+					},
+					{
+						label: 'TCP&UDP',
+						value: 4
+					}
+				],
+				linkStatusOptions: [
+					{
+						label: '半连接扫描',
+						value: 0
+					},
+					{
+						label: '全连接扫描',
+						value: 1
+					},
+					{
+						label: 'FIN 扫描',
+						value: 2
+					},
+					{
+						label: '圣诞树扫描',
+						value: 3
+					},
+					{
+						label: '空扫描',
+						value: 4
+					}
+				],
+				portMethodOptions: [
+					{
+						label: '离散端口',
+						value: 0
+					},
+					{
+						label: '连续端口',
+						value: 1
+					},
+				],
+				scanMethodOptions: [
+					{
+						label: '快速扫描',
+						value: 0
+					},
+					{
+						label: '深度扫描',
+						value: 1
+					},
+				],
 				tableTitles: [
-					{
-						prop: 'serial',
-						title: 'IP地址'
-					},
-					{
-						prop: 'pushTime',
-						title: '端口'
-					},
-					{
-						prop: 'userId',
-						title: '协议名称'
-					},
-					{
-						prop: 'mobile',
-						title: '协议类型'
-					},
-					{
-						prop: 'pushTime',
-						title: '协议分析'
-					},
-					{
-						prop: 'userId',
-						title: '确认结果'
-					},
-					{
-						prop: 'mobile',
-						title: '资产类型'
-					},
-					{
-						prop: 'mobile',
-						title: '厂家名称'
-					},
-					{
-						prop: 'mobile',
-						title: '设备类型'
-					},
-					
-					{
-						prop: 'mobile',
-						title: '版本号'
-					},
-					{
-						prop: 'mobile',
-						title: '传统设备'
-					},
 					{
 						title: '操作',
 						prop: 'id',
@@ -130,8 +175,12 @@
 						operate: '修改'
 					}
 				],
+				pjOptions: null,
 				tableData: []
 			}
+		},
+		created() {
+			this.fetchPjTreeData();
 		},
 		methods: {
 			//查询
@@ -141,8 +190,31 @@
 			handleOperate(row, type, target) {
 				this.editItem({ id: row.id })
 			},
+			async fetchPjTreeData() {
+				const { data } = await this.fetch({url: '/porject/getProjectList', vm: this});
+				this.pjOptions = this.traverseArr(data);
+			},
 			editItem(id) {
 
+			},
+			traverseArr(arr) {
+				let tmpArr = [];
+				let tmpObj = {};
+
+				arr.forEach(item => {
+					tmpObj = {
+						label: item.pjname,
+						value: item.id
+					}
+
+					if (item.children && item.children[0]) {
+						tmpObj.children = this.traverseArr(item.children);
+					}
+
+					tmpArr.push(tmpObj);
+				});
+
+				return tmpArr;
 			},
 			createParams() {
 				let params = deepCopy(this.searchParams);
@@ -151,33 +223,7 @@
 			},
 			// 请求列表数据
 			fetchData() {
-				this.isFetchingData = true;
-
-				// let params = 
-				getUserList(this.createParams())
-					.then((res) => {
-						let data = res.data;
-						if (data.code === 2000000 && data.data) {
-							this.userList = data.data.dataList.map(item => {
-								return {
-						            birthday: item.birthday,
-						            brmid: item.brmid,
-						            gender: item.gender === 1 ? '男' : item.gender === '2' ? '女' : '未知' ,
-						            createTime: item.createTime,
-						            nickname: item.nickname,
-						            mobile: item.mobile,
-						            userId: item.userId,
-						            account: item.account
-						        }
-							});
-							this.currentPage = data.data.pageNum;
-							this.curTotal = data.data.total;
-						}
-						this.isFetchingData = false;
-					})
-					.catch(err => {
-						this.isFetchingData = false;
-					})
+				
 			},
 			viewDetail(row) {
 				this.$router.push({
