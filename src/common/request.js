@@ -18,7 +18,6 @@ export const fetchFuzz = async({ url, params = {}, type = 'get', vm }) => {
         'params': params
     });
 
-    console.log(data)
     if (Number(data.status) === 200) {
         return data.data
     } else {

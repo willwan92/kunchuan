@@ -6,25 +6,25 @@
       </div>
       <el-form width="600px" :inline="true" label-width="120px">
         <el-form-item label="禁止访问地址">
-          	<el-radio-group v-model="ipMethod">
-				<el-radio label="sigIp">单IP</el-radio>
-				<el-radio label="mulIp">IP段</el-radio>
-			</el-radio-group>
+          <el-radio-group v-model="ipMethod">
+            <el-radio label="sigIp">单IP</el-radio>
+            <el-radio label="mulIp">IP段</el-radio>
+          </el-radio-group>
         </el-form-item>
-		<el-form-item v-if="ipMethod === 'sigIp'" label="">
-			<el-input v-model="ip" placeholder=""></el-input>
-		</el-form-item>
-		<span v-else>
-			<el-form-item label="">
-				<el-input v-model="startIp" placeholder=""></el-input>
-			</el-form-item>
-			<span style="display: inline-block; width: 24px; line-height: 36px;">— </span>
-			<el-form-item label="">
-				<el-input v-model="endIp" placeholder=""></el-input>
-			</el-form-item>
-		</span>
-        <el-form-item label="">
-          <el-button type="primary" @click="0">确定</el-button>
+        <el-form-item v-if="ipMethod === 'sigIp'" label>
+          <el-input v-model="ip" placeholder></el-input>
+        </el-form-item>
+        <span v-else>
+          <el-form-item label>
+            <el-input v-model="startIp" placeholder></el-input>
+          </el-form-item>
+          <span style="display: inline-block; width: 24px; line-height: 36px;">—</span>
+          <el-form-item label>
+            <el-input v-model="endIp" placeholder></el-input>
+          </el-form-item>
+        </span>
+        <el-form-item label>
+          <el-button type="primary" @click="setIp">确定</el-button>
         </el-form-item>
         <br />
 
@@ -32,25 +32,24 @@
           <el-time-picker
             is-range
             v-model="timeRange"
-			value-format="HH:mm"
-			:picker-options="{
-				format: 'HH:mm'
-			}"
+            value-format="HH:mm"
+            :picker-options="{
+              format: 'HH:mm'
+            }"
             range-separator="至"
             start-placeholder="开始时间"
             end-placeholder="结束时间"
             placeholder="选择时间范围"
-          >
-          </el-time-picker>
+          ></el-time-picker>
         </el-form-item>
-        <el-form-item label="">
-          <el-button type="primary" @click="0">确定</el-button>
+        <el-form-item label>
+          <el-button type="primary" @click="seTimeRange">确定</el-button>
         </el-form-item>
         <br />
         <el-form-item label="禁止访问用户">
           <el-input v-model="form.mobile"></el-input>
         </el-form-item>
-        <el-form-item label="">
+        <el-form-item label>
           <el-button type="primary" @click="0">确定</el-button>
         </el-form-item>
       </el-form>
@@ -64,23 +63,18 @@
       </div>
       <el-form :inline="true" label-width="75px">
         <el-form-item label="策略类别">
-          <el-select v-model="form.policyType" placeholder="">
+          <el-select v-model="form.policyType" placeholder>
             <el-option
               v-for="item in policyTypeOptions"
               :key="item.value"
               :label="item.label"
               :value="item.value"
-            >
-            </el-option>
+            ></el-option>
           </el-select>
         </el-form-item>
       </el-form>
 
-      <app-table
-        :table-data="tableData"
-        :table-titles="tableTitles"
-        @operate="handleOperate"
-      ></app-table>
+      <app-table :table-data="tableData" :table-titles="tableTitles" @operate="handleOperate"></app-table>
     </div>
   </div>
 </template>
@@ -132,17 +126,41 @@ export default {
           operate: "修改"
         }
       ],
-      data: [
-        { dtype: 1, dkey: "startH", dvalue: "00" },
-        { dtype: 1, dkey: "startM", dvalue: "00" },
-        { dtype: 1, dkey: "endH", dvalue: "00" },
-        { dtype: 1, dkey: "endM", dvalue: "01" }
-      ],
+      data: [{"dkey":"mulIp","dtype":3,"dvalue":"10.60.4.250-10.60.4.251"}],
       tableData: []
     };
   },
   methods: {
-    //查询
+	//查询
+	async setIp() {
+		const paramsData = [
+				{
+					dkey: this.ipMethod,
+					dtype: 3,
+					dvalue: `${this.startIp}-${this.endIp}`
+				}
+			];
+
+		const params = {
+			data: JSON.stringify(paramsData),
+			dtype: 3
+		};
+
+		const data = await this.postFuzz({
+			url: "/fuzz/page/view/system/dictionary!updateForIP.action",
+			params: params,
+			vm: this
+		});
+
+		if (data.state === 1) {
+			this.$message.success('保存成功！')
+		} else {
+			this.$message.error('保存失败！')
+		}
+	},
+	async seTimeRange() {
+
+	},
     async fetchData() {
       const params = {
         keyvalue: "",

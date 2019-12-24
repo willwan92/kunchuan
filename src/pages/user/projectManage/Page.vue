@@ -36,7 +36,8 @@
 					</el-form-item>
 					<el-form-item label="路径">
 						<el-cascader
-							:options="pjOptions" 
+							:disabled="Boolean(this.id)"
+							:options="[pjOptions]" 
 							:props="{ expandTrigger: 'hover', checkStrictly: true }" 
 							filterable
 							v-model="form.pjtype">
@@ -48,14 +49,14 @@
 					<el-form-item label="描述">
 						<el-input v-model="form.description"></el-input>
 					</el-form-item>
-					<el-form-item label="是否为项目">
+					<el-form-item label="是否为项目" v-show="tabName === '1'">
 						<el-radio-group v-model="isLeaf">
-							<el-radio :label="1">是</el-radio>
-							<el-radio :label="0">否</el-radio>
+							<el-radio :disabled="Boolean(this.id)" :label="1">是</el-radio>
+							<el-radio :disabled="Boolean(this.id)" :label="0">否</el-radio>
 						</el-radio-group>
 					</el-form-item>
-					<el-form-item label="Ip范围" v-show="isLeaf">
-						<el-input v-model="form.ip" placeholder="ip格式为192.168.1-2.2-1或192.168.1.1-255和192.168.1.1"></el-input>
+					<el-form-item label="IP范围" v-show="isLeaf">
+						<el-input v-model="form.ip" placeholder="例如：192.168.1-255.1-255或192.168.1.1-255和192.168.1.1"></el-input>
 					</el-form-item>
 				</el-form>
 				
@@ -86,8 +87,18 @@
 					description: '',
 					ip: ''
 				},
-				pjOptions: null,
-				tableData: [],
+				pjTreeData: null,
+				tableData: []
+			}
+		},
+		computed: {
+			pjOptions() {
+				let options = null;
+				if (this.pjTreeData) {
+					options = this.tabName === '1' ? this.pjTreeData[0] : this.pjTreeData[1];
+				}
+
+				return options;
 			}
 		},
 		created() {
@@ -95,6 +106,10 @@
 			this.fetchPjTreeData();
 		},
 		methods: {
+			initData() {
+				this.fetchTableData();
+				this.fetchPjTreeData();
+			},
 			async fetchTableData() {
 				let url = this.tabName === '1' ? '/projectInfo/getProjectInfoList' : '/projectInfo/getProjectInfosList';
 				const data = await this.fetch({url: url, vm: this});
@@ -103,23 +118,25 @@
 			
 			async fetchPjTreeData() {
 				const { data } = await this.fetch({url: '/porject/getProjectList', vm: this});
-				this.pjOptions = this.traverseArr(data);
+				this.pjTreeData = this.traverseArr(data);
 			},
 			traverseArr(arr) {
 				let tmpArr = [];
 				let tmpObj = {};
 
 				arr.forEach(item => {
-					tmpObj = {
-						label: item.pjname,
-						value: item.id
-					}
+					if (!item.isleaf) {
+						tmpObj = {
+							label: item.pjname,
+							value: item.id
+						};
 
-					if (item.children && item.children[0]) {
-						tmpObj.children = this.traverseArr(item.children);
-					}
+						if (item.children && item.children[0]) {
+							tmpObj.children = this.traverseArr(item.children);
+						}
 
-					tmpArr.push(tmpObj);
+						tmpArr.push(tmpObj);
+					}
 				});
 
 				return tmpArr;
@@ -130,29 +147,35 @@
 			async handleComfirmClick() {
 				let url = '/projectInfo/getProjectInfoAdd';
 				let params = this._.clone(this.form);
-				params.pid = this.tabName;
-				params.pjtype = params.pjtype.join('/');
+				params.isleaf = this.isLeaf;
 
 				// 编辑
 				if (this.id) {
 					params.id = this.id;
 					url = '/projectInfo/getProjectInfoid';
+				} else {
+					params.pid = params.pjtype.slice(-1)[0];
+					params.pjtype = params.pjtype.join('/');
 				}
 
-				// const data = await this.fetch({
-				// 	'url': url, 
-				// 	'params': params, 
-				// 	'vm': this
-				// });
+				const data = await this.fetch({
+					'url': url, 
+					'params': params, 
+					'vm': this
+				});
 
-				console.log(params);
-				// if (data.status === 1) {
-				// 	this.$message.success('添加成功！');
-				// 	this.dialogShow = false;
-				// 	this.fetchTableData();
-				// } else {
-				// 	this.$message.success(data.msg);
-				// }
+
+				if (data.code === 10000) {
+					this.$message.success('添加成功！');
+					this.dialogShow = false;
+					this.initData();
+				} else if (data === 1) {
+					this.$message.success('修改成功！');
+					this.dialogShow = false;
+					this.initData();
+				} else {
+					this.$message.success(data.message);
+				}
 			},
 			async handleAddClick() {
 				this.dialogShow = true;
@@ -164,25 +187,32 @@
 					description: '',
 					ip: ''
 				};
+
+				if (this.tabName === '2') {
+					this.isLeaf = 1;
+				} else {
+					this.isLeaf = 0;
+				}
 			},
 			async handleEditClick(id) {
 				this.dialogShow = true;
 				this.id = id;
 				const data = await this.fetch({'url': '/projectInfo/getProjectInfoFind', params: {'id': id}, 'vm': this});
-				let pjData = data[0];
+				const pjData = data[0];
+
 				this.form = {
 					pjname: pjData.pjname,
 					pjtype: pjData.pjtype,
 					address: pjData.address,
 					description: pjData.description,
-					ip: pjData.ip,
+					ip: pjData.ip
 				};
 			},
 			async handleDelClick(id) {
 				const data = await this.fetch({'url': '/projectInfo/getProjectInfoDeleteid', params: {'id': id}, 'vm': this});
-				if (data === 1) {
+				if (data.code === 10000) {
 					this.$message.success('删除成功！');
-					this.fetchTableData();
+					this.initData();
 				}
 			}
 		}

@@ -1,13 +1,14 @@
 <template>
 	<div class="page">
 		<el-row class="section" :gutter="20">
-			<el-col :span="6" class="scrollbar-wrapper">
+			<el-col :span="4" class="scrollbar-wrapper">
 				<el-scrollbar >
 					<el-tree :data="pjTreeData" :props="defaultProps" @node-click="handleNodeClick"></el-tree>
 				</el-scrollbar>
 			</el-col>
-			<el-col class="pj-form" :span="18">
+			<el-col class="pj-form" :span="20">
 				<el-form 
+					width="600px"
 					label-width="100px">
 					<el-form-item label="项目名称">
 						<el-input v-model="form.pjname" readonly="" placeholder=""></el-input>
@@ -107,7 +108,6 @@
 			},
 			handleNodeClick(nodeData) {
 				this.form = nodeData;
-				console.log(this.form)
 			},
 			async fetchPjTreeData() {
 				const { data } = await this.fetch({url: '/porject/getProjectList', vm: this});
@@ -123,13 +123,17 @@
 					description: this.form.description,
 				};
 
-				const { data } = await this.fetch({
+				const data = await this.fetch({
 					url: '/projectInfo/getProjectInfoUpAdd',
 					params: params,
 					vm: this
 				});
 
-				console.log(data);
+				if (data === 1) {
+					this.$message.success('保存成功！');
+				} else {
+					this.$message.error('保存失败！');
+				}
 			},
 			traverseArr(arr) {
 				let tmpArr = [];
