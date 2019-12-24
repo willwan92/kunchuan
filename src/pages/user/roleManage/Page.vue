@@ -10,10 +10,49 @@
 				<el-form-item label="">
 					<el-button class="btn-lg" type="primary" @click="search">查 询</el-button>
 				</el-form-item>
+				<el-form-item label="">
+					<el-button class="btn-lg" type="primary" @click="dialogShow = true">添加用户</el-button>
+				</el-form-item>
 			</el-form>
-		
-			<app-table :table-data="tableData" :table-titles="tableTitles" @operate="handleOperate"></app-table>
+
+			<el-table :data="tableData" border>
+				<el-table-column label="角色名称" prop="pjname"></el-table-column>
+				<el-table-column label="角色描述" prop="pjtype"></el-table-column>
+				<el-table-column label="所属权限" prop="address"></el-table-column>
+				<el-table-column label="操作">
+					<template slot-scope="scope">
+						<el-button type="text" @click="handleEditClick(scope.row.id)">编辑</el-button>
+						<el-button type="text" @click="handleDelClick(scope.row.id)">删除</el-button>
+					</template>
+				</el-table-column>
+			</el-table>
 		</div>
+
+		<el-dialog
+			title="添加角色"
+			:visible.sync="dialogShow"
+			width="600px"
+			@close="dialogShow = false">
+			<el-form :model="form" ref="form" label-width="80px">
+				<el-form-item label="角色名称">
+					<el-input v-model="form.roleName"></el-input>
+				</el-form-item>
+				<el-form-item label="角色描述">
+					<el-input v-model="form.desc" placeholder=""></el-input>
+				</el-form-item>
+				<el-form-item label="角色类型">
+					<el-radio v-model="radio" label="1">配置管理员</el-radio>
+  					<el-radio v-model="radio" label="2">操作员</el-radio>
+				</el-form-item>
+				<el-form-item label="项目权限">
+					<el-input v-model="form.permissionList"></el-input>
+				</el-form-item>
+			</el-form>
+			<span slot="footer">
+				<el-button @click="dialogShow = false">取 消</el-button>
+				<el-button type="primary" @click="handleComfirmClick">确 定</el-button>
+			</span>
+		</el-dialog>
 	</div>
 </template>
 
@@ -24,31 +63,13 @@
 	export default {
 		data() {
 			return {
+				dialogShow: false,
 				searchParams: {
 					nickname: ''
 				},
-				tableTitles: [
-					{
-						prop: 'serial',
-						title: '角色名称'
-					},
-					{
-						prop: 'pushTime',
-						title: '角色描述'
-					},
-					{
-						prop: 'userId',
-						title: '权限'
-					},
-					{
-						title: '操作',
-						prop: 'id',
-						isTemplate: true,
-						width: 150,
-						templateType: 'check',
-						operate: '修改'
-					}
-				],
+				form: {
+					
+				},
 				tableData: []
 			}
 		},
@@ -57,54 +78,9 @@
 			search(){
 				this.fetchData();
 			},
-			handleOperate(row, type, target) {
-				this.editItem({ id: row.id })
-			},
-			editItem(id) {
-
-			},
-			createParams() {
-				let params = deepCopy(this.searchParams);
-				params.pageNum = this.currentPage;
-				return params;
-			},
 			// 请求列表数据
 			fetchData() {
-				this.isFetchingData = true;
-
-				// let params = 
-				getUserList(this.createParams())
-					.then((res) => {
-						let data = res.data;
-						if (data.code === 2000000 && data.data) {
-							this.userList = data.data.dataList.map(item => {
-								return {
-						            birthday: item.birthday,
-						            brmid: item.brmid,
-						            gender: item.gender === 1 ? '男' : item.gender === '2' ? '女' : '未知' ,
-						            createTime: item.createTime,
-						            nickname: item.nickname,
-						            mobile: item.mobile,
-						            userId: item.userId,
-						            account: item.account
-						        }
-							});
-							this.currentPage = data.data.pageNum;
-							this.curTotal = data.data.total;
-						}
-						this.isFetchingData = false;
-					})
-					.catch(err => {
-						this.isFetchingData = false;
-					})
-			},
-			viewDetail(row) {
-				this.$router.push({
-					path: '/user/userDetail',
-					query: {
-						id: row.userId
-					}
-				})
+				
 			}
 		},
 		beforeRouteEnter(to, from, next) {

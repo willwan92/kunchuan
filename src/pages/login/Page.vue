@@ -16,7 +16,7 @@
           <el-input 
 		  	type="password" 
 		  	v-model="loginParams.passwd" 
-			@keydown.enter.native="login"
+			  @keydown.enter.native="login"
 		  	placeholder="请输入密码"></el-input>
         </el-form-item>
         <el-button class="btn-lg" type="primary" @click="login">登 录</el-button>
@@ -31,6 +31,7 @@
 import sha1 from 'js-sha1';
 import md5 from 'md5';
 import { login } from "api/login";
+import uuidv1 from 'uuid/v1';
 import cookies from 'js-cookies';
 import { getToken, setToken, removeToken } from "common/utils";
 
@@ -44,17 +45,24 @@ export default {
     };
   },
   created() {
-
-    this.getLoginPage();
+    // this.getSystemInfo();
+    cookies.setItem('JSESSIONID', uuidv1());
   },
+
   methods: {
+    async getSystemInfo() {
+      const data = await this.fetchFuzz({
+        url: '/fuzz/login/login.jsp',
+        vm: this
+      });
+    },
     async getLoginPage() {
       const data = await this.fetchFuzz({
-      url: '/fuzz/login/login.jsp',
-      vm: this
-    });
+        url: '/fuzz/login/login.jsp',
+        vm: this
+      });
 
-    console.log(data)
+      console.log(data)
     },
     async login() {
       let loginParams = this.loginParams;

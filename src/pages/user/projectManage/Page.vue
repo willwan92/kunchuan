@@ -7,17 +7,16 @@
 					</el-tab-pane>
 					<el-tab-pane label="集团用户项目" name="1">
 					</el-tab-pane>
-					<!-- <app-table :table-data="tableData" :table-titles="tableTitles" @operate="handleOperate"></app-table> -->
 				</el-tabs>
 				<el-button class="btn" type="primary" size="small" @click="handleAddClick">添加</el-button>
 			</div>
 			
 			<el-table :data="tableData" border>
-				<el-table-column label="项目名称" prop="pjname"></el-table-column>
-				<el-table-column label="项目类型" prop="pjtype"></el-table-column>
-				<el-table-column label="项目地点" prop="address"></el-table-column>
-				<el-table-column label="开始时间" prop="createTime"></el-table-column>
-				<el-table-column label="项目描述" prop="description"></el-table-column>
+				<el-table-column label="名称" prop="pjname"></el-table-column>
+				<el-table-column label="类型" prop="pjtype"></el-table-column>
+				<el-table-column label="地点" prop="address"></el-table-column>
+				<el-table-column label="创建时间" prop="createTime"></el-table-column>
+				<el-table-column label="描述" prop="description"></el-table-column>
 				<el-table-column label="操作">
 					<template slot-scope="scope">
 						<el-button type="text" @click="handleEditClick(scope.row.id)">编辑</el-button>
@@ -27,15 +26,15 @@
 			</el-table>
 
 			<el-dialog
-				title="添加项目"
+				title="添加"
 				:visible.sync="dialogShow"
 				width="600px"
 				@close="dialogShow = false">
-				<el-form :model="form" ref="form" label-width="80px">
-					<el-form-item label="项目名称">
+				<el-form :model="form" ref="form" label-width="100px">
+					<el-form-item label="名称">
 						<el-input v-model="form.pjname"></el-input>
 					</el-form-item>
-					<el-form-item label="项目类型">
+					<el-form-item label="路径">
 						<el-cascader
 							:options="pjOptions" 
 							:props="{ expandTrigger: 'hover', checkStrictly: true }" 
@@ -43,17 +42,22 @@
 							v-model="form.pjtype">
 						</el-cascader>
 					</el-form-item>
-					<el-form-item label="项目地点">
+					<el-form-item label="地点">
 						<el-input v-model="form.address"></el-input>
 					</el-form-item>
-					<el-form-item label="项目描述">
+					<el-form-item label="描述">
 						<el-input v-model="form.description"></el-input>
 					</el-form-item>
-					<el-form-item label="Ip范围">
+					<el-form-item label="是否为项目">
+						<el-radio-group v-model="isLeaf">
+							<el-radio :label="1">是</el-radio>
+							<el-radio :label="0">否</el-radio>
+						</el-radio-group>
+					</el-form-item>
+					<el-form-item label="Ip范围" v-show="isLeaf">
 						<el-input v-model="form.ip" placeholder="ip格式为192.168.1-2.2-1或192.168.1.1-255和192.168.1.1"></el-input>
 					</el-form-item>
 				</el-form>
-				
 				
 				<span slot="footer">
 					<el-button @click="dialogShow = false">取 消</el-button>
@@ -73,6 +77,7 @@
 			return {
 				id: null,
 				tabName: '2',
+				isLeaf: 0,
 				dialogShow: false,
 				form: {
 					pjname: '',
@@ -99,7 +104,6 @@
 			async fetchPjTreeData() {
 				const { data } = await this.fetch({url: '/porject/getProjectList', vm: this});
 				this.pjOptions = this.traverseArr(data);
-				console.log(this.traverseArr(data));
 			},
 			traverseArr(arr) {
 				let tmpArr = [];

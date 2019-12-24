@@ -6,52 +6,63 @@
 			</div>
 
 			<div class="list-table" v-loading="isFetchingData">
-				<!-- <el-table :data="userList" style="width: 100%" border ref="multipleTable" tooltip-effect="dark">
-					<el-table-column label='用户ID' prop="userId" align="center">
+				<el-table :data="tableData" border>
+					<el-table-column label='接口名称' prop="userId" align="center">
 					</el-table-column>
-					<el-table-column label="昵称" prop="nickname" align="center">
+					<el-table-column label="IP地址" prop="nickname" align="center">
 					</el-table-column>
-					<el-table-column label="用户名" prop="account" align="center">
-					</el-table-column>
-					<el-table-column label="手机" prop="mobile" align="center">
-					</el-table-column> 
-					<el-table-column label="性别" prop="gender" align="center">
-					</el-table-column>
-					<el-table-column label="生日" prop="birthday" align="center">
-					</el-table-column>
-					<el-table-column label="注册时间" prop="createTime" align="center">
-					</el-table-column>
-					<el-table-column label="BRM账号" prop="brmid" align="center">
+					<el-table-column label="子网掩码" prop="account" align="center">
 					</el-table-column>
 					<el-table-column label="操作" align="center">
 						<template slot-scope="scope">
-							<el-button type="text" @click="viewDetail(scope.row)">详情</el-button>
+							<el-button type="text" @click="viewDetail(scope.row)">编辑</el-button>
 						</template>
 					</el-table-column>
-				</el-table> -->
+				</el-table>
 			</div>
 		</div>
 
+		<el-dialog
+			title="添加"
+			:visible.sync="dialogShow"
+			width="600px"
+			@close="dialogShow = false">
+			<el-form :model="form" ref="form" label-width="100px">
+				<el-form-item label="接口名称">
+					<el-input v-model="form.pjname"></el-input>
+				</el-form-item>
+				<el-form-item label="IP地址">
+					<el-input v-model="form.pjname"></el-input>
+				</el-form-item>
+				<el-form-item label="子网掩码">
+					<el-input v-model="form.pjname"></el-input>
+				</el-form-item>
+			</el-form>
+			
+			<span slot="footer">
+				<el-button @click="dialogShow = false">取 消</el-button>
+				<el-button type="primary" @click="handleComfirmClick">确 定</el-button>
+			</span>
+		</el-dialog>
+
 		<div class="section list">
 			<div class="query-title">
-				<div class="fl">
-					<span>路由设置</span>
-				</div>
-				<div class="fr btn-wrapper">
-					<el-button class="fr" type="" size="small" @click="exportList">保存设置</el-button>
-				</div>
+				<span>路由设置</span>
 			</div>
 			<el-form 
 				width="600px"
 				label-width="90px">
 				<el-form-item label="目的地址:">
-					<el-input v-model="searchParams.nickname"></el-input>
+					<el-input v-model="form.nickname"></el-input>
 				</el-form-item>
 				<el-form-item label="目的掩码:">
-					<el-input v-model="searchParams.account"></el-input>
+					<el-input v-model="form.account"></el-input>
 				</el-form-item>
 				<el-form-item label="下一跳地址:">
-					<el-input v-model="searchParams.mobile"></el-input>
+					<el-input v-model="form.mobile"></el-input>
+				</el-form-item>
+				<el-form-item label="">
+					<el-button type="primary" size="small" @click="exportList">保存设置</el-button>
 				</el-form-item>
 			</el-form>
 		</div>
@@ -67,23 +78,21 @@
 	export default {
 		data() {
 			return {
-				searchImg,
-				listImg,
-				searchParams: {
+				dialogShow: false,
+				form: {
 					account: '',
 					mobile: '',
 					brmid: '',
 					nickname: ''
 				},
-				userList: [],
+				tableData: [],
 				isFetchingData:false,
-				exportDetail:'',
-				currentPage: 1,
-				curPageSize: 10,
-				curTotal: 0
 			}
 		},
 		methods: {
+			handleComfirmClick() {
+
+			},
 			handleCurrentChange(page) {
 				this.currentPage = page;
 				this.fetchData();
@@ -105,33 +114,7 @@
 			},
 			// 请求列表数据
 			fetchData() {
-				this.isFetchingData = true;
-
-				// let params = 
-				getUserList(this.createParams())
-					.then((res) => {
-						let data = res.data;
-						if (data.code === 2000000 && data.data) {
-							this.userList = data.data.dataList.map(item => {
-								return {
-						            birthday: item.birthday,
-						            brmid: item.brmid,
-						            gender: item.gender === 1 ? '男' : item.gender === '2' ? '女' : '未知' ,
-						            createTime: item.createTime,
-						            nickname: item.nickname,
-						            mobile: item.mobile,
-						            userId: item.userId,
-						            account: item.account
-						        }
-							});
-							this.currentPage = data.data.pageNum;
-							this.curTotal = data.data.total;
-						}
-						this.isFetchingData = false;
-					})
-					.catch(err => {
-						this.isFetchingData = false;
-					})
+				
 			},
 			//导出列表
 			exportList(){
