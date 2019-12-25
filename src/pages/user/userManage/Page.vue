@@ -8,7 +8,7 @@
 					<el-input v-model="form.username" placeholder="请输入用户名称"></el-input>
 				</el-form-item>
 				<el-form-item label="">
-					<el-button class="btn-lg" type="primary" @click="fetchData">查 询</el-button>
+					<el-button type="primary" @click="fetchData">查 询</el-button>
 				</el-form-item>
 				<el-form-item label="">
 					<el-button class="btn-lg" type="primary" @click="dialogShow = true">添加用户</el-button>

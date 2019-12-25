@@ -1,19 +1,17 @@
 import axios from 'axios';
 import qs from 'qs';
-// import createSign from 'api/sign';
 import { getToken } from './utils';
 
-const HOST_DEVELOPMENT = '';
-const HOST_PRODUCTION = '10.60.4.3:8080';
-
-const URL_DEVELOPMENT = '';
-const URL_PRODUCTION = 'http://10.60.4.3:8081';
-const URL_PRODUCTION_FUZZ = 'http://10.60.4.3:8080';
-
 const HOST = window.location.host;
+const HOST_DEVELOPMENT = 'localhost:8080';
+
+const URL_PRODUCTION = `http://${HOST.split(':')[0]}:8081`;
+const URL_PRODUCTION_FUZZ = `http://${HOST}`;
+
+const FUZZ_URL = HOST === HOST_DEVELOPMENT ? 'http://10.60.4.3:8080' : URL_PRODUCTION_FUZZ;
 
 const axiosClient = axios.create({
-    baseURL: HOST === HOST_PRODUCTION ? URL_PRODUCTION : process.env.NODE_ENV === 'development' ? '/api' : URL_DEVELOPMENT,
+    baseURL: HOST === HOST_DEVELOPMENT ? '/api' : URL_PRODUCTION,
     timeout: 100000,
     responseType: 'json',
     headers: {
@@ -27,7 +25,7 @@ const axiosClient = axios.create({
 });
 
 const axiosClientFuzz = axios.create({
-    baseURL: HOST === HOST_PRODUCTION ? URL_PRODUCTION_FUZZ : process.env.NODE_ENV === 'development' ? '/fuzzApi' : URL_DEVELOPMENT,
+    baseURL: HOST === HOST_DEVELOPMENT ? '/fuzzApi' : URL_PRODUCTION_FUZZ,
     timeout: 100000,
     responseType: 'json',
     headers: {
@@ -72,4 +70,4 @@ axiosClient.interceptors.request.use(
 // })
 
 
-export { axiosClient, axiosClientFuzz };
+export { axiosClient, axiosClientFuzz, FUZZ_URL };

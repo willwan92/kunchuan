@@ -6,10 +6,11 @@
 				label-width="75px">
 				<el-form-item label="项目名称">
 					<el-cascader
+						@change="getPjDetail"
 						:options="pjOptions" 
-						:props="{ expandTrigger: 'hover', checkStrictly: true }" 
+						:props="{ expandTrigger: 'hover' }" 
 						filterable
-						v-model="searchParams.pjtype">
+						v-model="searchParams.pjValue">
 					</el-cascader>
 				</el-form-item>
 				<el-form-item label="IP范围">
@@ -65,7 +66,7 @@
 				<br>
 			</el-form>
 		
-			<el-table :data="tableData" border :span-method="objectSpanMethod" v-loading="isLoading" :element-loading-text="loadingText">
+			<el-table :data="tableData" border v-loading="isLoading">
 				<el-table-column label="IP地址" prop="ip"></el-table-column>
 				<el-table-column label="端口" prop="port"></el-table-column>
 				<el-table-column label="协议名称" prop="protoName"></el-table-column>
@@ -99,7 +100,7 @@
 			return {
 				isLoading: false,
 				searchParams: {
-					pjtype: '',
+					pjValue: [],
 					ipRange: '',
 					scanType: 2,
 					linkStatus: 0,
@@ -181,10 +182,33 @@
 		created() {
 			this.fetchPjTreeData();
 		},
+		computed: {
+			
+		},
 		methods: {
-			//查询
+			getPjId() {
+				let id;
+				if (this.searchParams.pjValue && this.searchParams.pjValue[0]) {
+					id = this.searchParams.pjValue.slice(-1)[0]
+				} else {
+					id = null;
+				}
+
+				return id;
+			},
 			search(){
 				this.fetchData();
+			},
+			async getPjDetail() {
+				const data = await this.fetch({
+					url: '/projectInfo/getSelectProjectById',
+					params: {
+						id: this.getPjId(),
+					},
+					vm: this
+				});
+				
+				data && (this.searchParams.ipRange = data.ip);
 			},
 			handleOperate(row, type, target) {
 				this.editItem({ id: row.id })
@@ -192,9 +216,6 @@
 			async fetchPjTreeData() {
 				const { data } = await this.fetch({url: '/porject/getProjectList', vm: this});
 				this.pjOptions = this.traverseArr(data);
-			},
-			editItem(id) {
-
 			},
 			traverseArr(arr) {
 				let tmpArr = [];
@@ -208,9 +229,12 @@
 
 					if (item.children && item.children[0]) {
 						tmpObj.children = this.traverseArr(item.children);
+						tmpArr.push(tmpObj);
+					} else {
+						if (item.isleaf) {
+							tmpArr.push(tmpObj);
+						}
 					}
-
-					tmpArr.push(tmpObj);
 				});
 
 				return tmpArr;

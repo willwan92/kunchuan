@@ -36,7 +36,6 @@
 					</el-form-item>
 					<el-form-item label="路径">
 						<el-cascader
-							:disabled="Boolean(this.id)"
 							:options="[pjOptions]" 
 							:props="{ expandTrigger: 'hover', checkStrictly: true }" 
 							filterable
@@ -117,26 +116,29 @@
 			},
 			
 			async fetchPjTreeData() {
-				const { data } = await this.fetch({url: '/porject/getProjectList', vm: this});
+				const { data } = await this.fetch({url: '/porject/getProjectSelectByIsleaf', vm: this});
 				this.pjTreeData = this.traverseArr(data);
+			},
+			toNumberArr(arr) {
+				return arr.map(item => {
+					return Number(item);
+				})
 			},
 			traverseArr(arr) {
 				let tmpArr = [];
 				let tmpObj = {};
 
 				arr.forEach(item => {
-					if (!item.isleaf) {
-						tmpObj = {
-							label: item.pjname,
-							value: item.id
-						};
+					tmpObj = {
+						label: item.pjname,
+						value: item.id
+					};
 
-						if (item.children && item.children[0]) {
-							tmpObj.children = this.traverseArr(item.children);
-						}
-
-						tmpArr.push(tmpObj);
+					if (item.children && item.children[0]) {
+						tmpObj.children = this.traverseArr(item.children);
 					}
+
+					tmpArr.push(tmpObj);
 				});
 
 				return tmpArr;
@@ -157,6 +159,7 @@
 					params.pid = params.pjtype.slice(-1)[0];
 					params.pjtype = params.pjtype.join('/');
 				}
+
 
 				const data = await this.fetch({
 					'url': url, 
@@ -200,13 +203,15 @@
 				const data = await this.fetch({'url': '/projectInfo/getProjectInfoFind', params: {'id': id}, 'vm': this});
 				const pjData = data[0];
 
-				this.form = {
+				this.form = Object.assign({}, this.form, {
 					pjname: pjData.pjname,
-					pjtype: pjData.pjtype,
+					pjtype: this.toNumberArr(pjData.pjtype.split('/')),
 					address: pjData.address,
 					description: pjData.description,
 					ip: pjData.ip
-				};
+				});
+
+				console.log(this.form)
 			},
 			async handleDelClick(id) {
 				const data = await this.fetch({'url': '/projectInfo/getProjectInfoDeleteid', params: {'id': id}, 'vm': this});

@@ -1,9 +1,10 @@
 <template>
   <div class="page">
+    <iframe style="display: none;" :src="fuzzUrl+'/fuzz/login/login.jsp'" frameborder="0"></iframe>
     <div class="login-wrapper">
       <el-row class="header">
         <el-col :span="8">
-          <img class="logo" src="../../assets/images/logo.png" alt="logo" />
+          <img class="logo" src="../../assets/images/logo.png" alt="logo"/>
         </el-col>
         <el-col class="separation" :span="2">|</el-col>
         <el-col :span="14" class="system-name">烟草行业关键信息基础设施<br/>安全评估管理系统</el-col>
@@ -23,7 +24,7 @@
       </el-form>
     </div>
 
-	<p class="copyright">&copy; 云南昆船设计研究院有限公司</p>
+	  <p class="copyright">&copy; 云南昆船设计研究院有限公司</p>
   </div>
 </template>
 
@@ -32,11 +33,13 @@ import sha1 from 'js-sha1';
 import md5 from 'md5';
 import uuidv1 from 'uuid/v1';
 import cookies from 'js-cookies';
+import { FUZZ_URL } from "common/axiosClient";
 import { getToken, setToken, removeToken } from "common/utils";
 
 export default {
   data() {
     return {
+      fuzzUrl: FUZZ_URL,
       loginParams: {
         account: "",
         passwd: ""
@@ -44,25 +47,9 @@ export default {
     };
   },
   created() {
-    // this.getSystemInfo();
-    cookies.setItem('JSESSIONID', uuidv1());
   },
 
   methods: {
-    async getSystemInfo() {
-      const data = await this.fetchFuzz({
-        url: '/fuzz/login/login.jsp',
-        vm: this
-      });
-    },
-    async getLoginPage() {
-      const data = await this.fetchFuzz({
-        url: '/fuzz/login/login.jsp',
-        vm: this
-      });
-
-      console.log(data)
-    },
     async login() {
       let loginParams = this.loginParams;
       if (loginParams.account === "" || loginParams.passwd === "") {
@@ -76,15 +63,11 @@ export default {
         password: md5(sha1(this.loginParams.passwd)),
       };
 
-
-
       const data = await this.postFuzz({
         url: '/fuzz/login/login!userLogin.action',
         params: params,
         vm: this
       });
-
-      
 
       const state = data.sate ? data.sate : '';
       const info = data.info ? data.info : '';

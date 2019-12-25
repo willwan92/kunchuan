@@ -156,6 +156,14 @@ export const routes = [
         meta: {
           title: '自定义操作'
         }
+      },
+      {
+        path: 'assetList',
+        name: 'assetList',
+        component: () => import('pages/ciiIdent/assetList/Page'),
+        meta: {
+          title: '资产清单'
+        }
       }
     ]
   },
@@ -184,14 +192,6 @@ export const routes = [
         component: () => import('pages/ciiIdent/maxBoundary/Page'),
         meta: {
           title: '最大可能边界识别'
-        }
-      },
-      {
-        path: 'assetList',
-        name: 'assetList',
-        component: () => import('pages/ciiIdent/assetList/Page'),
-        meta: {
-          title: '资产清单'
         }
       },
       {
