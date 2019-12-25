@@ -13,7 +13,7 @@
 			
 			<el-table :data="tableData" border>
 				<el-table-column label="名称" prop="pjname"></el-table-column>
-				<el-table-column label="类型" prop="pjtype"></el-table-column>
+				<el-table-column label="类型" prop="">{{ tabName === '2' ? '单系统用户项目' : '集团用户项目' }}</el-table-column>
 				<el-table-column label="地点" prop="address"></el-table-column>
 				<el-table-column label="创建时间" prop="createTime"></el-table-column>
 				<el-table-column label="描述" prop="description"></el-table-column>
