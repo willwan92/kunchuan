@@ -105,7 +105,6 @@
 
 <script>
 	import userAvatar from 'assets/images/user-avatar.png'
-	import { getOrderDetails } from 'api/order/order'
 	import { deepCopy, judgePayStatus, judgeLogisticsStatus } from 'common/utils'
 
 	export default {

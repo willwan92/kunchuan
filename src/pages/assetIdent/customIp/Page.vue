@@ -92,7 +92,6 @@
 </template>
 
 <script>
-	import { getUserList } from 'api/user/user'
 	import { judgeGender, deepCopy, commonExport } from 'common/utils'
 
 	export default {

@@ -30,7 +30,6 @@
 <script>
 import sha1 from 'js-sha1';
 import md5 from 'md5';
-import { login } from "api/login";
 import uuidv1 from 'uuid/v1';
 import cookies from 'js-cookies';
 import { getToken, setToken, removeToken } from "common/utils";

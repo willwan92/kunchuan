@@ -72,7 +72,6 @@
 <script>
 	import searchImg from 'assets/sousuo.png'
 	import listImg from 'assets/list.png'
-	import { getUserList } from 'api/user/user'
 	import { judgeGender, deepCopy, commonExport } from 'common/utils'
 
 	export default {

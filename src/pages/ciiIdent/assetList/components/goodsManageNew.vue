@@ -115,7 +115,6 @@
 </template>
 
 <script>
-	import {getGoodsEditor,goodsEditor,goodsNew} from 'api/goods/goods';
 	import wine from 'assets/wine.jpg'
 	import {uploadFileApi} from 'common/axiosClient'
 	export default {

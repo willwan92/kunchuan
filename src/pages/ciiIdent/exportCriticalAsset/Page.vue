@@ -16,7 +16,6 @@
 <script>
 	import sousuo from '../../../assets/sousuo.png'
 	import list from '../../../assets/list.png'
-	import { getGoodsList,goodsStatus} from '../../../api/goods/goods';
 	import {commonExport} from 'common/utils'
 
 	export default {
