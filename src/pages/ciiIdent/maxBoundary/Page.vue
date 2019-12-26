@@ -1,153 +1,129 @@
 <template>
-	<div class="page">
-		<div class="section list">
-			<app-table :table-data="tableData" :table-titles="tableTitles" @operate="handleOperate"></app-table>
-		</div>
-	</div>
+  <div class="page">
+    <div class="section list">
+      <el-form :inline="true" label-position="left" label-width="90px">
+        <el-form-item label="项目名称">
+          <el-cascader
+            :show-all-levels="false"
+            :options="pjOptions"
+            :props="{ expandTrigger: 'hover' }"
+            filterable
+            v-model="pjValue"
+          >
+          </el-cascader>
+        </el-form-item>
+      </el-form>
+      <el-table :data="tableData" border v-loading="isLoading">
+        <el-table-column label="序号" prop="ip"></el-table-column>
+        <el-table-column label="IP地址" prop="port"></el-table-column>
+        <el-table-column label="资产类型" prop="protoName"></el-table-column>
+        <el-table-column label="设备型号" prop="protoType"></el-table-column>
+        <el-table-column label="版本号" prop="result"></el-table-column>
+        <el-table-column label="生产厂家" prop="assetType"></el-table-column>
+        <el-table-column label="操作系统" prop="manufName"></el-table-column>
+        <el-table-column label="所属关键业务" prop="">
+          <template slot-scope="">
+            <el-cascader
+              @change="0"
+              :options="businessOptions"
+              :props="{ expandTrigger: 'hover' }"
+              filterable
+              v-model="searchParams.nickname"
+            >
+            </el-cascader>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+  </div>
 </template>
 
 <script>
-	import { judgeGender, deepCopy, commonExport } from 'common/utils'
+import { getCascaderOptions } from "common/utils";
 
-	export default {
-		data() {
-			return {
-				searchParams: {
-					nickname: ''
-				},
-				tableTitles: [
-					{
-						prop: 'serial',
-						title: '序号'
-					},
-					{
-						prop: 'serial',
-						title: 'IP地址'
-					},
-					{
-						prop: 'pushTime',
-						title: '资产类型'
-					},
-					{
-						prop: 'userId',
-						title: '设备型号'
-					},
-					{
-						prop: 'mobile',
-						title: '版本号'
-					},
-					{
-						prop: 'pushTime',
-						title: '生产厂家'
-					},
-					{
-						prop: 'userId',
-						title: '操作系统'
-					},
-					{
-						prop: 'mobile',
-						title: '所属关键业务'
-					},
-					{
-						title: '有效资产',
-						prop: 'id',
-						isTemplate: true,
-						width: 150,
-						templateType: 'check',
-						operate: '修改'
-					}
-				],
-				tableData: []
-			}
-		},
-		methods: {
-			//查询
-			search(){
-				this.fetchData();
+export default {
+  data() {
+    return {
+      searchParams: {
+        nickname: ""
 			},
-			handleOperate(row, type, target) {
-				this.editItem({ id: row.id })
-			},
-			editItem(id) {
+			pjValue: [],
+			pjOptions: [],
+      isLoading: false,
+      businessOptions: [],
+      tableData: []
+    };
+  },
+  created() {
+		this.fetchPjTreeData();
+    this.fetchbusinessOptionsData();
+	},
+	computed: {
+		getPjId() {
+      let id;
+      if (this.pjValue && this.pjValue[0]) {
+        id = this.pjValue.slice(-1)[0];
+      } else {
+        id = null;
+      }
 
-			},
-			createParams() {
-				let params = deepCopy(this.searchParams);
-				params.pageNum = this.currentPage;
-				return params;
-			},
-			// 请求列表数据
-			fetchData() {
-				this.isFetchingData = true;
+      return id;
+    }
+	},
+  methods: {
+    editItem(id) {},
 
-				// let params = 
-				getUserList(this.createParams())
-					.then((res) => {
-						let data = res.data;
-						if (data.code === 2000000 && data.data) {
-							this.userList = data.data.dataList.map(item => {
-								return {
-						            birthday: item.birthday,
-						            brmid: item.brmid,
-						            gender: item.gender === 1 ? '男' : item.gender === '2' ? '女' : '未知' ,
-						            createTime: item.createTime,
-						            nickname: item.nickname,
-						            mobile: item.mobile,
-						            userId: item.userId,
-						            account: item.account
-						        }
-							});
-							this.currentPage = data.data.pageNum;
-							this.curTotal = data.data.total;
-						}
-						this.isFetchingData = false;
-					})
-					.catch(err => {
-						this.isFetchingData = false;
-					})
-			},
-			viewDetail(row) {
-				this.$router.push({
-					path: '/user/userDetail',
-					query: {
-						id: row.userId
-					}
-				})
-			}
+    // 请求列表数据
+    async fetchbusinessOptionsData() {
+      const { data } = await this.fetch({
+        url: "/keybusiness/getKeybusinessList",
+        params: {
+          pjid: 22
+        },
+        vm: this
+      });
+
+      this.businessOptions = getCascaderOptions({
+				arr: data,
+				label: "kbname",
+				value: "id"
+			});
 		},
-		beforeRouteEnter(to, from, next) {
-			next( vm => {
-				vm.$nextTick( () => {
-					vm.fetchData();
-				});
-			})
-		},
-		mounted() {
-			this.$nextTick(() => {
-				this.fetchData();
-			})
-		}
-	}
+		async fetchPjTreeData() {
+      const { data } = await this.fetch({
+        url: "/porject/getProjectList",
+        vm: this
+      });
+
+			this.pjOptions = getCascaderOptions({
+				arr: data,
+				label: "pjname",
+				value: "id",
+				filter: 'isleaf'
+			});
+    }
+  }
+};
 </script>
 <style lang="less" scoped>
 .page {
-	.section {
-		padding: 20px;
-		border:1px solid #ccc;
-		border-radius: 5px;
-		background:#fff;
-		box-shadow:0 2px 4px rgba(0,0,0,.15);
-		-webkit-box-shadow: 0 2px 4px rgba(0,0,0,.15);
-		margin-bottom:30px;
-		&:hover{
-			box-shadow:0 4px 8px rgba(0,0,0,.15);
-			-webkit-box-shadow: 0 4px 8px rgba(0,0,0,.15);
-		}
-	}
+  .section {
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    margin-bottom: 30px;
+    &:hover {
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      -webkit-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+  }
 }
 
 .btn-lg {
-	width:150px;
-	margin-right:30px;
+  width: 150px;
+  margin-right: 30px;
 }
 </style>

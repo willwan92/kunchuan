@@ -3,30 +3,30 @@ import axios from 'axios';
 const TokenKey = 'Admin-Token'
 
 function getToken() {
-  return sessionStorage.getItem(TokenKey)
+	return sessionStorage.getItem(TokenKey)
 }
 
 function setToken(token) {
-  return sessionStorage.setItem(TokenKey, token);
+	return sessionStorage.setItem(TokenKey, token);
 }
 
 function removeToken() {
-  return sessionStorage.removeItem(TokenKey)
+	return sessionStorage.removeItem(TokenKey)
 }
 
 function deepCopy(obj) {
-  return JSON.parse(JSON.stringify(obj));
+	return JSON.parse(JSON.stringify(obj));
 }
 
 function compare(property) {
-  return function(a, b) {
-    return a[property] - b[property]
-  }
+	return function (a, b) {
+		return a[property] - b[property]
+	}
 }
 
 function judgePayStatus(statusCode) {
 	let res;
-	switch(statusCode) {
+	switch (statusCode) {
 		case 1:
 			res = '待支付'
 			break;
@@ -48,7 +48,7 @@ function judgePayStatus(statusCode) {
 
 function judgeLogisticsStatus(statusCode) {
 	let res;
-	switch(statusCode) {
+	switch (statusCode) {
 		case 1:
 			res = '已完成'
 			break;
@@ -65,32 +65,75 @@ function judgeLogisticsStatus(statusCode) {
 	return res;
 }
 
-function commonExport(params,name,url){
+//判断ip地址的合法性
+function checkIp(value) {
+	var exp = /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/;
+	var reg = value.match(exp);
+	if (reg == null) {
+		return false;
+	}
+	return true;
+}
+
+function commonExport(params, name, url) {
 	axios({
 		method: 'get',
 		url: url,
 		params: params,
 		responseType: 'blob',
-		headers: {"Authorization":'Bearer ' + sessionStorage.getItem('Admin-Token')}
-		}).then(response => {
-			download(response, name + '.xls')
-		}).catch()
+		headers: { "Authorization": 'Bearer ' + sessionStorage.getItem('Admin-Token') }
+	}).then(response => {
+		download(response, name + '.xls')
+	}).catch()
 }
 
-function download (data, name) {
+function download(data, name) {
 	if (!data) {
 		return
 	}
-	let url = window.URL.createObjectURL(new Blob([data.data], {type: 'application/octet-stream'}))
+	let url = window.URL.createObjectURL(new Blob([data.data], { type: 'application/octet-stream' }))
 	let link = document.createElement('a')
 	link.style.display = 'none'
 	link.href = url
-	link.setAttribute('download',name)
+	link.setAttribute('download', name)
 	document.body.appendChild(link)
 	link.click()
 }
 
+function getCascaderOptions({ arr, label, value, filter = '' }) {
+	let tmpArr = [];
+	let tmpObj = {};
+
+	arr.forEach((item, index) => {
+		tmpObj = {
+			label: item[label],
+			value: item[value]
+		};
+
+		if (item.children && item.children[0]) {
+			tmpObj.children = getCascaderOptions({
+				arr: item.children,
+				label: label,
+				value: value,
+				filter: filter
+			});
+
+			tmpArr.push(tmpObj);
+		} else {
+			if (!filter) {
+				tmpArr.push(tmpObj);
+			} else if (filter && item[filter]) {
+				tmpArr.push(tmpObj);
+			}
+		}
+	});
+
+	return tmpArr;
+}
+
 export {
+	getCascaderOptions,
+	checkIp,
 	getToken,
 	setToken,
 	removeToken,

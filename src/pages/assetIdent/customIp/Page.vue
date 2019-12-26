@@ -7,7 +7,7 @@
 				<el-form-item label="项目名称">
 					<el-cascader
 						@change="getPjDetail"
-						:options="pjOptions" 
+						:options="pjOptions"
 						:props="{ expandTrigger: 'hover' }" 
 						filterable
 						v-model="searchParams.pjValue">
@@ -35,7 +35,7 @@
 					</el-select>
 				</el-form-item>
 				<br>
-				<el-form-item label="端口方式">
+				<!-- <el-form-item label="端口方式">
 					<el-select v-model="searchParams.portMethod" placeholder="">
 						<el-option v-for="item in portMethodOptions"
 							:key="item.value"
@@ -43,8 +43,8 @@
 							:value="item.value">
 						</el-option>
 					</el-select>
-				</el-form-item>
-				<el-form-item label="端口">
+				</el-form-item> -->
+				<el-form-item label="端口范围">
 					<el-input v-model="searchParams.port" placeholder=""></el-input>
 				</el-form-item>
 				<el-form-item label="扫描方式">
@@ -60,7 +60,7 @@
 					<el-checkbox v-model="searchParams.autoIdentAsset" label="自动识别资产"></el-checkbox>
 				</el-form-item>
 				<el-row type="flex" justify="center">
-					<el-button class="btn-lg" type="primary" @click="search">开始</el-button>
+					<el-button class="btn-lg" type="primary" @click="startScan">开始</el-button>
 					<el-button class="btn-lg" @click="search">停止</el-button>
 				</el-row>
 				<br>
@@ -93,7 +93,7 @@
 </template>
 
 <script>
-	import { judgeGender, deepCopy, commonExport } from 'common/utils'
+	import { getCascaderOptions } from 'common/utils'
 
 	export default {
 		data() {
@@ -104,7 +104,7 @@
 					ipRange: '',
 					scanType: 2,
 					linkStatus: 0,
-					portMethod: 0,
+					portMethod: 1,
 					port: '',
 					scanMethod: 0,
 					autoIdentAsset: true,
@@ -186,6 +186,28 @@
 			
 		},
 		methods: {
+			startScan() {
+				let searchParams = this.searchParams;
+
+				const params = 	{
+					id: this.getPjId,
+					ip_scope: searchParams.ipRange,
+					scan_type: searchParams.scanType,
+					cont_type: searchParams.linkStatus,
+					port_type: searchParams.portMethod,
+					port_vales: searchParams.port,
+					propertiesd: searchParams.autoIdentAsset,
+					scanMethod: searchParams.scanMethod
+				};
+
+				// const data = await this.fetch({
+				// 	url: '/fuzz/page/view/scanner/scanstation!startBtnMe.action',
+				// 	params: params,
+				// 	vm: this
+				// });
+
+				console.log(data);
+			},
 			getPjId() {
 				let id;
 				if (this.searchParams.pjValue && this.searchParams.pjValue[0]) {
@@ -215,34 +237,12 @@
 			},
 			async fetchPjTreeData() {
 				const { data } = await this.fetch({url: '/porject/getProjectList', vm: this});
-				this.pjOptions = this.traverseArr(data);
-			},
-			traverseArr(arr) {
-				let tmpArr = [];
-				let tmpObj = {};
-
-				arr.forEach(item => {
-					tmpObj = {
-						label: item.pjname,
-						value: item.id
-					}
-
-					if (item.children && item.children[0]) {
-						tmpObj.children = this.traverseArr(item.children);
-						tmpArr.push(tmpObj);
-					} else {
-						if (item.isleaf) {
-							tmpArr.push(tmpObj);
-						}
-					}
+				this.pjOptions = this.getCascaderOptions({
+					arr: data,
+					label: 'pjname',
+					value: 'id',
+					filter: 'isleaf'
 				});
-
-				return tmpArr;
-			},
-			createParams() {
-				let params = deepCopy(this.searchParams);
-				params.pageNum = this.currentPage;
-				return params;
 			},
 			// 请求列表数据
 			fetchData() {
