@@ -60,7 +60,7 @@ export default {
     };
   },
   created() {
-    this.initData();
+    this.fetchFileList();
   },
   computed: {
     actionName() {
@@ -75,6 +75,15 @@ export default {
       //   this.fetchVendorsData();
       //   this.fetchOsData();
     },
+    async fetchFileList() {
+      const data = await this.fetch({
+        url: "/file/fileName",
+        vm: this
+      });
+
+      console.log(data)
+
+    }
   }
 };
 </script>

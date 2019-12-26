@@ -18,9 +18,9 @@
         <el-form-item label="">
           <el-button
             class="btn-lg"
-            :disabled="!this.getPjId"
+            :disabled="!getPjId"
             type="primary"
-            @click="dialogShow = true"
+            @click="handleAddClick"
             >添加资产</el-button
           >
         </el-form-item>
@@ -54,17 +54,17 @@
         @close="dialogShow = false"
       >
         <el-form
-          :model="form"
+          :model="dialogForm"
           :rules="rules"
           class="dialog-form"
-          ref="form"
+          ref="dialogForm"
           label-width="100px"
         >
           <el-form-item label="IP地址" prop="ip">
-            <el-input v-model="form.ip" :readonly="this.assetsId"></el-input>
+            <el-input v-model="dialogForm.ip" :readonly="Boolean(assetsId)"></el-input>
           </el-form-item>
-          <el-form-item label="登录方式">
-            <el-select v-model="form.loginMethod" placeholder="">
+          <el-form-item label="登录方式" prop="loginMethod">
+            <el-select v-model="dialogForm.loginMethod" placeholder="">
               <el-option
                 v-for="item in loginMethodOptions"
                 :key="item.value"
@@ -74,11 +74,11 @@
               </el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="端口">
-            <el-input v-model="form.port"></el-input>
+          <el-form-item label="端口" prop="port">
+            <el-input v-model="dialogForm.port"></el-input>
           </el-form-item>
-          <el-form-item label="资产类型">
-            <el-select v-model="form.assetsType" placeholder="">
+          <el-form-item label="资产类型" prop="assetsType">
+            <el-select v-model="dialogForm.assetsType" placeholder="">
               <el-option
                 v-for="item in assetsTypeOptions"
                 :key="item.value"
@@ -88,8 +88,8 @@
               </el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="厂家名称">
-            <el-select v-model="form.vendorName" placeholder="">
+          <el-form-item label="厂家名称" prop="vendorName">
+            <el-select v-model="dialogForm.vendorName" placeholder="">
               <el-option
                 v-for="item in vendorOptions"
                 :key="item.value"
@@ -99,14 +99,14 @@
               </el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="设备型号">
-            <el-input v-model="form.deviceNum"></el-input>
+          <el-form-item label="设备型号" prop="deviceNum">
+            <el-input v-model="dialogForm.deviceNum"></el-input>
           </el-form-item>
-          <el-form-item label="版本号">
-            <el-input v-model="form.version"></el-input>
+          <el-form-item label="版本号" prop="version">
+            <el-input v-model="dialogForm.version"></el-input>
           </el-form-item>
-          <el-form-item label="操作系统">
-            <el-select v-model="form.deviceOs" placeholder="">
+          <el-form-item label="操作系统" prop="deviceOs">
+            <el-select v-model="dialogForm.deviceOs" placeholder="">
               <el-option
                 v-for="item in deviceOsOptions"
                 :key="item.value"
@@ -116,29 +116,29 @@
               </el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="用户名">
-            <el-input v-model="form.userName"></el-input>
+          <el-form-item label="用户名" prop="userName">
+            <el-input v-model="dialogForm.userName"></el-input>
           </el-form-item>
-          <el-form-item label="登录密码">
-            <el-input v-model="form.password"></el-input>
+          <el-form-item label="登录密码" prop="password">
+            <el-input v-model="dialogForm.password"></el-input>
           </el-form-item>
-          <el-form-item label="su用户名">
-            <el-input v-model="form.suUserName"></el-input>
+          <el-form-item label="su用户名" prop="suUserName">
+            <el-input v-model="dialogForm.suUserName"></el-input>
           </el-form-item>
-          <el-form-item label="su密码">
-            <el-input v-model="form.suPassword"></el-input>
+          <el-form-item label="su密码" prop="suPassword">
+            <el-input v-model="dialogForm.suPassword"></el-input>
           </el-form-item>
-          <el-form-item label="数据库路径">
-            <el-input v-model="form.databasePath"></el-input>
+          <el-form-item label="数据库路径" prop="databasePath">
+            <el-input v-model="dialogForm.databasePath"></el-input>
           </el-form-item>
-          <el-form-item label="数据库账号">
-            <el-input v-model="form.databaseAccount"></el-input>
+          <el-form-item label="数据库账号" prop="databaseAccount">
+            <el-input v-model="dialogForm.databaseAccount"></el-input>
           </el-form-item>
-          <el-form-item label="数据库口令">
-            <el-input v-model="form.databasePassword"></el-input>
+          <el-form-item label="数据库口令" prop="databasePassword">
+            <el-input v-model="dialogForm.databasePassword"></el-input>
           </el-form-item>
-          <el-form-item label="数据库实例">
-            <el-input v-model="form.databaseInstance"></el-input>
+          <el-form-item label="数据库实例" prop="databaseInstance">
+            <el-input v-model="dialogForm.databaseInstance"></el-input>
           </el-form-item>
         </el-form>
 
@@ -203,7 +203,7 @@ export default {
           value: ""
         }
       ],
-      form: {
+      dialogForm: {
         ip: "",
         loginMethod: "",
         port: "",
@@ -356,7 +356,7 @@ export default {
       return tmpArr;
     },
     async saveAsset() {
-      let form = this.form;
+      let form = this.dialogForm;
       const action = this.assetsId ? "editdevice.action" : "adddevice.action";
 
       const params = {
@@ -389,17 +389,20 @@ export default {
         this.$message.success(`${this.actionName}成功！`);
         this.dialogShow = false;
         this.fetchTableData();
+      } else {
+        this.$message.error(`${this.actionName}失败，请检查IP是否已经存在。`);
       }
     },
     handleConfirmClick() {
-      this.$refs["form"].validate(valid => {
+      this.$refs["dialogForm"].validate(valid => {
         if (valid) {
           this.saveAsset();
         }
       });
     },
-    async handleAddClick() {
-      this.resetForm("form");
+    handleAddClick() {
+      this.resetForm("dialogForm");
+      this.assetsId = '';
       this.dialogShow = true;
     },
     resetForm(formName) {
@@ -433,13 +436,7 @@ export default {
         databaseInstance: assetData[13],
       }
 
-      this.form = Object.assign({}, this.form, formData);
-
-      console.log(formData)
-      //   if (data === 1) {
-      //   	this.$message.success('修改成功！');
-      //   	this.fetchTableData();
-      //   }
+      this.dialogForm = Object.assign({}, this.dialogForm, formData);
     },
     async handleDelClick(id) {
       const data = await this.fetchFuzz({
