@@ -97,6 +97,7 @@
         :data="tableData"
         border
         v-loading="isLoading"
+        :span-method="objectSpanMethod"
         :element-loading-text="loadingText"
       >
         <el-table-column label="IP地址" prop="ip"></el-table-column>
@@ -113,18 +114,18 @@
         <el-table-column label="确认协议" prop="result"></el-table-column>
         <el-table-column label="资产确认" prop="">
           <template slot-scope="scope">
-            <el-button type="text" @click="handleContentClick(scope.row.index)"
+            <el-button type="text" @click="handleAssetClick(scope.row.index)"
               >网络资产确认</el-button
             >
           </template>
         </el-table-column>
         <el-table-column label="资产类型" prop="assetType"></el-table-column>
-        <el-table-column label="厂家名称" prop="manufName"></el-table-column>
-        <el-table-column label="设备型号" prop="deviceType"></el-table-column>
+        <el-table-column label="厂家名称" prop="vendorName"></el-table-column>
+        <el-table-column label="设备型号" prop="deviceNum"></el-table-column>
         <el-table-column label="版本号" prop="version"></el-table-column>
         <el-table-column
-          label="传统设备"
-          prop="TraditionalDevice"
+          label="操作系统"
+          prop="deviceOs"
         ></el-table-column>
       </el-table>
     </div>
@@ -139,7 +140,6 @@ export default {
     return {
       isLoading: false,
       loadingText: "正在扫描",
-      timer: null,
       searchParams: {
         pjValue: [],
         ipRange: "",
@@ -252,6 +252,84 @@ export default {
     }
   },
   methods: {
+    objectSpanMethod({ row, column, rowIndex, columnIndex }) {
+      if (columnIndex > 5) {
+        if(rowIndex === 0 || row.ip !== this.tableData[rowIndex - 1].ip) {
+          return {
+            rowspan: this.getIpCount(row.ip),
+            colspan: 1
+          }
+        }
+      }
+    },
+    getIpCount(ip) {
+      let count = 0;
+      this.tableData.forEach(item => {
+        if (item.ip === ip) {
+          count ++;
+        }
+      })
+
+      return count;
+    },
+    async handleAssetClick(index) {
+			const current = this.tableData[index];
+			// scanstation!confirm_propertis.action?scanMethod=0&ip=10.60.4.1&pjid=22
+      let params = {
+				pjid: this.getPjId,
+				ip: current.ip,
+				scanMethod: this.searchParams.scanMethod
+      };
+
+      this.loadingText = "正在确认...";
+      this.isLoading = true;
+
+      const { data } = await this.fetchFuzz({
+        url: "/fuzz/page/view/scanstation!confirm_propertis.action",
+        params: params,
+        type: "get",
+        vm: this
+      });
+
+      this.isLoading = false;
+      
+      if (data && data[0]) {
+          this.tableData[index].assetType = data[0].devtype;
+          this.tableData[index].vendorName = data[0].vendor;
+          this.tableData[index].deviceNum = data[0].name;
+          this.tableData[index].version = data[0].version;
+          this.tableData[index].deviceOs = data[0].os;
+      }
+    },
+    async handleProtoClick(index) {
+      
+			const current = this.tableData[index];
+			// 参数：id  ip   port_type  port
+      let params = {
+				id: this.getPjId,
+        ip: current.ip,
+        port: current.port,
+        port_type: current.protoType
+      };
+			  
+      this.loadingText = "正在分析...";
+      this.isLoading = true;
+
+      const data = await this.fetchFuzz({
+        url: "/fuzz/page/view/scanstation!analyze.action",
+        params: params,
+        type: "get",
+        vm: this
+      });
+
+      if (data.success === "success") {
+        this.tableData[index].result = data.data[0].confirm;
+      } else {
+        
+      }
+
+      this.isLoading = false;
+    },
     async fetchScanResult() {
       const params = {
         t: Math.random(),
@@ -264,27 +342,27 @@ export default {
         vm: this
       });
 
-      // console.log(data);
-
       if (data && data.length) {
         this.tableData = data.map((item, idx) => {
           return {
-            // ip: item["0"],
-            // port: item["1"],
-            // protoName: item["2"],
-            // protoType: item["3"],
-            // result: "",
-            // deviceType: "",
-            // cveId: ""
+            index: idx,
+            ip: item[0],
+            port: item[1],
+            protoName: item[2],
+            protoType: item[3],
+            result: item[5],
+            assetType: item[7],
+            vendorName: item[8],
+            deviceNum: item[9],
+            version: item[10],
+            deviceOs:item[11]
           };
         });
       } else {
-        this.timer && this.$message.info("扫描结束，未发现开放端口!");
+        this.$message.info("扫描结束，未发现开放端口!");
       }
 
       this.isLoading = false;
-      this.timer && clearInterval(this.timer);
-      this.timer = null;
     },
     async stopScan() {
       let searchParams = this.searchParams;
@@ -304,7 +382,6 @@ export default {
       if (data.success === "success") {
 				this.$message.info("扫描已停止！");
 				this.isLoading = false;
-        clearInterval(this.timer);
       }
 		},
 		handleStartClick() {
@@ -314,67 +391,6 @@ export default {
 				}
 			})
 		},
-		async handleAssetClick(index) {
-			const current = this.tableData[index];
-			// scanstation!confirm_propertis.action?scanMethod=0&ip=10.60.4.1&pjid=22
-      let params = {
-				pjid: this.getPjId,
-				ip: current.ip,
-				scanMethod: this.searchParams.scanMethod
-      };
-
-      this.loadingText = "正在确认...";
-      this.isLoading = true;
-
-      const data = await this.fetchFuzz({
-        url: "/fuzz/page/view/scanstation!confirm_propertis.action",
-        params: params,
-        type: "get",
-        vm: this
-      });
-
-			this.isLoading = false;
-
-      // this.tableData[index].deviceType = data.name;
-      // this.tableData[index].cveId = data.cveid;
-      // if (data.state === 1) {
-
-      // 	// this.timer = setInterval(this.fetchScanResult, 3000);
-      // } else {
-      // 	// this.$message.info(data.msg);
-      // }
-    },
-    async handleProtoClick(index) {
-			const current = this.tableData[index];
-			// 参数：id  ip   port_type  port
-      let params = {
-				id: current.id,
-        ip: current.ip,
-        port: current.port,
-        protocolName: current.protoName,
-        type: current.protoType
-      };
-			  
-      this.loadingText = "正在分析...";
-      this.isLoading = true;
-
-      const data = await this.fetchFuzz({
-        url: "/fuzz/page/view/scanstation!analyze.action",
-        params: params,
-        type: "get",
-        vm: this
-      });
-
-      this.isLoading = false;
-
-      // if (data.state === 1) {
-      //   this.tableData[index].result = data.msg;
-      //   // this.timer = setInterval(this.fetchScanResult, 3000);
-      // } else {
-      //   this.tableData[index].result = "unknown";
-      //   // this.$message.error(data.msg);
-      // }
-    },
     async startScan() {
       let searchParams = this.searchParams;
 
@@ -400,7 +416,7 @@ export default {
       });
 
       if (data.success === "success") {
-        this.timer = setInterval(this.fetchScanResult, 3000);
+        this.fetchScanResult();
       } else {
         this.$message.error("扫描失败，请稍后再试！");
       }
@@ -415,9 +431,6 @@ export default {
       });
 
       data && (this.searchParams.ipRange = data.ip);
-    },
-    handleOperate(row, type, target) {
-      this.editItem({ id: row.id });
     },
     async fetchPjTreeData() {
       const { data } = await this.fetch({

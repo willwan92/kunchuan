@@ -60,7 +60,7 @@
           ref="dialogForm"
           label-width="100px"
         >
-          <el-form-item label="IP地址" prop="ip">
+          <el-form-item label="IP/资产标识" prop="ip">
             <el-input v-model="dialogForm.ip" :readonly="Boolean(assetsId)"></el-input>
           </el-form-item>
           <el-form-item label="登录方式" prop="loginMethod">
@@ -154,7 +154,7 @@
 </template>
 
 <script>
-import { checkIp } from "common/utils";
+import { checkIp, getCascaderOptions } from "common/utils";
 
 export default {
   data() {
@@ -331,33 +331,17 @@ export default {
         url: "/porject/getProjectList",
         vm: this
       });
-      this.pjOptions = this.traverseArr(data);
-    },
-    traverseArr(arr) {
-      let tmpArr = [];
-      let tmpObj = {};
 
-      arr.forEach((item, index) => {
-        tmpObj = {
-          label: item.pjname,
-          value: item.id
-        };
-
-        if (item.children && item.children[0]) {
-          tmpObj.children = this.traverseArr(item.children);
-          tmpArr.push(tmpObj);
-        } else {
-          if (item.isleaf) {
-            tmpArr.push(tmpObj);
-          }
-        }
-      });
-
-      return tmpArr;
+      this.pjOptions = getCascaderOptions({
+				arr: data,
+				label: "pjname",
+				value: "id",
+				filter: 'isleaf'
+			});
     },
     async saveAsset() {
       let form = this.dialogForm;
-      const action = this.assetsId ? "editdevice.action" : "adddevice.action";
+      let action;
 
       const params = {
         pjid: this.getPjId,
@@ -378,6 +362,13 @@ export default {
         databasePassword: form.databasePassword,
         databaseInstance: form.databaseInstance
       };
+
+      if (this.assetsId) {
+        action = "editdevice.action";
+        params.deviceid = this.assetsId;
+      } else {
+        action = "adddevice.action";
+      }
 
       const data = await this.fetchFuzz({
         url: `/fuzz/page/view/station/device!${action}`,
@@ -426,15 +417,15 @@ export default {
         deviceNum: assetData[5],
         version: assetData[6],
         deviceOs: assetData[7],
-        deviceusr: assetData[9],
-        devicepass: assetData[10],
+        userName: assetData[9],
+        password: assetData[10],
         suUserName: assetData[11],
         suPassword: assetData[12],
         databasePath: assetData[13],
-        databaseAccount: assetData[15],
-        databasePassword: assetData[16],
-        databaseInstance: assetData[13],
-      }
+        databaseAccount: assetData[14],
+        databasePassword: assetData[15],
+        databaseInstance: assetData[16],
+      };
 
       this.dialogForm = Object.assign({}, this.dialogForm, formData);
     },

@@ -70,7 +70,7 @@
 </template>
 
 <script>
-	// import { judgeGender, deepCopy, commonExport } from 'common/utils'
+	import { toNumberArr } from 'common/utils'
 
 	export default {
 		data() {
@@ -118,11 +118,6 @@
 			async fetchPjTreeData() {
 				const { data } = await this.fetch({url: '/porject/getProjectSelectByIsleaf', vm: this});
 				this.pjTreeData = this.traverseArr(data);
-			},
-			toNumberArr(arr) {
-				return arr.map(item => {
-					return Number(item);
-				})
 			},
 			traverseArr(arr) {
 				let tmpArr = [];
@@ -205,7 +200,7 @@
 
 				this.form = Object.assign({}, this.form, {
 					pjname: pjData.pjname,
-					pjtype: this.toNumberArr(pjData.pjtype.split('/')),
+					pjtype: toNumberArr(pjData.pjtype.split('/')),
 					address: pjData.address,
 					description: pjData.description,
 					ip: pjData.ip

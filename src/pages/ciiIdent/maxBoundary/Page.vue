@@ -4,6 +4,7 @@
       <el-form :inline="true" label-position="left" label-width="90px">
         <el-form-item label="项目名称">
           <el-cascader
+            @change="handlePjChange"
             :show-all-levels="false"
             :options="pjOptions"
             :props="{ expandTrigger: 'hover' }"
@@ -14,21 +15,21 @@
         </el-form-item>
       </el-form>
       <el-table :data="tableData" border v-loading="isLoading">
-        <el-table-column label="序号" prop="ip"></el-table-column>
-        <el-table-column label="IP地址" prop="port"></el-table-column>
-        <el-table-column label="资产类型" prop="protoName"></el-table-column>
-        <el-table-column label="设备型号" prop="protoType"></el-table-column>
-        <el-table-column label="版本号" prop="result"></el-table-column>
-        <el-table-column label="生产厂家" prop="assetType"></el-table-column>
-        <el-table-column label="操作系统" prop="manufName"></el-table-column>
+        <el-table-column label="序号" prop="index"></el-table-column>
+        <el-table-column label="IP/资产标识" prop="ip"></el-table-column>
+        <el-table-column label="资产类型" prop="assetType"></el-table-column>
+        <el-table-column label="设备型号" prop="deviceNum"></el-table-column>
+        <el-table-column label="版本号" prop="version"></el-table-column>
+        <el-table-column label="生产厂家" prop="vendorName"></el-table-column>
+        <el-table-column label="操作系统" prop="deviceOs"></el-table-column>
         <el-table-column label="所属关键业务" prop="">
-          <template slot-scope="">
+          <template slot-scope="scope">
             <el-cascader
-              @change="0"
+              filterable
+              v-model="scope.row.kbName"
+              @change="handleKbChange(scope.row)"
               :options="businessOptions"
               :props="{ expandTrigger: 'hover' }"
-              filterable
-              v-model="searchParams.nickname"
             >
             </el-cascader>
           </template>
@@ -39,7 +40,7 @@
 </template>
 
 <script>
-import { getCascaderOptions } from "common/utils";
+import { getCascaderOptions, toNumberArr } from "common/utils";
 
 export default {
   data() {
@@ -71,6 +72,27 @@ export default {
     }
 	},
   methods: {
+    async handleKbChange(row) {
+      console.log( row);
+      
+      const data = await this.fetch({
+        url: "/device/getDeviceByKbname",
+        params: {
+          deviceid: row.id,
+          kbname: row.kbName && row.kbName.toString()
+        },
+        vm: this
+      });
+
+      if (data.success) {
+        this.$message.success('修改成功！')
+      } else {
+        this.$message.console.error(data.success);
+      }
+    },
+    handlePjChange() {
+      this.fetchTableData();
+    },
     editItem(id) {},
 
     // 请求列表数据
@@ -101,7 +123,36 @@ export default {
 				value: "id",
 				filter: 'isleaf'
 			});
-    }
+    },
+    async fetchTableData() {
+      const pjId = this.getPjId;
+
+      const data = await this.fetch({
+        url: "/device/getDeviceinfoBypjname",
+        params: {
+          pjid: pjId
+        },
+        vm: this
+      });
+
+      if (data && data[0]) {
+         this.tableData = data.map((item, index) => {
+          return {
+            index: index,
+            ip: item.ip,
+            id: item.deviceid,
+            assetType: item.devtype,
+            deviceNum: item.name,
+            version: item.version,
+            vendorName: item.vendor,
+            deviceOs: item.os,
+            kbName: item.kbname && toNumberArr(item.kbname.split(','))
+          };
+        });
+      } else {
+        this.tableData = [];
+      }
+    },
   }
 };
 </script>

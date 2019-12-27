@@ -1,7 +1,12 @@
 <template>
   <div class="page">
     <div class="section list">
-      <el-form :inline="true" label-position="left" label-width="90px">
+      <el-form
+        :inline="true"
+        class="info-form max-width"
+        label-position="left"
+        label-width="90px"
+      >
         <el-form-item label="业务信息库">
           <el-select v-model="excel" placeholder="">
             <el-option
@@ -16,14 +21,18 @@
         <el-form-item label="">
           <el-button type="primary">加载</el-button>
         </el-form-item>
-        <el-form-item label="">
-          <el-button type="primary">保存</el-button>
-        </el-form-item>
+        <el-button class="save-btn" :disabled="!KbTableData.length" @click="save" type="primary">保存关键业务</el-button>
       </el-form>
 
-      <el-row>
+      <el-row class="max-width">
         <el-col :span="10">
-          <el-table class="business-info-table" :data="tableData" border>
+          <el-table
+            class="business-info-table"
+            :data="isVisiableTableData"
+            @selection-change="handleTablebSelectionChange"
+            ref="table"
+            border
+          >
             <el-table-column type="selection" width="55"> </el-table-column>
             <el-table-column label="行业业务名称" prop="name"></el-table-column>
             <el-table-column label="业务描述" prop="desc"></el-table-column>
@@ -38,9 +47,15 @@
           <p><el-button type="info" @click="toLeft">&lt;&lt;</el-button></p>
         </el-col>
         <el-col :span="10">
-          <el-table class="business-info-table" :data="tableData" border>
+          <el-table
+            class="business-info-table"
+            ref="KbTable"
+            :data="KbTableData"
+            border
+            @selection-change="handleKbTablebSelectionChange"
+          >
             <el-table-column type="selection" width="55"> </el-table-column>
-            <el-table-column label="行业业务名称" prop="name"></el-table-column>
+            <el-table-column label="关键业务名称" prop="name"></el-table-column>
             <el-table-column label="业务描述" prop="desc"></el-table-column>
           </el-table>
         </el-col>
@@ -54,26 +69,96 @@ export default {
   data() {
     return {
       excel: "",
-      pjOptions: [],
       excelOptions: [],
-      tableData: []
+      tableData: [],
+      tableSelection: [],
+      KbTableSelection: []
     };
   },
   created() {
-    this.fetchFileList();
+    this.initData();
   },
   computed: {
-    actionName() {
-      return this.AssetsId ? "编辑" : "添加";
+    isVisiableTableData() {
+      return this.tableData.filter(item => {
+        return item.isVisiable;
+      });
+    },
+    KbTableData() {
+      return this.tableData.filter(item => {
+        return !item.isVisiable;
+      });
     }
   },
   methods: {
-    toRight() {},
-    toLeft() {},
-    initData() {
-      //   this.fetchAssetsTypeData();
-      //   this.fetchVendorsData();
-      //   this.fetchOsData();
+    async initData() {
+      await this.fetchFileList();
+      this.loadExcel();
+    },
+    getIds() {
+      let ids = [];
+      this.KbTableData.forEach(item => {
+        ids.push(item.id);
+      })
+
+      return ids;
+    },
+    async save() {
+      const data = await this.fetchFuzz({
+        url: "/fuzz/page/view/CIIidentification!keyServiceIdentificationSave.action",
+        params: {
+          ids: this.getIds().toString()
+        },
+        vm: this
+      });
+
+      if (data.state === 1) {
+        this.$message.success('保存成功！');
+      } else {
+        this.$message.error('保存失败，请稍后再试！');
+      }
+    },
+    handleTablebSelectionChange(val) {
+      this.tableSelection = val;
+    },
+    handleKbTablebSelectionChange(val) {
+      this.KbTableSelection = val;
+    },
+    toRight() {
+      let KbTableData = this.KbTableData;
+      let tableData = this.tableData;
+      this.tableSelection.forEach(item => {
+        tableData[item.index].isVisiable = false;
+      });
+    },
+    toLeft() {
+      let KbTableData = this.KbTableData;
+      let tableData = this.tableData;
+      this.KbTableSelection.forEach(item => {
+        tableData[item.index].isVisiable = true;
+      });
+    },
+    async loadExcel() {
+      const { data } = await this.fetchFuzz({
+        url: "/fuzz/page/view/CIIidentification!getInfoByReadFile.action",
+        params: {
+          excelType: 1,
+          fileName: this.excel
+        },
+        vm: this
+      });
+
+      data[0] &&
+        data.forEach((item, index) => {
+          this.tableData.push({
+            index: index,
+            id: item[3],
+            name: item[0],
+            desc: item[1],
+            critical: item[2],
+            isVisiable: true
+          });
+        });
     },
     async fetchFileList() {
       const data = await this.fetch({
@@ -81,8 +166,15 @@ export default {
         vm: this
       });
 
-      console.log(data)
+      data[0] &&
+        data.forEach(element => {
+          this.excelOptions.push({
+            label: element,
+            value: element
+          });
+        });
 
+      this.excel = data[0];
     }
   }
 };
@@ -101,6 +193,10 @@ export default {
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
       -webkit-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     }
+
+    .info-form {
+      position: relative;
+    }
   }
 }
 
@@ -114,7 +210,18 @@ export default {
   padding-top: 200px;
 }
 
+.max-width {
+  max-width: 1300px;
+}
+
+.save-btn {
+  position: absolute;
+  right: 0;
+  bottom: 22px;
+}
+
 .business-info-table {
   height: 600px;
+  overflow: auto;
 }
 </style>

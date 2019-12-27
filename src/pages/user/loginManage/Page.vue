@@ -1,7 +1,7 @@
 <template>
   <div class="page">
     <div class="section">
-      <div class="query-title">
+      <div class="section-title">
         <span>登录策略配置</span>
       </div>
       <el-form width="600px" :inline="true" label-width="120px">
@@ -56,7 +56,7 @@
     </div>
 
     <div class="section list">
-      <div class="query-title">
+      <div class="section-title">
         <div class="fl">
           <span>策略查询</span>
         </div>
@@ -233,7 +233,7 @@ export default {
   }
 }
 
-.query-title {
+.section-title {
   margin-bottom: 30px;
   padding: 5px;
   height: 35px;

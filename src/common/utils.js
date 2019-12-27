@@ -100,6 +100,14 @@ function download(data, name) {
 	link.click()
 }
 
+function toNumberArr(arr) {
+	if (arr && arr[0]) {
+		return arr.map(item => {
+			return Number(item);
+		})
+	}
+}
+
 function getCascaderOptions({ arr, label, value, filter = '' }) {
 	let tmpArr = [];
 	let tmpObj = {};
@@ -132,6 +140,7 @@ function getCascaderOptions({ arr, label, value, filter = '' }) {
 }
 
 export {
+	toNumberArr,
 	getCascaderOptions,
 	checkIp,
 	getToken,
