@@ -160,7 +160,7 @@ export const routes = [
       {
         path: 'assetList',
         name: 'assetList',
-        component: () => import('pages/ciiIdent/assetList/Page'),
+        component: () => import('pages/assetIdent/assetList/Page'),
         meta: {
           title: '资产清单'
         }
