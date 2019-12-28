@@ -19,7 +19,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="">
-          <el-button type="primary">加载</el-button>
+          <el-button type="primary" @click="loadExcel">加载</el-button>
         </el-form-item>
         <el-button class="save-btn" :disabled="!KbTableData.length" @click="save" type="primary">保存关键业务</el-button>
       </el-form>

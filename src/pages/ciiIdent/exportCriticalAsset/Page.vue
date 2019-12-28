@@ -1,85 +1,139 @@
 <template>
-	<div class="page">
-		<div class="section list">
-			<div class="section-title">
+  <div class="page">
+    <div class="section list">
+      <el-form
+        ref="form"
+        :inline="true"
+        label-width="80px"
+        label-position="left"
+      >
+        <el-form-item label="项目名称">
+          <el-cascader
+            :disabled="true"
+            :show-all-levels="false"
+            :options="pjOptions"
+            :props="{ expandTrigger: 'hover' }"
+            filterable
+            v-model="pjValue"
+          >
+          </el-cascader>
+        </el-form-item>
+      </el-form>
+      <div class="section-title">
         <span>关键性评估规则管理</span>
-				<el-button class="export-btn" type="primary" size="small" @click="exportList">导出</el-button>
+				<a :href="exportUrl" type="download">
+					<el-button
+						class="export-btn"
+						type="primary"
+						size="small"
+						>导出</el-button
+					>
+				</a>
+        
       </div>
-			
-			<el-table :data="tableData" type="selection"
-      width="55" border v-loading="isLoading">
-        <el-table-column label="" prop="index"></el-table-column>
+
+      <el-table
+        :data="tableData"
+        @selection-change="handleSelectionChange"
+        width="55"
+        border
+        v-loading="isLoading"
+      >
+        <el-table-column type="selection" width="55"></el-table-column>
         <el-table-column label="IP/资产标识" prop="ip"></el-table-column>
         <el-table-column label="资产类型" prop="assetType"></el-table-column>
         <el-table-column label="设备型号" prop="deviceNum"></el-table-column>
         <el-table-column label="版本号" prop="version"></el-table-column>
         <el-table-column label="操作系统" prop="deviceOs"></el-table-column>
         <el-table-column label="生产厂家" prop="vendorName"></el-table-column>
+        <el-table-column label="所属关键系统" prop="kbName"></el-table-column>
+        <el-table-column label="关键性" prop="kbValue"></el-table-column>
       </el-table>
-		</div>
-	</div>
+    </div>
+  </div>
 </template>
 
 <script>
-	import {commonExport} from 'common/utils'
+import { getCascaderOptions } from "common/utils";
+import { API_URL } from "common/axiosClient";
+import qs from 'qs';
 
-	export default {
-		data() {
-			return {
-				tableData: []
-			}
+
+export default {
+  data() {
+    return {
+      isLoading: false,
+      pjValue: [],
+      businessOptions: [],
+      pjOptions: [],
+      tableData: [],
+      multipleSelection: []
+    };
+  },
+  created() {
+    this.pjValue = JSON.parse(sessionStorage.getItem("pjValue"));
+    this.fetchTableData();
+		this.fetchPjTreeData();
+  },
+  computed: {	
+		exportUrl() {
+			const params = this.getIds();
+			return `${API_URL}/device/getExport?deviceid=${params}`;
 		},
-		methods: {
-			//批量上架
-			batchShelves(){
-				let params = {};
-				params.ids = this.multipleSelection.join(',');
-				params.status = 1;
-				if(this.multipleSelection.length == 0){
-					this.$notify.error('请勾选要上架的内容！');
-					
-				}else{
-					goodsStatus(params)
-					.then((res) => {
-						if (res.data.code === 2000000) {
-							this.$notify.success('批量上架成功！');
-							this.fetchData();
-						}else{
-							this.$notify.error(res.data.msg);
-							this.fetchData();
-						}	
-					})
-					.catch(err => {
-						this.$notify.error('批量上架失败！');
-						this.fetchData();
-					})
-				}
-			},
-			//选择框
-			handleSelectionChange(val){
-				if(val){
-					this.multipleSelection = [];
-					for(var i = 0;i < val.length;i++){
-						this.exportDetail = val[i].id;
-						this.multipleSelection.push(this.exportDetail);
-					}
-				}
-			},
-			//导出列表
-			exportList(item){
-				let params = {};
-				if (this.goodsNumber) {
-					params.id = this.goodsNumber;
-				}
-				if (this.goodsName) {
-					params.name = this.goodsName;
-				}
-				params.page = 2;
-				let url = '/api/pj-operation/goods/exportInfo';
-				commonExport(params,'回收站商品列表',url)
-			},
+    getPjId() {
+      let id;
+      if (this.pjValue && this.pjValue[0]) {
+        id = this.pjValue.slice(-1)[0];
+      } else {
+        id = null;
+      }
+
+      return id;
+    }
+  },
+  methods: {
+    async fetchTableData() {
+      const resData = JSON.parse(sessionStorage.getItem("affirmRes"));
+      this.tableData = resData.map(item => {
+        return {
+          ip: item.ip,
+          id: item.deviceid,
+          assetType: item.devtype,
+          deviceNum: item.name,
+          version: item.version,
+          vendorName: item.vendor,
+          deviceOs: item.os,
+          kbName: item.kbname,
+          kbValue: item.keychoice
+        };
+      });
+    },
+    async fetchPjTreeData() {
+      const { data } = await this.fetch({
+        url: "/porject/getProjectList",
+        vm: this
+      });
+
+      this.pjOptions = getCascaderOptions({
+        arr: data,
+        label: "pjname",
+        value: "id",
+        filter: "isleaf"
+      });
 		},
-	}
+		getIds() {
+			let ids = [];
+      this.multipleSelection.forEach(item => {
+        ids.push(item.id);
+      })
+
+			return ids.toString();
+    },
+    handleSelectionChange(val) {
+			this.multipleSelection = val;
+		}
+  }
+};
 </script>
 <style scoped lang="less">
 .page {
@@ -94,21 +148,19 @@
     &:hover {
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
       -webkit-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-		}
-		
-		.section-title {
-			position: relative;
-			margin-bottom: 30px;
-			padding: 5px;
-			height: 35px;
-			color: @blue;
-			border-bottom: 1px solid #ccc;
-			.export-btn {
-				position: absolute;
-				right: 5px;
-				bottom: 5px;
-			}
-		}
+    }
+
+    .section-title {
+      position: relative;
+      padding: 5px;
+      height: 35px;
+      color: @blue;
+      .export-btn {
+        position: absolute;
+        right: 5px;
+        bottom: 5px;
+      }
+    }
   }
 }
 

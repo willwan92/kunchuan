@@ -1,6 +1,6 @@
 <template>
   <div class="page">
-    <div class="section list">
+    <div class="section list rule-lib">
       <el-form :inline="true" label-position="left" label-width="90px">
         <el-form-item label="评估模板">
           <el-select v-model="excel" placeholder="">
@@ -20,7 +20,7 @@
       <el-table :data="tableData" border v-loading="isLoading">
         <el-table-column label="业务系统" prop="business"></el-table-column>
         <el-table-column label="关键性评级" prop="class"></el-table-column>
-        <el-table-column label="关键性" prop="key"></el-table-column>
+        <el-table-column label="关键性" prop="KbValue"></el-table-column>
         <el-table-column label="指标" prop="info"></el-table-column>
       </el-table>
     </div>
@@ -29,7 +29,7 @@
 			 <div class="section-title">
         <span>关键性评估规则管理</span>
       </div>
-      <el-table :data="ruleTableData" border v-loading="isLoading">
+      <el-table :data="ruleTableData" class="rule-lib-table" border v-loading="isLoading">
         <el-table-column label="规则名称" prop="name"></el-table-column>
         <el-table-column label="规则说明" prop="info"></el-table-column>
         <el-table-column label="操作" prop="">
@@ -139,11 +139,14 @@ export default {
 
 			if (data.code === 10000) {
 				this.$message.success("编辑成功！");
+				sessionStorage('aCount', dialogForm.aCount);
 			} else {
 				this.$message.error('编辑失败，请稍后再试！');
 			}
 
 			this.dialogShow = false;
+			this.fetchRules();
+
 		},
 		async fetchRules() {
       const data = await this.fetch({
@@ -151,12 +154,12 @@ export default {
         vm: this
       });
 
-      data[0] && data.forEach(element => {
-        this.ruleTableData.push({
+      this.ruleTableData = data.map(element => {
+         return {
 					id: element.id,
           name: element.name,
-					info: element.explain,
-        })
+					info: element.explain
+        }
       });
 		},
 		async handleEditClick(id) {
@@ -203,18 +206,16 @@ export default {
         },
         vm: this
 			});
-			
-			console.log(data);
 
-      // data[0] &&
-      //   data.forEach((item, index) => {
-      //     this.tableData.push({
-			// 			business: item[0],
-			// 			class: item[0],
-			// 			key: item[0],
-			// 			info: item[0],
-			// 		})
-      //   });
+      data[0] &&
+        data.forEach((item, index) => {
+          this.tableData.push({
+						business: item[0],
+						KbValue: item[1],
+						class: item[2],
+						info: item[3],
+					})
+        });
     },
   }
 };
@@ -249,8 +250,8 @@ export default {
   }
 }
 
-.btn-lg {
-  width: 150px;
-  margin-right: 30px;
+.rule-lib {
+	max-height: 600px;
+	overflow: auto;
 }
 </style>

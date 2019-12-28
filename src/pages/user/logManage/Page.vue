@@ -3,6 +3,7 @@
 		<div class="section list">
 			<el-form 
 				:inline="true"
+				class="query-form"
 				label-width="75px">
 				<el-form-item label="操作人">
 					<el-select v-model="searchParams.businessType">
@@ -35,7 +36,7 @@
 					<el-button class="btn-lg" type="primary" @click="search">查 询</el-button>
 				</el-form-item>
 			</el-form>
-		
+
 			<app-table :table-data="tableData" :table-titles="tableTitles" @operate="handleOperate"></app-table>
 		</div>
 	</div>
@@ -160,5 +161,9 @@
 .btn-lg {
 	width:150px;
 	margin-right:30px;
+}
+
+.query-form {
+	margin-bottom: 12px;
 }
 </style>
