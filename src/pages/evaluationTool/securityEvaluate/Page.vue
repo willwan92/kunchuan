@@ -24,7 +24,6 @@
 				<el-table-column label="检查方法" prop="method"></el-table-column>
 				<el-table-column label="评分标准" prop="standard"></el-table-column>
 				<el-table-column label="基准分值" prop="baseMark" width="80"></el-table-column>
-				<el-table-column label="检查得分" prop="mark" width="80"></el-table-column>
 				<el-table-column label="操作" width="80">
 					<template slot-scope="scope">
 						<el-button size="small" type="primary" @click="handleModify(scope.$index, scope.row)">打分</el-button>
@@ -32,8 +31,8 @@
 				</el-table-column>
 			</el-table>
 		</div>
-		<el-dialog title="打分" :visible.sync="dialogVisible" width="50%">
-			<el-form width="600px" label-width="260px" ref="form1" :model="form1" v-if="modifyRowId==0">
+		<el-dialog title="打分" :visible.sync="dialogVisible1" width="60%">
+			<el-form width="600px" label-width="260px" ref="form1" :model="form1">
 				<el-row>
 					<el-col :span="12">
 						<el-form-item label="是否明确负责网络安全管理工作的领导:" prop="leader">
@@ -74,6 +73,13 @@
 							</el-col>
 						</el-form-item>
 					</el-col>
+					<el-col :span="8">
+						<el-form-item label="检查得分:" prop="mark" label-width="100px">
+							<el-col :span="22">
+								<el-input v-model="form1.mark"></el-input>
+							</el-col>
+						</el-form-item>
+					</el-col>
 				</el-row>
 				<el-row>
 					<el-col :span="12">
@@ -86,7 +92,9 @@
 					</el-col>
 				</el-row>
 			</el-form>
-			<el-form width="600px" label-width="260px" ref="form2" :model="form2" v-if="modifyRowId==1">
+		</el-dialog>
+		<el-dialog title="打分" :visible.sync="dialogVisible2" width="60%">
+			<el-form width="600px" label-width="260px" ref="form2" :model="form2">
 				<el-row>
 					<el-col :span="12">
 						<el-form-item label="是否明确负责网络安全管理的内设机构:" prop="mechanism">
@@ -153,6 +161,15 @@
 				</el-row>
 				<el-row>
 					<el-col :span="12">
+						<el-form-item label="检查得分:" prop="mark">
+							<el-col :span="22">
+								<el-input v-model="form2.mark"></el-input>
+							</el-col>
+						</el-form-item>
+					</el-col>
+				</el-row>
+				<el-row>
+					<el-col :span="12">
 						<el-form-item>
 							<el-col :span="22">
 								<el-button type="primary" @click="submit()">提交</el-button>
@@ -162,12 +179,21 @@
 					</el-col>
 				</el-row>
 			</el-form>
-			<el-form width="600px" label-width="200px" ref="form3" :model="form3" v-if="modifyRowId==2">
+		</el-dialog>
+		<el-dialog title="打分" :visible.sync="dialogVisible3" width="60%">
+			<el-form width="600px" label-width="200px" ref="form3" :model="form3">
 				<el-row>
 					<el-col :span="12">
 						<el-form-item label="有无网络安全培训记录:" prop="record">
 							<el-col :span="22">
 								<el-input v-model="form3.record"></el-input>
+							</el-col>
+						</el-form-item>
+					</el-col>
+					<el-col :span="10">
+						<el-form-item label="检查得分:" prop="mark" label-width="95px">
+							<el-col :span="20">
+								<el-input v-model="form3.mark"></el-input>
 							</el-col>
 						</el-form-item>
 					</el-col>
@@ -206,13 +232,16 @@ export default {
       },
       tableData: [],
       isLoading: false,
-      dialogVisible: false,
+      dialogVisible1: false,
+      dialogVisible2: false,
+      dialogVisible3: false,
       form1: {
         leader: "",
         leadername: "",
         job: "",
         mainPerson: "",
-        askPerson: ""
+        askPerson: "",
+        mark: ""
       },
       form2: {
         mechanism: "",
@@ -223,12 +252,13 @@ export default {
         mobilephone: "",
         job: "",
         mainPerson: "",
-        askPerson: ""
-			},
-			form3: {
-				record: ''
-			},
-      modifyRowId: ""
+        askPerson: "",
+        mark: ""
+      },
+      form3: {
+        record: "",
+        mark: ""
+      }
     };
   },
   methods: {
@@ -253,19 +283,20 @@ export default {
         filter: "isleaf"
       });
     },
-    handleEdit(index, row) {
-      this.$message({
-        message: "保存成功",
-        type: "success"
-      });
-    },
     handleModify(index, row) {
       console.log(index);
-      this.modifyRowId = index;
-      this.dialogVisible = true;
+      if (index == 0) {
+        this.dialogVisible1 = true;
+      } else if (index == 1) {
+        this.dialogVisible2 = true;
+      } else {
+        this.dialogVisible3 = true;
+      }
     },
     submit() {
-      this.dialogVisible = false;
+      this.dialogVisible1 = false;
+      this.dialogVisible2 = false;
+      this.dialogVisible3 = false;
       this.$message({
         message: "提交成功",
         type: "success"
@@ -307,8 +338,7 @@ export default {
           "查验有关领导（网络安全直接责任人和具体负责人）工作分工的相关文件或任命通知;2.查验网络安全相关工作批示、会议记录等，了解主管领导履职情况。",
         standard:
           "1.缺少网络安全直接责任人和具体负责人扣4分；2.网络安全主管领导是单位（企业）正副职领导，否则扣2分（相关人事任命正式文件或通知，可作为本项符合的支撑性材料）。",
-        baseMark: 4,
-        mark: "4"
+        baseMark: 4
       },
       {
         id: 2,
@@ -319,20 +349,17 @@ export default {
           "1.查验单位各内设机构职责分工等文件，检查是否指定了网络安全管理机构,或者成立了网络与信息安全领导小组，有相关批示文件；2.检查文件或通知下发的时间不大于5年。",
         standard:
           "1.未成立网络安全组织机构，扣4分；2.网络安全组织机构成立文件明显过期或失效，扣2分。",
-        baseMark: 4,
-        mark: "4"
-			},
-			{
+        baseMark: 4
+      },
+      {
         id: 3,
         checkItem: "责任落实",
         checkChildItem: "人员管理",
         require: "各单位（企业）应配备专职网络安全岗位和网络安全工作人员。",
         method:
           "查验单位（企业）网络安全岗位职责文件，检查系统管理员、网络管理员、网络安全员、一般工作人员等不同岗位的网络安全责任是否明确。",
-        standard:
-          "单位（企业）未配备专职网络安全管理人员和网络安全，扣4分。",
-        baseMark: 4,
-        mark: "4"
+        standard: "单位（企业）未配备专职网络安全管理人员和网络安全，扣4分。",
+        baseMark: 4
       }
     ];
     this.tableData = list;
