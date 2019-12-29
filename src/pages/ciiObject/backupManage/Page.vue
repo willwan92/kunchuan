@@ -2,10 +2,16 @@
   <!-- 备份管理 -->
   <div class="page">
     <div class="section">
-      <el-form :inline="true" label-width="75px">
+      <el-form :inline="true" label-width="75px" :model="queryForm">
         <el-form-item label="项目名称">
-          <el-cascader :show-all-levels="false" :options="pjOptions" :props="{ expandTrigger: 'hover' }" filterable v-model="pjValue">
+          <el-cascader :show-all-levels="false" :options="pjOptions" :props="{ expandTrigger: 'hover' }" filterable v-model="queryForm.pjValue">
           </el-cascader>
+        </el-form-item>
+        <el-form-item label="IP/资产标识" label-width="90px">
+          <el-select placeholder="请选择" v-model="queryForm.assetSign" clearable>
+            <el-option v-for="item in assetSignOptions" :key="item.value" :label="item.label" :value="item.value">
+            </el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="">
           <el-button type="primary" @click="fetchTableData">查询</el-button>
@@ -38,20 +44,13 @@ export default {
   data() {
     return {
       pjOptions: [],
+      assetSignOptions: [],
+      queryForm: {
+        assetSign: "",
+        pjValue: ""
+      },
       tableData1: [],
       form: {},
-      rowEditData1: {
-        version: "",
-        KeyBusiness: ""
-      },
-      rowEditData2: {
-        version: "",
-        KeyBusiness: ""
-      },
-      rowEditData3: {
-        version: "",
-        KeyBusiness: ""
-      },
       fileList1: [],
       tableData1: [
         {
@@ -76,7 +75,6 @@ export default {
         filter: "isleaf"
       });
     },
-    handleClick() {},
     handleDelete() {
       this.$confirm("确定删除？", "提示", {
         confirmButtonText: "确定",
@@ -103,9 +101,6 @@ export default {
       });
     },
     handleLoad() {},
-    resetForm(formName) {
-      this.$refs[formName].resetFields();
-    },
     submitUpload() {
       console.log(this.fileList1);
       this.$refs.upload.submit();
@@ -115,10 +110,6 @@ export default {
     },
     beforeRemove(file, fileList) {
       return this.$confirm(`确定移除 ${file.name}？`);
-    },
-    handleSubmit(event, file, fileList) {
-      console.log(file);
-      console.log(fileList);
     }
   },
   created() {

@@ -28,11 +28,7 @@
 export default {
   data() {
     return {
-      pjtype: "",
-      safeModel: "",
-      modelOptions: [],
       tableData1: [],
-      tableData2: [],
       form: {
         id: "",
         modelName: ""

@@ -2,13 +2,13 @@
 	<!-- 安全评估 -->
 	<div class="page">
 		<div class="section list">
-			<el-form :inline="true" label-width="75px">
+			<el-form :inline="true" label-width="75px" :model="queryForm">
 				<el-form-item label="项目名称">
-					<el-cascader :options="pjOptions" :props="{ expandTrigger: 'hover', checkStrictly: true }" filterable v-model="pjtype">
+					<el-cascader :options="pjOptions" :props="{ expandTrigger: 'hover', checkStrictly: true }" filterable v-model="queryForm.pjValue">
 					</el-cascader>
 				</el-form-item>
 				<el-form-item label="安全评估模板" label-width="130px">
-					<el-select v-model="charts" placeholder="" clearable style="width: 300px">
+					<el-select v-model="queryForm.charts" placeholder="" clearable style="width: 300px">
 						<el-option v-for="item in chartsOptions" :key="item.value" :label="item.label" :value="item.value">
 						</el-option>
 					</el-select>
@@ -25,7 +25,7 @@
 				<el-table-column label="评分标准" prop="standard"></el-table-column>
 				<el-table-column label="基准分值" prop="baseMark" width="80"></el-table-column>
 				<el-table-column label="检查得分" prop="mark" width="80"></el-table-column>
-				<el-table-column label="操作">
+				<el-table-column label="操作" width="80">
 					<template slot-scope="scope">
 						<el-button size="small" type="primary" @click="handleModify(scope.$index, scope.row)">打分</el-button>
 					</template>
@@ -172,15 +172,17 @@ import { getCascaderOptions } from "common/utils";
 export default {
   data() {
     return {
-      pjtype: "",
-			pjOptions: [],
-			chartsOptions: [{
-				label: '关键信息基础设施网络安全检查表.xlsx',
-				value: '1'
-			}],
-			charts: '1',
-      safeModel: "",
-      modelOptions: [],
+      pjOptions: [],
+      chartsOptions: [
+        {
+          label: "关键信息基础设施网络安全检查表.xlsx",
+          value: "1"
+        }
+      ],
+      queryForm: {
+        pjValue: "",
+        charts: "1"
+      },
       tableData: [],
       isLoading: false,
       dialogVisible: false,
