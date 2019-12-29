@@ -6,7 +6,7 @@
         <el-button
           class="operate-btn"
           type="primary"
-          @click="saveInterfaceConfig"
+          @click="handleSaveInterfaceClick"
           >保存设置</el-button
         >
       </div>
@@ -229,7 +229,20 @@ export default {
 		this.getRouteConfig();
 	},
 	methods: {
+		handleSaveInterfaceClick() {
+			this.$confirm('确认要修改管理口配置吗？', '提示', {
+				confirmButtonText: '确定',
+				cancelButtonText: '取消',
+				type: 'warning'
+			}).then(() => {
+				this.$message.success('设置成功，请使用新IP重新登录');
+				this.saveInterfaceConfig();
+			}).catch(() => {
+               
+			});
+		},
 		async saveInterfaceConfig() {
+			
 			let content = '';
 			let tmpStr = '';
 

@@ -143,8 +143,9 @@
 			},
 			async handleComfirmClick() {
 				let url = '/projectInfo/getProjectInfoAdd';
-				let params = this._.clone(this.form);
+				let params = this.form;
 				params.isleaf = this.isLeaf;
+				params.pjtype = params.pjtype.join('/');
 
 				// 编辑
 				if (this.id) {
@@ -152,7 +153,6 @@
 					url = '/projectInfo/getProjectInfoid';
 				} else {
 					params.pid = params.pjtype.slice(-1)[0];
-					params.pjtype = params.pjtype.join('/');
 				}
 
 
