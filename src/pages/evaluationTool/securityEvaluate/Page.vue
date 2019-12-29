@@ -2,19 +2,19 @@
 	<!-- 安全评估 -->
 	<div class="page">
 		<div class="section list">
-			<el-form :inline="true" label-width="75px">
+			<el-form :inline="true" label-width="75px" :model="queryForm">
 				<el-form-item label="项目名称">
-					<el-cascader :options="pjOptions" :props="{ expandTrigger: 'hover', checkStrictly: true }" filterable v-model="pjtype">
+					<el-cascader :options="pjOptions" :props="{ expandTrigger: 'hover', checkStrictly: true }" filterable v-model="queryForm.pjValue">
 					</el-cascader>
 				</el-form-item>
 				<el-form-item label="安全评估模板" label-width="130px">
-					<el-select v-model="charts" placeholder="" clearable style="width: 300px">
+					<el-select v-model="queryForm.charts" placeholder="" clearable style="width: 300px">
 						<el-option v-for="item in chartsOptions" :key="item.value" :label="item.label" :value="item.value">
 						</el-option>
 					</el-select>
 				</el-form-item>
 				<el-button class="btn-lg" type="primary" @click="load()">加载</el-button>
-				<el-button class="btn-lg" type="primary" @click="output()"><a style="color: #fff" href="https://raw.githubusercontent.com/ElementUI/Resources/master/Element_Components_v2.0.0.rplib">结果生成导出</a></el-button>
+				<el-button class="btn-lg" type="primary" @click="output()"><a style="color: #fff" href="https://allall01.baidupcs.com/file/fb769cd5epac8307b6e5a066ce93574b?bkt=en-43ea5360a23c0e2041f4ce0542b30b1c3b43874a83a0598e32b16c69b9de51824318112fda50f0d3b320ad2ed9a537498fe446f200b226cf887fa3f88d1351b9&fid=894058109-250528-889447324372429&time=1577612255&sign=FDTAXGERLQBHSKfW-DCb740ccc5511e5e8fedcff06b081203-Hh2wlFWFEZJkyOakZ%2F5tbchkGlg%3D&to=79&size=10050&sta_dx=10050&sta_cs=1168&sta_ft=xlsx&sta_ct=0&sta_mt=0&fm2=MH%2CYangquan%2CAnywhere%2C%2Cbeijing%2Cpbs&ctime=1577612235&mtime=1577612235&resv0=cdnback&resv1=0&resv2=rlim&resv3=5&resv4=10050&vuk=894058109&iv=0&htype=&randtype=&newver=1&newfm=1&secfm=1&flow_ver=3&pkey=en-612b712b27faa6cfc704eb34622cbe6a45b97bf05ccb1fe300874beabdaa1a2d75ecc02dbb6dc5d52c6ee66329c3d48e19dc60fcea5303d8305a5e1275657320&sl=68616270&expires=8h&rt=pr&r=995406220&vbdid=1298347052&fin=expert.xlsx&fn=expert.xlsx&rtype=1&dp-logid=8412835463866727117&dp-callid=0.1&hps=1&tsl=200&csl=200&csign=d765UW7qlGNdcbawH%2BoYbus3IsU%3D&so=0&ut=6&uter=4&serv=0&uc=569815613&ti=0887d9faa0e99264fe7f0b8346fe565c43fdc5af99d8f952305a5e1275657320&reqlabel=250528_f_446cf977a9162627c66d667081e89aa9_-1_6752012fa09ec0be799964ca97bc8e4e&by=themis">结果生成导出</a></el-button>
 			</el-form>
 			<el-table :data="tableData" border :span-method="objectSpanMethod" v-loading="isLoading" :element-loading-text="loadingText">
 				<el-table-column label="序号" prop="id" width="50"></el-table-column>
@@ -25,14 +25,14 @@
 				<el-table-column label="评分标准" prop="standard"></el-table-column>
 				<el-table-column label="基准分值" prop="baseMark" width="80"></el-table-column>
 				<el-table-column label="检查得分" prop="mark" width="80"></el-table-column>
-				<el-table-column label="操作">
+				<el-table-column label="操作" width="80">
 					<template slot-scope="scope">
 						<el-button size="small" type="primary" @click="handleModify(scope.$index, scope.row)">打分</el-button>
 					</template>
 				</el-table-column>
 			</el-table>
 		</div>
-		<el-dialog title="详情" :visible.sync="dialogVisible" width="50%">
+		<el-dialog title="打分" :visible.sync="dialogVisible" width="50%">
 			<el-form width="600px" label-width="260px" ref="form1" :model="form1" v-if="modifyRowId==0">
 				<el-row>
 					<el-col :span="12">
@@ -162,6 +162,27 @@
 					</el-col>
 				</el-row>
 			</el-form>
+			<el-form width="600px" label-width="200px" ref="form3" :model="form3" v-if="modifyRowId==2">
+				<el-row>
+					<el-col :span="12">
+						<el-form-item label="有无网络安全培训记录:" prop="record">
+							<el-col :span="22">
+								<el-input v-model="form3.record"></el-input>
+							</el-col>
+						</el-form-item>
+					</el-col>
+				</el-row>
+				<el-row>
+					<el-col :span="12">
+						<el-form-item>
+							<el-col :span="22">
+								<el-button type="primary" @click="submit()">提交</el-button>
+								<el-button type="primary" @click="resetForm('form3')">重置</el-button>
+							</el-col>
+						</el-form-item>
+					</el-col>
+				</el-row>
+			</el-form>
 		</el-dialog>
 	</div>
 </template>
@@ -172,15 +193,17 @@ import { getCascaderOptions } from "common/utils";
 export default {
   data() {
     return {
-      pjtype: "",
-			pjOptions: [],
-			chartsOptions: [{
-				label: '关键信息基础设施网络安全检查表.xlsx',
-				value: '1'
-			}],
-			charts: '1',
-      safeModel: "",
-      modelOptions: [],
+      pjOptions: [],
+      chartsOptions: [
+        {
+          label: "关键信息基础设施网络安全检查表.xlsx",
+          value: "1"
+        }
+      ],
+      queryForm: {
+        pjValue: "",
+        charts: "1"
+      },
       tableData: [],
       isLoading: false,
       dialogVisible: false,
@@ -201,7 +224,10 @@ export default {
         job: "",
         mainPerson: "",
         askPerson: ""
-      },
+			},
+			form3: {
+				record: ''
+			},
       modifyRowId: ""
     };
   },
@@ -278,7 +304,7 @@ export default {
         require:
           "1.各单位（企业）应明确单位网络安全直接责任人;2.各单位（企业）应明确网络安全具体负责人。",
         method:
-          "1.查验有关领导（网络安全直接责任人和具体负责人）工作分工的相关文件或任命通知;2.查验网络安全相关工作批示、会议记录等，了解主管领导履职情况。",
+          "查验有关领导（网络安全直接责任人和具体负责人）工作分工的相关文件或任命通知;2.查验网络安全相关工作批示、会议记录等，了解主管领导履职情况。",
         standard:
           "1.缺少网络安全直接责任人和具体负责人扣4分；2.网络安全主管领导是单位（企业）正副职领导，否则扣2分（相关人事任命正式文件或通知，可作为本项符合的支撑性材料）。",
         baseMark: 4,
@@ -288,18 +314,27 @@ export default {
         id: 2,
         checkItem: "责任落实",
         checkChildItem: "网络安全机构",
-        require: "1.设立负责网络安全管理工作的内设机构，并明确机构负责人。",
+        require: "设立负责网络安全管理工作的内设机构，并明确机构负责人。",
         method:
           "1.查验单位各内设机构职责分工等文件，检查是否指定了网络安全管理机构,或者成立了网络与信息安全领导小组，有相关批示文件；2.检查文件或通知下发的时间不大于5年。",
         standard:
           "1.未成立网络安全组织机构，扣4分；2.网络安全组织机构成立文件明显过期或失效，扣2分。",
         baseMark: 4,
         mark: "4"
+			},
+			{
+        id: 3,
+        checkItem: "责任落实",
+        checkChildItem: "人员管理",
+        require: "各单位（企业）应配备专职网络安全岗位和网络安全工作人员。",
+        method:
+          "查验单位（企业）网络安全岗位职责文件，检查系统管理员、网络管理员、网络安全员、一般工作人员等不同岗位的网络安全责任是否明确。",
+        standard:
+          "单位（企业）未配备专职网络安全管理人员和网络安全，扣4分。",
+        baseMark: 4,
+        mark: "4"
       }
     ];
-    list.forEach(element => {
-      element["show"] = false;
-    });
     this.tableData = list;
   }
 };

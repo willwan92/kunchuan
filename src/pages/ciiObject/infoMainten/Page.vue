@@ -2,9 +2,9 @@
 	<!-- 信息维护 -->
 	<div class="page">
 		<div class="section">
-			<el-form :inline="true" label-width="75px">
+			<el-form :inline="true" label-width="75px" :model="queryForm">
 				<el-form-item label="项目名称">
-					<el-cascader :show-all-levels="false" :options="pjOptions" :props="{ expandTrigger: 'hover' }" filterable v-model="pjValue">
+					<el-cascader :show-all-levels="false" :options="pjOptions" :props="{ expandTrigger: 'hover' }" filterable v-model="queryForm.pjValue">
 					</el-cascader>
 				</el-form-item>
 				<el-form-item label="">
@@ -360,7 +360,7 @@
 		</el-dialog>
 		<!-- 数据类资产 -->
 		<el-dialog title="查看" :visible.sync="dialogVisibleView3" width="50%">
-			<el-form width="600px" label-width="100px" ref="form3" :model="form3">
+			<el-form width="600px" v-if="rowEdit3Index==0" label-width="100px" ref="form3" :model="form3">
 				<el-row>
 					<el-col :span="12">
 						<el-form-item label="存储位置:" prop="pos">
@@ -410,9 +410,59 @@
 					</el-col>
 				</el-row>
 			</el-form>
+			<el-form width="600px" v-else label-width="100px" ref="form4" :model="form4">
+				<el-row>
+					<el-col :span="12">
+						<el-form-item label="存储位置:" prop="pos">
+							<el-col :span="22">
+								<el-input v-model="form4.pos" disabled="true"></el-input>
+							</el-col>
+						</el-form-item>
+					</el-col>
+					<el-col :span="12">
+						<el-form-item label="占用空间:" prop="space">
+							<el-col :span="22">
+								<el-input v-model="form4.space" disabled="true"></el-input>
+							</el-col>
+						</el-form-item>
+					</el-col>
+				</el-row>
+				<el-row>
+					<el-col :span="12">
+						<el-form-item label="版本号:" prop="version">
+							<el-col :span="22">
+								<el-input v-model="form4.version" disabled="true"></el-input>
+							</el-col>
+						</el-form-item>
+					</el-col>
+					<el-col :span="12">
+						<el-form-item label="最终更新时间:" prop="updateTime">
+							<el-col :span="22">
+								<el-input v-model="form4.updateTime" disabled="true"></el-input>
+							</el-col>
+						</el-form-item>
+					</el-col>
+				</el-row>
+				<el-row>
+					<el-col :span="12">
+						<el-form-item label="打开方式:" prop="open">
+							<el-col :span="22">
+								<el-input v-model="form4.open" disabled="true"></el-input>
+							</el-col>
+						</el-form-item>
+					</el-col>
+					<el-col :span="12">
+						<el-form-item label="功能简述:" prop="des">
+							<el-col :span="22">
+								<el-input type="textarea" v-model="form4.des" disabled="true"></el-input>
+							</el-col>
+						</el-form-item>
+					</el-col>
+				</el-row>
+			</el-form>
 		</el-dialog>
 		<el-dialog title="编辑" :visible.sync="dialogVisibleEdit3" width="50%">
-			<el-form width="600px" label-width="100px" ref="form3" :model="form3">
+			<el-form v-if="rowEdit3Index==0" width="600px" label-width="100px" ref="form3" :model="form3">
 				<el-row>
 					<el-col :span="12">
 						<el-form-item label="存储位置:" prop="pos">
@@ -472,7 +522,68 @@
 					</el-col>
 				</el-row>
 			</el-form>
+			<el-form v-else width="600px" label-width="100px" ref="form4" :model="form4">
+				<el-row>
+					<el-col :span="12">
+						<el-form-item label="存储位置:" prop="pos">
+							<el-col :span="22">
+								<el-input v-model="form4.pos"></el-input>
+							</el-col>
+						</el-form-item>
+					</el-col>
+					<el-col :span="12">
+						<el-form-item label="占用空间:" prop="space">
+							<el-col :span="22">
+								<el-input v-model="form4.space"></el-input>
+							</el-col>
+						</el-form-item>
+					</el-col>
+				</el-row>
+				<el-row>
+					<el-col :span="12">
+						<el-form-item label="版本号:" prop="version">
+							<el-col :span="22">
+								<el-input v-model="form4.version"></el-input>
+							</el-col>
+						</el-form-item>
+					</el-col>
+					<el-col :span="12">
+						<el-form-item label="最终更新时间:" prop="updateTime">
+							<el-col :span="22">
+								<el-input v-model="form4.updateTime"></el-input>
+							</el-col>
+						</el-form-item>
+					</el-col>
+				</el-row>
+				<el-row>
+					<el-col :span="12">
+						<el-form-item label="打开方式:" prop="open">
+							<el-col :span="22">
+								<el-input v-model="form4.open"></el-input>
+							</el-col>
+						</el-form-item>
+					</el-col>
+					<el-col :span="12">
+						<el-form-item label="功能简述:" prop="des">
+							<el-col :span="22">
+								<el-input type="textarea" v-model="form4.des"></el-input>
+							</el-col>
+						</el-form-item>
+					</el-col>
+				</el-row>
+				<el-row>
+					<el-col :span="12">
+						<el-form-item>
+							<el-col :span="22">
+								<el-button type="primary" @click="submit()">提交</el-button>
+								<el-button type="primary" @click="resetForm('form4')">重置</el-button>
+							</el-col>
+						</el-form-item>
+					</el-col>
+				</el-row>
+			</el-form>
 		</el-dialog>
+
 	</div>
 </template>
 
@@ -483,6 +594,9 @@ export default {
   data() {
     return {
       pjOptions: [],
+      queryForm: {
+        pjValue: ""
+      },
       tabName: "1",
       tableData1: [],
       tableData2: [],
@@ -520,26 +634,37 @@ export default {
         updateTime: "",
         open: "",
         des: ""
-      }
+      },
+      form4: {
+        pos: "",
+        space: "",
+        version: "",
+        updateTime: "",
+        open: "",
+        des: ""
+      },
+      rowEdit3Index: ""
     };
   },
   methods: {
-    rowView1() {
+    rowView1(index, row) {
       this.dialogVisibleView1 = true;
     },
     rowEdit1(index, row) {
       this.dialogVisibleEdit1 = true;
     },
-    rowView2() {
+    rowView2(index, row) {
       this.dialogVisibleView2 = true;
     },
     rowEdit2(index, row) {
       this.dialogVisibleEdit2 = true;
     },
-    rowView3() {
+    rowView3(index, row) {
+      this.rowEdit3Index = index;
       this.dialogVisibleView3 = true;
     },
     rowEdit3(index, row) {
+      this.rowEdit3Index = index;
       this.dialogVisibleEdit3 = true;
     },
     submit() {
@@ -629,15 +754,15 @@ export default {
       {
         id: "1",
         IPaddress: "1",
-        EquipmentModel: "isRTU",
-        system: "中科",
+        EquipmentModel: "step7",
+        system: "Siemens",
         KeyBusiness: "制丝生产业务/制丝生产系统"
       },
       {
         id: "2",
         IPaddress: "2",
-        EquipmentModel: "路由器统一工厂信息平台 ",
-        system: "中京",
+        EquipmentModel: "wincc ",
+        system: "Siemens",
         KeyBusiness: "复烤生产业务/复烤生产系统"
       }
     ];
@@ -667,8 +792,16 @@ export default {
       space: "30M",
       version: "1",
       updateTime: "2019/12/4 14:54:23",
-      open: "串口扫描工具",
-      des: "RTU远程终端单元，负责对现场信号、工业设备进行监测 和控制"
+      open: "step7",
+      des: "制丝电控程序"
+    };
+    this.form4 = {
+      pos: "d:RTU",
+      space: "30M",
+      version: "1",
+      updateTime: "2019/12/4 14:54:23",
+      open: "wincc",
+      des: "制丝监控程序"
     };
   }
 };

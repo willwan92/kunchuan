@@ -160,18 +160,22 @@
 <script>
 	export default {
     data() {
-      const item = {
-        name: 'Linux主机配置策略',
-        type: '57/1',
-        attr: '预定义'
-      };
+      // const item = {
+      //   name: 'Linux主机配置策略',
+      //   type: '57/1',
+      //   attr: '预定义'
+      // };
       return {
         activeName: 'first',
-        tableData: Array(6).fill(item),
+        tableData:  [{
+          name: '全局策略',
+          type: '1576/47',
+          attr: '预定义'
+        }],
         data: [{
           label: '内置策略组',
           children: [{
-            label: '综合楼策略组',
+            label: '综合类策略组',
           }, {
             label: '主机类策略组',
           }, {
@@ -246,8 +250,25 @@
       }
     },
     methods: {
-      handleNodeClick () {
-
+      handleNodeClick (data) {
+        console.log(data)
+        if (data.label === '综合类策略组') {
+          this.tableData = [{
+            name: '全局策略',
+            type: '1576/47',
+            attr: '预定义'
+          }]
+        } else if (data.label === '主机类策略组') {
+          this.tableData = [
+            {name: 'Linux主机配置策略', type: '57/1', attr: '预定义'},
+            {name: 'Windows主机配置策略', type: '68/1', attr: '预定义'}
+          ]
+        } else {
+          this.tableData = [
+            {name: 'oracle数据库配置策略', type: '33/1', attr: '预定义'},
+            {name: 'sqlsever配置策略', type: '16/1', attr: '预定义'}
+          ]
+        }
       },
       /**
        * 树形结构操作

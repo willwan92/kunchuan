@@ -2,27 +2,27 @@
 	<!-- 安全补丁管理 -->
 	<div class="page">
 		<div class="section">
-			<el-form :inline="true" label-width="70px">
+			<el-form :inline="true" label-width="70px" :model="queryForm">
 				<el-form-item label="资产类型" prop="">
-					<el-select placeholder="请选择" v-model="assetsValue" clearable>
+					<el-select placeholder="请选择" v-model="queryForm.assetsValue" clearable>
 						<el-option v-for="item in assetsOptions" :key="item.value" :label="item.label" :value="item.value">
 						</el-option>
 					</el-select>
 				</el-form-item>
 				<el-form-item label="设备型号" prop="">
-					<el-select placeholder="请选择" v-model="equipmentValue" clearable>
+					<el-select placeholder="请选择" v-model="queryForm.equipmentValue" clearable>
 						<el-option v-for="item in equipmentOptions" :key="item.value" :label="item.label" :value="item.value">
 						</el-option>
 					</el-select>
 				</el-form-item>
 				<el-form-item label="厂家名称" prop="">
-					<el-select placeholder="请选择" v-model="factoryValue" clearable>
+					<el-select placeholder="请选择" v-model="queryForm.factoryValue" clearable>
 						<el-option v-for="item in factoryOptions" :key="item.value" :label="item.label" :value="item.value">
 						</el-option>
 					</el-select>
 				</el-form-item>
 				<el-form-item label="操作系统" prop="">
-					<el-select placeholder="请选择" v-model="systemValue" clearable>
+					<el-select placeholder="请选择" v-model="queryForm.systemValue" clearable>
 						<el-option v-for="item in systemOptions" :key="item.value" :label="item.label" :value="item.value">
 						</el-option>
 					</el-select>
@@ -107,6 +107,12 @@ export default {
         solution: "",
         load: ""
       },
+      queryForm: {
+        assetsValue: "",
+        equipmentValue: "",
+        factoryValue: "",
+        systemValue: ""
+      },
       dialogVisible: false,
       assetsOptions: [
         {
@@ -138,7 +144,6 @@ export default {
           label: "DCS"
         }
       ],
-      assetsValue: "",
       equipmentOptions: [
         {
           value: "1",
@@ -153,7 +158,6 @@ export default {
           label: "BMX NOE 0100"
         }
       ],
-      equipmentValue: "",
       factoryOptions: [
         {
           value: "1",
@@ -180,7 +184,6 @@ export default {
           label: "ABB"
         }
       ],
-      factoryValue: "",
       systemOptions: [
         {
           value: "1",
@@ -190,8 +193,7 @@ export default {
           value: "2",
           label: "Linux"
         }
-      ],
-      systemValue: ""
+      ]
     };
   },
   methods: {
@@ -250,7 +252,7 @@ export default {
         solution: "无",
         load: "无"
       }
-    ]
+    ];
   }
 };
 </script>

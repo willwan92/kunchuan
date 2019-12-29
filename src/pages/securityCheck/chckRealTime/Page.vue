@@ -2,7 +2,7 @@
 	<div class="goodsPage">
 		<div class="goodsTop">
       <el-tabs v-model="activeName" type="card" @tab-click="handleClick">
-        <el-tab-pane label="定时任务" name="first">
+        <el-tab-pane label="实时任务" name="first">
           <template>
             <el-button type="primary" plain size="medium" @click="addTaskFun">添加</el-button>
             <el-button type="primary" plain size="medium" @click="deleteRealTime">删除</el-button>
@@ -37,7 +37,7 @@
         title="核查报告" :visible.sync="dialogVisible" width="30%" :before-close="handleClose">
         <div style="padding: 20px;">
           <div>
-            <span style="padding-right: 40px;">报告预览</span><span>预览（html）</span>
+            <span style="padding-right: 40px;">报告预览</span><span @click="openHTML">预览（html）</span>
           </div>
           <div style="margin-top: 20px;">
             <span style="padding-right: 40px;">报告下载</span>
@@ -59,7 +59,7 @@
             <el-form-item label="任务名称">
               <el-input v-model="addTaskForm.name"></el-input>
             </el-form-item>
-            <el-form-item label="战场选择">
+            <el-form-item label="项目选择">
               <el-select v-model="addTaskForm.task" placeholder="请选择">
                 <el-option label="研发" value="1"></el-option>
                 <el-option label="公网" value="2"></el-option>
@@ -147,6 +147,10 @@
 			}
 		},
     methods: {
+      openHTML () {
+        // window.open('http://10.60.100.200/fuzz/html/21_html/main.html', '_blank')
+        window.open('/webapps/dist/html/21_html/main.htmll', '_blank')
+      },
       handleSelectionChange(val) {
         console.log(val, 'val')
         this.multipleSelection = val
