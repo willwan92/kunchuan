@@ -2,10 +2,16 @@
   <!-- 备份管理 -->
   <div class="page">
     <div class="section">
-      <el-form :inline="true" label-width="75px">
+      <el-form :inline="true" label-width="75px" :model="queryForm">
         <el-form-item label="项目名称">
-          <el-cascader :show-all-levels="false" :options="pjOptions" :props="{ expandTrigger: 'hover' }" filterable v-model="pjValue">
+          <el-cascader :show-all-levels="false" :options="pjOptions" :props="{ expandTrigger: 'hover' }" filterable v-model="queryForm.pjValue">
           </el-cascader>
+        </el-form-item>
+        <el-form-item label="IP/资产标识" label-width="90px">
+          <el-select placeholder="请选择" v-model="queryForm.assetSign" clearable>
+            <el-option v-for="item in assetSignOptions" :key="item.value" :label="item.label" :value="item.value">
+            </el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label="">
           <el-button type="primary" @click="fetchTableData">查询</el-button>
@@ -16,42 +22,17 @@
           </el-upload>
         </el-form-item>
       </el-form>
-      <div class="tabs-wrapper">
-        <el-tabs v-model="tabName" type="card" @tab-click="handleClick">
-          <el-tab-pane label="主机类资产" name="1">
-            <el-table :data="tableData1" border>
-              <el-table-column label="备份文件名" prop="copyName"></el-table-column>
-              <el-table-column label="备份时间" prop="copyTime"></el-table-column>
-              <el-table-column label="备份位置" prop="copyPosition"></el-table-column>
-              <el-table-column label="操作">
-                <template slot-scope="scope">
-                  <el-button size="mini" type="primary" @click="handleLoad(scope.$index, scope.row)"><a style="color: #fff" href="https://raw.githubusercontent.com/ElementUI/Resources/master/Element_Components_v2.0.0.rplib">下载</a></el-button>
-                  <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
-                </template>
-              </el-table-column>
-            </el-table>
-          </el-tab-pane>
-          <el-tab-pane label="网络类资产" name="2">
-            <el-table :data="tableData2" border>
-              <el-table-column label="备份文件名" prop="copyName"></el-table-column>
-              <el-table-column label="备份时间" prop="copyTime"></el-table-column>
-              <el-table-column label="备份位置" prop="copyPosition"></el-table-column>
-            </el-table>
-          </el-tab-pane>
-          <el-tab-pane label="数据类资产" name="3">
-            <el-table :data="tableData3" border>
-              <el-table-column label="备份文件名" prop="copyName"></el-table-column>
-              <el-table-column label="备份时间" prop="copyTime"></el-table-column>
-              <el-table-column label="备份位置" prop="copyPosition"></el-table-column>
-              <el-table-column label="操作">
-                <template slot-scope="scope">
-                  <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
-                </template>
-              </el-table-column>
-            </el-table>
-          </el-tab-pane>
-        </el-tabs>
-      </div>
+      <el-table :data="tableData1" border>
+        <el-table-column label="备份文件名" prop="copyName"></el-table-column>
+        <el-table-column label="备份时间" prop="copyTime"></el-table-column>
+        <el-table-column label="备份位置" prop="copyPosition"></el-table-column>
+        <el-table-column label="操作">
+          <template slot-scope="scope">
+            <el-button size="mini" type="primary" @click="handleLoad(scope.$index, scope.row)"><a style="color: #fff" href="https://raw.githubusercontent.com/ElementUI/Resources/master/Element_Components_v2.0.0.rplib">下载</a></el-button>
+            <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
     </div>
   </div>
 </template>
@@ -63,40 +44,15 @@ export default {
   data() {
     return {
       pjOptions: [],
-      tabName: "1",
+      assetSignOptions: [],
+      queryForm: {
+        assetSign: "",
+        pjValue: ""
+      },
       tableData1: [],
-      tableData2: [],
-      tableData3: [],
       form: {},
-      rowEditData1: {
-        version: "",
-        KeyBusiness: ""
-      },
-      rowEditData2: {
-        version: "",
-        KeyBusiness: ""
-      },
-      rowEditData3: {
-        version: "",
-        KeyBusiness: ""
-      },
       fileList1: [],
-      fileList2: [],
       tableData1: [
-        {
-          copyName: "",
-          copyTime: "",
-          copyPosition: ""
-        }
-      ],
-      tableData2: [
-        {
-          copyName: "",
-          copyTime: "",
-          copyPosition: ""
-        }
-      ],
-      tableData3: [
         {
           copyName: "",
           copyTime: "",
@@ -119,7 +75,6 @@ export default {
         filter: "isleaf"
       });
     },
-    handleClick() {},
     handleDelete() {
       this.$confirm("确定删除？", "提示", {
         confirmButtonText: "确定",
@@ -139,19 +94,6 @@ export default {
           });
         });
     },
-    rowSubmit(index, row) {
-      row.version = this.rowEditData.version
-        ? this.rowEditData.version
-        : row.version;
-      row.KeyBusiness = this.rowEditData.KeyBusiness
-        ? this.rowEditData.KeyBusiness
-        : row.KeyBusiness;
-      console.log(index, row);
-      this.$message({
-        message: "保存成功",
-        type: "success"
-      });
-    },
     submit() {
       this.$message({
         message: "提交成功",
@@ -159,9 +101,6 @@ export default {
       });
     },
     handleLoad() {},
-    resetForm(formName) {
-      this.$refs[formName].resetFields();
-    },
     submitUpload() {
       console.log(this.fileList1);
       this.$refs.upload.submit();
@@ -171,10 +110,6 @@ export default {
     },
     beforeRemove(file, fileList) {
       return this.$confirm(`确定移除 ${file.name}？`);
-    },
-    handleSubmit(event, file, fileList) {
-      console.log(file);
-      console.log(fileList);
     }
   },
   created() {
@@ -188,30 +123,6 @@ export default {
       {
         copyName: "1.txt",
         copyTime: "2019/12/1 13:56:54",
-        copyPosition: "/usr/local/etc/data"
-      }
-    ];
-    this.tableData2 = [
-      {
-        copyName: "固件.zip",
-        copyTime: "2019/12/12 13:56:03",
-        copyPosition: "/usr/local/etc/data"
-      },
-      {
-        copyName: "config.txt",
-        copyTime: "2019/12/15 13:56:54",
-        copyPosition: "/usr/local/etc/data"
-      }
-    ];
-    this.tableData3 = [
-      {
-        copyName: "固件.zip",
-        copyTime: "2019/12/12 13:56:03",
-        copyPosition: "/usr/local/etc/data"
-      },
-      {
-        copyName: "config.txt",
-        copyTime: "2019/12/15 13:56:54",
         copyPosition: "/usr/local/etc/data"
       }
     ];

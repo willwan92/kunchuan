@@ -2,18 +2,18 @@
 	<!-- 安全评估 -->
 	<div class="page">
 		<div class="section list">
-			<el-form :inline="true" label-width="75px">
+			<el-form :inline="true" label-width="75px" :model="queryForm">
 				<el-form-item label="项目名称">
-					<el-cascader :options="pjOptions" :props="{ expandTrigger: 'hover', checkStrictly: true }" filterable v-model="pjtype">
+					<el-cascader :options="pjOptions" :props="{ expandTrigger: 'hover', checkStrictly: true }" filterable v-model="queryForm.pjValue">
 					</el-cascader>
 				</el-form-item>
-				<el-form-item label="安全评估模板加载" label-width="130px">
-					<el-select v-model="charts" placeholder="" clearable style="width: 280px">
+				<el-form-item label="安全评估模板" label-width="130px">
+					<el-select v-model="queryForm.charts" placeholder="" clearable style="width: 300px">
 						<el-option v-for="item in chartsOptions" :key="item.value" :label="item.label" :value="item.value">
 						</el-option>
 					</el-select>
 				</el-form-item>
-				<el-button class="btn-lg" type="primary" @click="load()">查询</el-button>
+				<el-button class="btn-lg" type="primary" @click="load()">加载</el-button>
 				<el-button class="btn-lg" type="primary" @click="output()"><a style="color: #fff" href="https://raw.githubusercontent.com/ElementUI/Resources/master/Element_Components_v2.0.0.rplib">结果生成导出</a></el-button>
 			</el-form>
 			<el-table :data="tableData" border :span-method="objectSpanMethod" v-loading="isLoading" :element-loading-text="loadingText">
@@ -24,22 +24,14 @@
 				<el-table-column label="检查方法" prop="method"></el-table-column>
 				<el-table-column label="评分标准" prop="standard"></el-table-column>
 				<el-table-column label="基准分值" prop="baseMark" width="80"></el-table-column>
-				<el-table-column label="检查得分">
+				<el-table-column label="检查得分" prop="mark" width="80"></el-table-column>
+				<el-table-column label="操作" width="80">
 					<template slot-scope="scope">
-						<el-input placeholder="请输入内容" v-show="!scope.row.show" v-model="scope.row.mark"></el-input>
-						<span v-show="scope.row.show">{{scope.row.mark}}</span>
-					</template>
-				</el-table-column>
-				<el-table-column label="操作" prop="">
-					<template slot-scope="scope">
-						<el-button size="small" type="primary" @click="handleEdit(scope.$index, scope.row)">保存</el-button>
-						<el-button size="small" type="primary" @click="handleModify(scope.$index, scope.row)">详情</el-button>
-						<el-button size="small" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+						<el-button size="small" type="primary" @click="handleModify(scope.$index, scope.row)">打分</el-button>
 					</template>
 				</el-table-column>
 			</el-table>
 		</div>
-
 		<el-dialog title="详情" :visible.sync="dialogVisible" width="50%">
 			<el-form width="600px" label-width="260px" ref="form1" :model="form1" v-if="modifyRowId==0">
 				<el-row>
@@ -180,15 +172,17 @@ import { getCascaderOptions } from "common/utils";
 export default {
   data() {
     return {
-      pjtype: "",
-			pjOptions: [],
-			chartsOptions: [{
-				label: '关键信息基础设施网络安全检查表',
-				value: '1'
-			}],
-			charts: '',
-      safeModel: "",
-      modelOptions: [],
+      pjOptions: [],
+      chartsOptions: [
+        {
+          label: "关键信息基础设施网络安全检查表.xlsx",
+          value: "1"
+        }
+      ],
+      queryForm: {
+        pjValue: "",
+        charts: "1"
+      },
       tableData: [],
       isLoading: false,
       dialogVisible: false,
@@ -217,10 +211,10 @@ export default {
     load() {},
     add() {},
     output() {
-      this.$message({
-        message: "导出成功",
-        type: "success"
-      });
+      // this.$message({
+      //   message: "导出成功",
+      //   type: "success"
+      // });
     },
     async fetchPjTreeData() {
       const { data } = await this.fetch({
@@ -290,7 +284,7 @@ export default {
         standard:
           "1.缺少网络安全直接责任人和具体负责人扣4分；2.网络安全主管领导是单位（企业）正副职领导，否则扣2分（相关人事任命正式文件或通知，可作为本项符合的支撑性材料）。",
         baseMark: 4,
-        mark: ""
+        mark: "4"
       },
       {
         id: 2,
@@ -302,7 +296,7 @@ export default {
         standard:
           "1.未成立网络安全组织机构，扣4分；2.网络安全组织机构成立文件明显过期或失效，扣2分。",
         baseMark: 4,
-        mark: ""
+        mark: "4"
       }
     ];
     list.forEach(element => {

@@ -2,9 +2,9 @@
 	<!-- 信息维护 -->
 	<div class="page">
 		<div class="section">
-			<el-form :inline="true" label-width="75px">
+			<el-form :inline="true" label-width="75px" :model="queryForm">
 				<el-form-item label="项目名称">
-					<el-cascader :show-all-levels="false" :options="pjOptions" :props="{ expandTrigger: 'hover' }" filterable v-model="pjValue">
+					<el-cascader :show-all-levels="false" :options="pjOptions" :props="{ expandTrigger: 'hover' }" filterable v-model="queryForm.pjValue">
 					</el-cascader>
 				</el-form-item>
 				<el-form-item label="">
@@ -482,7 +482,10 @@ import { getCascaderOptions } from "common/utils";
 export default {
   data() {
     return {
-      pjOptions: [],
+			pjOptions: [],
+			queryForm: {
+				pjValue: ''
+			},
       tabName: "1",
       tableData1: [],
       tableData2: [],
