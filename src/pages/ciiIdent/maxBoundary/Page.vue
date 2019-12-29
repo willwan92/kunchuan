@@ -79,7 +79,7 @@ export default {
         url: "/device/getDeviceByKbname",
         params: {
           deviceid: row.id,
-          kbname: row.kbName && row.kbName.toString()
+          kbname: row.kbName && row.kbName.join('/')
         },
         vm: this
       });
@@ -92,10 +92,8 @@ export default {
     },
     handlePjChange() {
       this.fetchTableData();
+      sessionStorage.setItem('pjValue', JSON.stringify(this.pjValue));
     },
-    editItem(id) {},
-
-    // 请求列表数据
     async fetchbusinessOptionsData() {
       const { data } = await this.fetch({
         url: "/keybusiness/getKeybusinessList",
@@ -108,7 +106,7 @@ export default {
       this.businessOptions = getCascaderOptions({
 				arr: data,
 				label: "kbname",
-				value: "id"
+				value: "kbname"
 			});
 		},
 		async fetchPjTreeData() {
@@ -146,7 +144,7 @@ export default {
             version: item.version,
             vendorName: item.vendor,
             deviceOs: item.os,
-            kbName: item.kbname && toNumberArr(item.kbname.split(','))
+            kbName: item.kbname && item.kbname.split('/')
           };
         });
       } else {

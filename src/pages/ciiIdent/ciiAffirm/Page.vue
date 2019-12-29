@@ -1,25 +1,53 @@
 <template>
   <div class="page">
     <div class="section list">
-      <p>
-				<el-button
-					type="primary"
-					size="small"
-					@click="startAffirm"
-					>选择结束、开始认定</el-button
-				>
-			</p>
-
+      <el-form ref="form" :inline="true" label-width="80px">
+        <el-form-item label="项目名称">
+          <el-cascader
+            :disabled="true"
+            :show-all-levels="false"
+            :options="pjOptions"
+            :props="{ expandTrigger: 'hover' }"
+            filterable
+            v-model="pjValue"
+          >
+          </el-cascader>
+        </el-form-item>
+        <el-form-item>
+          <el-button
+            type="primary"
+            @click="startAffirm"
+            >选择结束、开始认定</el-button
+          >
+        </el-form-item>
+      </el-form>
+      
       <el-table :data="tableData" border v-loading="isLoading">
         <el-table-column label="IP/资产标识" prop="ip"></el-table-column>
         <el-table-column label="资产类型" prop="assetType"></el-table-column>
         <el-table-column label="设备型号" prop="deviceNum"></el-table-column>
         <el-table-column label="版本号" prop="version"></el-table-column>
         <el-table-column label="操作系统" prop="deviceOs"></el-table-column>
-        <el-table-column label="所属关键系统" prop="kbName"></el-table-column>
-        <el-table-column label="关键性选择" prop="vendorName">
+        <el-table-column label="所属关键系统" prop="kbName">
+          <template slot-scope="scope">
+            <el-cascader
+              filterable
+              v-model="scope.row.kbName"
+              :disabled="true"
+              :options="businessOptions"
+              :props="{ expandTrigger: 'hover' }"
+            >
+            </el-cascader>
+          </template>
+        </el-table-column>
+        <el-table-column label="关键性" prop="">
 					<template slot-scope="scope">
-            <el-input v-model="scope.row.keyProp" placeholder="请输入"></el-input>
+            <el-input v-model="scope.row.kbValue" placeholder="例：A1 B2 B3 C4">
+               <template slot="append">
+                 <el-button type="default" @click="updateKbValue(scope.row)">保存</el-button>
+               </template>
+            </el-input>
+            
           </template>
 				</el-table-column>
       </el-table>
@@ -28,23 +56,127 @@
 </template>
 
 <script>
-import { commonExport } from "common/utils";
+import { getCascaderOptions, toNumberArr } from "common/utils";
 
 export default {
   data() {
     return {
+      isLoading: false,
+      pjValue: [],
+      businessOptions: [],
+			pjOptions: [],
       tableData: []
     };
   },
+  created() {
+    this.pjValue = JSON.parse(sessionStorage.getItem('pjValue'));
+    this.fetchTableData();
+    this.fetchPjTreeData();
+    this.fetchbusinessOptionsData();
+  },
+  computed: {
+    getPjId() {
+      let id;
+      if (this.pjValue && this.pjValue[0]) {
+        id = this.pjValue.slice(-1)[0];
+      } else {
+        id = null;
+      }
+
+      return id;
+    }
+  },
   methods: {
-    //选择框
-    handleSelectionChange(val) {
-      if (val) {
-        this.multipleSelection = [];
-        for (var i = 0; i < val.length; i++) {
-          this.exportDetail = val[i].id;
-          this.multipleSelection.push(this.exportDetail);
-        }
+    async startAffirm() {
+      const data = await this.fetch({
+        url: "/device/getSelectByKeyChoise",
+        params: {
+          pjid: this.getPjId,
+          keychoice: sessionStorage.getItem('aCount')
+        },
+        vm: this
+      });
+
+      if (data) {
+        this.$message.success("认定成功！");
+        sessionStorage.setItem('affirmRes', JSON.stringify(data));
+			} else {
+				this.$message.error('认定失败，请稍后再试！');
+			}
+      
+    },
+    async updateKbValue(row) {
+      const data = await this.fetch({
+        url: "/device/getUpdateByKeyChoice",
+        params: {
+          deviceid: row.id,
+          keychoice: row.kbValue
+        },
+        vm: this
+      });
+
+      if (data.code === 10000) {
+				this.$message.success("保存成功！");
+			} else {
+				this.$message.error('保存失败，请稍后再试！');
+			}
+		},
+    async fetchbusinessOptionsData() {
+      const { data } = await this.fetch({
+        url: "/keybusiness/getKeybusinessList",
+        params: {
+          pjid: this.getPjId
+        },
+        vm: this
+      });
+
+      this.businessOptions = getCascaderOptions({
+				arr: data,
+				label: "kbname",
+				value: "kbname"
+			});
+		},
+    async fetchPjTreeData() {
+      const { data } = await this.fetch({
+        url: "/porject/getProjectList",
+        vm: this
+      });
+
+			this.pjOptions = getCascaderOptions({
+				arr: data,
+				label: "pjname",
+				value: "id",
+				filter: 'isleaf'
+			});
+    },
+    async fetchTableData() {
+      const pjId = this.getPjId;
+
+      const data = await this.fetch({
+        url: "/device/getDeviceinfoBypjname",
+        params: {
+          pjid: pjId
+        },
+        vm: this
+      });
+
+      if (data && data[0]) {
+         this.tableData = data.map((item, index) => {
+          return {
+            index: index,
+            ip: item.ip,
+            id: item.deviceid,
+            assetType: item.devtype,
+            deviceNum: item.name,
+            version: item.version,
+            vendorName: item.vendor,
+            deviceOs: item.os,
+            kbName: item.kbname && item.kbname.split('/'),
+            kbValue: item.keychoice,
+          };
+        });
+      } else {
+        this.tableData = [];
       }
     },
     //导出列表

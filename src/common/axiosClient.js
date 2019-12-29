@@ -9,6 +9,7 @@ const URL_PRODUCTION = `http://${HOST.split(':')[0]}:8081`;
 const URL_PRODUCTION_FUZZ = `http://${HOST}`;
 
 const FUZZ_URL = HOST === HOST_DEVELOPMENT ? 'http://10.60.4.3:8080' : URL_PRODUCTION_FUZZ;
+const API_URL = HOST === HOST_DEVELOPMENT ? 'http://10.60.4.3:8081' : URL_PRODUCTION;
 
 const axiosClient = axios.create({
     baseURL: HOST === HOST_DEVELOPMENT ? '/api' : URL_PRODUCTION,
@@ -70,4 +71,4 @@ axiosClient.interceptors.request.use(
 // })
 
 
-export { axiosClient, axiosClientFuzz, FUZZ_URL };
+export { axiosClient, axiosClientFuzz, FUZZ_URL, API_URL };
