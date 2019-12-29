@@ -72,25 +72,26 @@
               </el-select>
             </el-form-item>
             <el-form-item label="策略模板">
-              <el-select v-model="addTaskForm.template" placeholder="请单击这里">
-                <el-option label="实时任务" value="1"></el-option>
-              </el-select>
+              <el-input v-model="addTaskForm.module" @focus="moduleDialog = true"></el-input>
             </el-form-item>
             <el-form-item label="资产列表">
-              <!--<el-table :data="assetList" style="width: 100%" border-->
-                <!--@selection-change="handleSelectionChange">-->
-                <!--<el-table-column type="selection" width="55"></el-table-column>-->
-                <!--<el-table-column label="资产类型" width="120"></el-table-column>-->
-                <!--<el-table-column prop="name" label="厂家名称" width="120"></el-table-column>-->
-                <!--<el-table-column prop="address" label="设备名称"></el-table-column>-->
-                <!--<el-table-column prop="address" label="IP地址"></el-table-column>-->
-              <!--</el-table>-->
+              <el-table :data="assetList" style="width: 100%" border
+                @selection-change="handleSelectionChange">
+                <el-table-column type="selection" width="55"></el-table-column>
+                <el-table-column label="资产类型" prop="type" width="120"></el-table-column>
+                <el-table-column prop="name" label="厂家名称" width="120"></el-table-column>
+                <el-table-column prop="name1" label="设备名称"></el-table-column>
+                <el-table-column prop="ip" label="IP地址"></el-table-column>
+              </el-table>
             </el-form-item>
           </el-form>
+          <el-dialog title="策略模板" :visible.sync="moduleDialog" width="40%">
+            <el-tree :data="data" :props="defaultProps" @node-click="handleNodeClick" style="margin-top: 20px;"></el-tree>
+          </el-dialog>
         </div>
         <span slot="footer" class="dialog-footer">
-          <el-button type="primary" @click="dialogVisible = false">保 存</el-button>
-          <el-button type="primary" @click="dialogVisible = false">关 闭</el-button>
+          <el-button type="primary" @click="addTask = false">保 存</el-button>
+          <el-button type="primary" @click="addTask = false">关 闭</el-button>
         </span>
       </el-dialog>
 		</div>
@@ -103,7 +104,11 @@ import { FUZZ_URL } from 'common/axiosClient'
 	export default {
 		data() {
 			return {
+        moduleDialog: false,
         activeName: 'first',
+        assetList: [
+          {name: '数据库', name1: 'Mysql', type: 'Mysql', ip: '10.60.100.200'}
+        ],
         tableData: [{
           id: 1,
           taskName: '核查windowslinuxmysql',
@@ -144,13 +149,36 @@ import { FUZZ_URL } from 'common/axiosClient'
           name: '',
           task: '1',
           type: '1',
-          template: '1'
-        }
+          template: '1',
+          module: ''
+        },
+        data: [{
+          label: '内置策略组',
+          children: [{
+            label: '综合类策略组',
+            children: [{label: '全局策略'}]
+          },{
+            label: '主机策略组',
+            children: [{label: 'Linux主机配置策略'}, {label: 'Windows主机配置策略'},{label: 'Aix主机配置策略'},
+              {label: 'Solaris主机配置策略'},{label: 'Hp-Vx主机配置策略'}]
+          },{
+            label: '数据库策略组',
+            children: [{label: 'Oracle数据库配置策略'},{label: 'sqlserver数据库配置策略'},{label: 'mysql数据库配置策略'},
+              {label: 'db2数据库配置策略'},{label: 'sybase数据库配置策略'},{label: 'Informix数据库配置策略'}]
+          }]
+        }],
+        defaultProps: {
+          children: 'children',
+          label: 'label'
+        },
 			}
 		},
     methods: {
       openHTML() {
         window.open(`${FUZZ_URL}/html/21_html/main.html`, '_blank');
+      },
+      handleNodeClick (data) {
+        this.addTaskForm.module = data.label
       },
       handleSelectionChange(val) {
         console.log(val, 'val')

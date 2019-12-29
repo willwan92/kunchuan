@@ -71,8 +71,19 @@
                 <!--<el-option label="公网" value="2"></el-option>-->
               </el-select>
             </el-form-item>
+            <el-form-item label="周期选择">
+              <el-select v-model="addTaskForm.value1" placeholder="请选择">
+                <el-option label="每天" value="每天"></el-option>
+              </el-select>
+              <el-select v-model="addTaskForm.value2" placeholder="请选择">
+                <el-option v-for="item in 24" :key="item" :label="item-1" :value="item-1"></el-option>
+              </el-select>
+              <el-select v-model="addTaskForm.value3" placeholder="请选择">
+                <el-option v-for="item in 60" :key="item" :label="item-1" :value="item-1"></el-option>
+              </el-select>
+            </el-form-item>
             <el-form-item label="策略模板">
-              <el-input v-model="addTaskForm.name"></el-input>
+              <el-input v-model="addTaskForm.module"></el-input>
             </el-form-item>
             <el-form-item label="资产列表">
               <el-table :data="assetList" style="width: 100%" border>
@@ -205,10 +216,10 @@
           template: '1'
         },
         assetList: [
-          {name: '数据库', name1: 'Mysql', type: 'Mysql', ip: '10.60.100.200'},
-          {name: '主机', name1: 'Linux', type: 'Linux', ip: '10.60.3.121'},
-          {name: '主机', name1: 'Windows', type: 'Windows', ip: '10.60.4.99'},
-          {name: '主机', name1: 'Windows', type: 'Windows', ip: '10.60.5.5'}
+          {name: '数据库', name1: 'Mysql', type: 'Mysql', ip: '10.60.100.200'}
+          // {name: '主机', name1: 'Linux', type: 'Linux', ip: '10.60.3.121'},
+          // {name: '主机', name1: 'Windows', type: 'Windows', ip: '10.60.4.99'},
+          // {name: '主机', name1: 'Windows', type: 'Windows', ip: '10.60.5.5'}
         ]
       }
     },
