@@ -96,67 +96,64 @@
                   <template>
                     <el-button type="text" @click="assetListDialog = true">操作</el-button>
                   </template>
-                  <!--<el-dialog title="添加周期任务" :visible.sync="assetListDialog" width="40%">-->
-                    <!--<el-form label-position="left" label-width="80px" :model="formLabelAlign">-->
-                      <!--<el-form-item label="IP地址">-->
-                        <!--<el-input v-model="assetList.ip"></el-input>-->
-                      <!--</el-form-item>-->
-                      <!--<el-form-item label="登录方式">-->
-                        <!--<el-select v-model="assetList.region" placeholder="请选择" disabled>-->
-                          <!--<el-option label="ssh" value="1"></el-option>-->
-                        <!--</el-select>-->
-                      <!--</el-form-item>-->
-                      <!--<el-form-item label="端口">-->
-                        <!--<el-input v-model="assetList.port"></el-input>-->
-                      <!--</el-form-item>-->
-                      <!--<el-form-item label="端口">-->
-                        <!--<el-input v-model="assetList.type"></el-input>-->
-                      <!--</el-form-item>-->
-                      <!--<el-form-item label="资产类型">-->
-                        <!--<el-input v-model="assetList.type"></el-input>-->
-                      <!--</el-form-item>-->
-                      <!--<el-form-item label="厂家名称">-->
-                        <!--<el-input v-model="assetList.type"></el-input>-->
-                      <!--</el-form-item>-->
-                      <!--<el-form-item label="设备型号">-->
-                        <!--<el-input v-model="assetList.version"></el-input>-->
-                      <!--</el-form-item>-->
-                      <!--<el-form-item label="版本号">-->
-                        <!--<el-input v-model="assetList.version1"></el-input>-->
-                      <!--</el-form-item>-->
-                      <!--<el-form-item label="操作系统">-->
-                        <!--<el-input v-model="assetList.system"></el-input>-->
-                      <!--</el-form-item>-->
-                      <!--<el-form-item label="用户名">-->
-                        <!--<el-input v-model="assetList.username"></el-input>-->
-                      <!--</el-form-item>-->
-                      <!--<el-form-item label="登录密码">-->
-                        <!--<el-input v-model="assetList.password"></el-input>-->
-                      <!--</el-form-item>-->
-                      <!--<el-form-item label="su用户名">-->
-                        <!--<el-input v-model="assetList.suUser"></el-input>-->
-                      <!--</el-form-item>-->
-                      <!--<el-form-item label="su密码">-->
-                        <!--<el-input v-model="assetList.suPsaa"></el-input>-->
-                      <!--</el-form-item>-->
-                      <!--<el-form-item label="数据库路径">-->
-                        <!--<el-input v-model="assetList.dataPath"></el-input>-->
-                      <!--</el-form-item>-->
-                      <!--<el-form-item label="数据库账号">-->
-                        <!--<el-input v-model="assetList.dataUser"></el-input>-->
-                      <!--</el-form-item>-->
-                      <!--<el-form-item label="数据库口令">-->
-                        <!--<el-input v-model="assetList.dataPass"></el-input>-->
-                      <!--</el-form-item>-->
-                      <!--<el-form-item label="数据库实例">-->
-                        <!--<el-input v-model="assetList.example"></el-input>-->
-                      <!--</el-form-item>-->
-                    <!--</el-form>-->
-                  <!--</el-dialog>-->
                 </el-table-column>
               </el-table>
             </el-form-item>
           </el-form>
+          <el-dialog title="详情" :visible.sync="assetListDialog" width="40%">
+            <el-form label-position="left" label-width="80px" :model="formLabelAlign">
+              <el-form-item label="IP地址">
+                <el-input v-model="assetList.ip"></el-input>
+              </el-form-item>
+              <el-form-item label="登录方式">
+                <el-select v-model="assetList.region" placeholder="请选择">
+                  <el-option label="ssh" value="1"></el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item label="端口">
+                <el-input v-model="assetList.port"></el-input>
+              </el-form-item>
+              <el-form-item label="资产类型">
+                <el-input v-model="assetList.type"></el-input>
+              </el-form-item>
+              <el-form-item label="厂家名称">
+                <el-input v-model="assetList.type1"></el-input>
+              </el-form-item>
+              <el-form-item label="设备型号">
+                <el-input v-model="assetList.version"></el-input>
+              </el-form-item>
+              <el-form-item label="版本号">
+                <el-input v-model="assetList.version1"></el-input>
+              </el-form-item>
+              <el-form-item label="操作系统">
+                <el-input v-model="assetList.system"></el-input>
+              </el-form-item>
+              <el-form-item label="用户名">
+                <el-input v-model="assetList.username"></el-input>
+              </el-form-item>
+              <el-form-item label="登录密码">
+                <el-input v-model="assetList.password" type="password"></el-input>
+              </el-form-item>
+              <el-form-item label="su用户名">
+                <el-input v-model="assetList.suUser"></el-input>
+              </el-form-item>
+              <el-form-item label="su密码">
+                <el-input v-model="assetList.suPsaa" type="password"></el-input>
+              </el-form-item>
+              <el-form-item label="数据库路径">
+                <el-input v-model="assetList.dataPath"></el-input>
+              </el-form-item>
+              <el-form-item label="数据库账号">
+                <el-input v-model="assetList.dataUser"></el-input>
+              </el-form-item>
+              <el-form-item label="数据库口令">
+                <el-input v-model="assetList.dataPass" type="password"></el-input>
+              </el-form-item>
+              <el-form-item label="数据库实例">
+                <el-input v-model="assetList.example"></el-input>
+              </el-form-item>
+            </el-form>
+          </el-dialog>
         </div>
         <span slot="footer" class="dialog-footer">
           <el-button type="primary" @click="addTask = false">保 存</el-button>
@@ -171,7 +168,7 @@
   export default {
     data() {
       return {
-        assetListDialog: true,
+        assetListDialog: false,
         activeName: 'first',
         tableData: [{
           id: 1,
@@ -216,7 +213,9 @@
           template: '1'
         },
         assetList: [
-          {name: '数据库', name1: 'Mysql', type: 'Mysql', ip: '10.60.100.200'}
+          {name: '数据库', name1: 'Mysql', type: '数据库', type1: 'Mysql', ip: '10.60.100.200', example: '', dataPass: '',
+            dataUser: 'root', dataPath: '123456', suPsaa: '', suUser: '', password: '123456',username: 'root', system: 'Linux',
+            system1: '', region: '1', port: '22', version: 'Mysql', version1: '5.1.73'}
           // {name: '主机', name1: 'Linux', type: 'Linux', ip: '10.60.3.121'},
           // {name: '主机', name1: 'Windows', type: 'Windows', ip: '10.60.4.99'},
           // {name: '主机', name1: 'Windows', type: 'Windows', ip: '10.60.5.5'}

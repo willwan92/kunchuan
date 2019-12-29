@@ -61,8 +61,7 @@
             </el-form-item>
             <el-form-item label="项目选择">
               <el-select v-model="addTaskForm.task" placeholder="请选择">
-                <el-option label="研发" value="1"></el-option>
-                <el-option label="公网" value="2"></el-option>
+                <el-option label="昆明烟厂项目" value="1"></el-option>
               </el-select>
             </el-form-item>
             <el-form-item label="核查方式">
@@ -72,7 +71,11 @@
               </el-select>
             </el-form-item>
             <el-form-item label="策略模板">
-              <el-input v-model="addTaskForm.module" @focus="moduleDialog = true"></el-input>
+              <!--<el-input v-model="addTaskForm.module" @focus="moduleDialog = true"></el-input>-->
+              <el-select v-model="addTaskForm.module" placeholder="请选择" disabled>
+                <el-option label="Windows主机配置策略" value="1"></el-option>
+                <!--<el-option label="公网" value="2"></el-option>-->
+              </el-select>
             </el-form-item>
             <el-form-item label="资产列表">
               <el-table :data="assetList" style="width: 100%" border
@@ -107,7 +110,8 @@ import { FUZZ_URL } from 'common/axiosClient'
         moduleDialog: false,
         activeName: 'first',
         assetList: [
-          {name: '数据库', name1: 'Mysql', type: 'Mysql', ip: '10.60.100.200'}
+          {name: '主机', name1: 'windows', type: 'windows', ip: '10.60.4.99'},
+          {name: '数据库', name1: 'windows', type: 'windows', ip: '10.60.5.5'}
         ],
         tableData: [{
           id: 1,
@@ -150,7 +154,7 @@ import { FUZZ_URL } from 'common/axiosClient'
           task: '1',
           type: '1',
           template: '1',
-          module: ''
+          module: '1'
         },
         data: [{
           label: '内置策略组',
@@ -229,10 +233,10 @@ import { FUZZ_URL } from 'common/axiosClient'
     -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
     margin-bottom: 30px;
 
-  & :hover {
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-    -webkit-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
-  }
+  /*& :hover {*/
+    /*box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);*/
+    /*-webkit-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);*/
+  /*}*/
   .goodsTop{
     margin-top: 20px;
   }
