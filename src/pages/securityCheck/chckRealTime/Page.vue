@@ -2,7 +2,7 @@
 	<div class="goodsPage">
 		<div class="goodsTop">
       <el-tabs v-model="activeName" type="card" @tab-click="handleClick">
-        <el-tab-pane label="定时任务" name="first">
+        <el-tab-pane label="实时任务" name="first">
           <template>
             <el-button type="primary" plain size="medium" @click="addTaskFun">添加</el-button>
             <el-button type="primary" plain size="medium" @click="deleteRealTime">删除</el-button>
@@ -59,7 +59,7 @@
             <el-form-item label="任务名称">
               <el-input v-model="addTaskForm.name"></el-input>
             </el-form-item>
-            <el-form-item label="战场选择">
+            <el-form-item label="项目选择">
               <el-select v-model="addTaskForm.task" placeholder="请选择">
                 <el-option label="研发" value="1"></el-option>
                 <el-option label="公网" value="2"></el-option>
