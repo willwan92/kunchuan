@@ -7,14 +7,14 @@
 					<el-cascader :options="pjOptions" :props="{ expandTrigger: 'hover', checkStrictly: true }" filterable v-model="pjtype">
 					</el-cascader>
 				</el-form-item>
-				<el-form-item label="安全评估模板加载" label-width="125px">
-					<el-select v-model="safeModel" placeholder="">
-						<el-option v-for="item in modelOptions" :key="item.value" :label="item.label" :value="item.value">
+				<el-form-item label="安全评估模板加载" label-width="130px">
+					<el-select v-model="charts" placeholder="" clearable style="width: 280px">
+						<el-option v-for="item in chartsOptions" :key="item.value" :label="item.label" :value="item.value">
 						</el-option>
 					</el-select>
 				</el-form-item>
 				<el-button class="btn-lg" type="primary" @click="load()">查询</el-button>
-				<el-button class="btn-lg" type="primary" @click="output()">结果生产导出</el-button>
+				<el-button class="btn-lg" type="primary" @click="output()"><a style="color: #fff" href="https://raw.githubusercontent.com/ElementUI/Resources/master/Element_Components_v2.0.0.rplib">结果生成导出</a></el-button>
 			</el-form>
 			<el-table :data="tableData" border :span-method="objectSpanMethod" v-loading="isLoading" :element-loading-text="loadingText">
 				<el-table-column label="序号" prop="id" width="50"></el-table-column>
@@ -175,11 +175,18 @@
 </template>
 
 <script>
+import { getCascaderOptions } from "common/utils";
+
 export default {
   data() {
     return {
       pjtype: "",
-      pjOptions: [],
+			pjOptions: [],
+			chartsOptions: [{
+				label: '关键信息基础设施网络安全检查表',
+				value: '1'
+			}],
+			charts: '',
       safeModel: "",
       modelOptions: [],
       tableData: [],
@@ -220,7 +227,13 @@ export default {
         url: "/porject/getProjectList",
         vm: this
       });
-      this.pjOptions = this.traverseArr(data);
+
+      this.pjOptions = getCascaderOptions({
+        arr: data,
+        label: "pjname",
+        value: "id",
+        filter: "isleaf"
+      });
     },
     handleEdit(index, row) {
       this.$message({
@@ -242,6 +255,25 @@ export default {
     },
     resetForm(formName) {
       this.$refs[formName].resetFields();
+    },
+    handleDelete() {
+      this.$confirm("确定删除？", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          this.$message({
+            type: "success",
+            message: "删除成功!"
+          });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除"
+          });
+        });
     }
   },
   created() {

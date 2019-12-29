@@ -3,16 +3,16 @@
 		<div class="goodsTop">
       <el-container style="min-height: 500px; height: 100%;border: 1px solid #eee">
         <el-aside width="300px" style="padding: 20px;">
-          <el-button icon="el-icon-circle-plus-outline" @click="handleTree('add')"></el-button>
-          <el-button icon="el-icon-edit-outline" @click="handleTree('edit')"></el-button>
-          <el-button icon="el-icon-delete" @click="handleTree('delete')"></el-button>
+          <!--<el-button icon="el-icon-circle-plus-outline" @click="handleTree('add')"></el-button>-->
+          <!--<el-button icon="el-icon-edit-outline" @click="handleTree('edit')"></el-button>-->
+          <!--<el-button icon="el-icon-delete" @click="handleTree('delete')"></el-button>-->
           <el-tree :data="data" :props="defaultProps" @node-click="handleNodeClick" style="margin-top: 20px;"></el-tree>
         </el-aside>
         <el-container>
           <el-main style="position: relative;">
             <template v-if="!itemDetail">
-              <el-button icon="el-icon-plus">新增</el-button>
-              <el-button icon="el-icon-close">删除</el-button>
+              <!--<el-button icon="el-icon-plus">新增</el-button>-->
+              <!--<el-button icon="el-icon-close">删除</el-button>-->
               <el-table ref="multipleTable" :data="tableData" tooltip-effect="dark" style="width: 100%;margin-top: 20px;">
                 <el-table-column type="selection" width="55"></el-table-column>
                 <el-table-column prop="name" label="策略模板名称"></el-table-column>
@@ -191,11 +191,6 @@
           },{
             label: '负载均衡策略组',
           }]
-        }, {
-          label: '自定义组',
-          children: [{
-            label: '自定义1',
-          }]
         }],
         defaultProps: {
           children: 'children',
@@ -309,14 +304,27 @@
   }
 </script>
 <style lang="less">
-.goodsTop{
-  .re-back {
-    display: inline-block;
-    position: absolute;
-    cursor: pointer;
-    right: 20px;
-    top: 30px;
-    z-index: 99999;
+  .goodsPage {
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background: #fff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+    margin-bottom: 30px;
+    &:hover {
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+      -webkit-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    }
+    .goodsTop{
+      .re-back {
+        display: inline-block;
+        position: absolute;
+        cursor: pointer;
+        right: 20px;
+        top: 30px;
+        z-index: 99999;
+      }
+    }
   }
-}
 </style>
