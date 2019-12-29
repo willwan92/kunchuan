@@ -15,11 +15,11 @@
               <!--<el-button icon="el-icon-close">删除</el-button>-->
               <el-table ref="multipleTable" :data="tableData" tooltip-effect="dark" style="width: 100%;margin-top: 20px;">
                 <el-table-column type="selection" width="55"></el-table-column>
-                <el-table-column prop="name" label="核查项编号"></el-table-column>
-                <el-table-column prop="type" label="检查项名称"></el-table-column>
-                <el-table-column prop="attr" label="内容"></el-table-column>
+                <el-table-column prop="num" label="核查项编号"></el-table-column>
+                <el-table-column prop="name" label="检查项名称"></el-table-column>
+                <el-table-column prop="desc" label="内容"></el-table-column>
                 <el-table-column prop="attr" label="核查项属性"></el-table-column>
-                <el-table-column prop="attr" label="核查方式"></el-table-column>
+                <el-table-column prop="type" label="核查方式"></el-table-column>
                 <el-table-column fixed="right" label="详情" width="100">
                   <template slot-scope="scope">
                     <el-button @click="handleClick(scope.row)" type="text" size="small">操作</el-button>
@@ -110,14 +110,12 @@
 <script>
   export default {
     data() {
-      const item = {
-        name: 'Linux主机配置策略',
-        type: '57/1',
-        attr: '预定义'
-      };
       return {
         activeName: 'first',
-        tableData: Array(6).fill(item),
+        tableData: [
+          {num: 'Linux-1', name: '口令锁定策略', desc: '对于采用静态口令，应采用设置用户...', type: '自动', attr: '系统内置'},
+          {num: 'Linux-2', name: '查找未授权的SUID-SGID文件', desc: '去掉所有文件‘文件系统’属性，防止用户滥用...', type: '自动', attr: '系统内置'}
+        ],
         data: [{
           label: '检查项分组',
           children: [{
@@ -138,6 +136,30 @@
                 label: '中标麒麟',
               }, {
                 label: '凝思',
+              }]
+            },{
+              label: '数据库',
+              children: [
+                {label: 'oracle'}, {label: 'sqlserver'},{label: 'mysql'},{label: 'db2'},{label: 'sybase'},
+                {label: 'Informix'}, {label: 'PostgreSQL'},{label: '武汉达梦'},{label: '人大金仓'},{label: '神州通用'},
+                {label: '南大通用'}
+              ]
+            }, {
+              label: '交换机',
+              children: [{
+                label: '华为',
+              }, {
+                label: '思科',
+              }, {
+                label: '中心',
+              }, {
+                label: 'H3C',
+              }, {
+                label: '锐捷',
+              }, {
+                label: '力腾',
+              }, {
+                label: 'Juinper',
               }]
             }]
           }]
@@ -188,8 +210,23 @@
       }
     },
     methods: {
-      handleNodeClick () {
-
+      handleNodeClick (data) {
+        if (data.label === 'Linux') {
+          this.tableData = [
+            {num: 'Linux-1', name: '口令锁定策略', desc: '对于采用静态口令，应采用设置用户...', type: '自动', attr: '系统内置'},
+            {num: 'Linux-2', name: '查找未授权的SUID-SGID文件', desc: '去掉所有文件‘文件系统’属性，防止用户滥用...', type: '自动', attr: '系统内置'}
+          ]
+        } else if (data.label === '华为') {
+          this.tableData = [
+            {num: 'Huawei(sw)-1', name: '已知典型攻击防护', desc: '通过ACL配置对常见的漏洞攻击及进行...', type: '自动', attr: '系统内置'},
+            {num: 'Huawei(sw)-2', name: '修改SNMP默认的community字符串', desc: '系统应修改SNMP默认团体字符串...', type: '自动', attr: '系统内置'}
+          ]
+        } else {
+          this.tableData = [
+            {num: 'Oracle-1', name: '检查是否根据业务要求定制数据库审查策略', desc: '检查是否根据业务要求定制数据库审查策略...', type: '自动', attr: '系统内置'},
+            {num: 'Oracle-2', name: '口令生存期', desc: '对于采用静态口令认证技术的数据库，账户口令...', type: '自动', attr: '系统内置'}
+          ]
+        }
       },
       /**
        * 检查项设置
