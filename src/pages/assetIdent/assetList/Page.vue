@@ -1,9 +1,10 @@
 <template>
   <div class="page">
     <div class="section list">
-      <el-form :inline="true" label-width="75px">
+      <el-form :inline="true" class="query-form" label-width="75px">
         <el-form-item label="项目名称">
           <el-cascader
+            @change="fetchTableData"
             :show-all-levels="false"
             :options="pjOptions"
             :props="{ expandTrigger: 'hover' }"
@@ -12,16 +13,27 @@
           >
           </el-cascader>
         </el-form-item>
-        <el-form-item label="">
-          <el-button type="primary" @click="fetchTableData">查询</el-button>
-        </el-form-item>
-        <el-form-item label="">
+        <el-form-item label="" class="add-btn">
           <el-button
             class="btn-lg"
             :disabled="!getPjId"
             type="primary"
             @click="handleAddClick"
             >添加资产</el-button
+          >
+          <el-button
+            class="btn-lg"
+            :disabled="!getPjId"
+            type="primary"
+            @click="0"
+            >导入资产</el-button
+          >
+          <el-button
+            class="btn-lg"
+            :disabled="!getPjId"
+            type="primary"
+            @click="0"
+            >导出资产</el-button
           >
         </el-form-item>
       </el-form>
@@ -60,7 +72,7 @@
           ref="dialogForm"
           label-width="100px"
         >
-          <el-form-item label="IP/资产标识" prop="ip">
+          <el-form-item label="IP地址" prop="ip">
             <el-input v-model="dialogForm.ip" :readonly="Boolean(assetsId)"></el-input>
           </el-form-item>
           <el-form-item label="登录方式" prop="loginMethod">
@@ -120,13 +132,13 @@
             <el-input v-model="dialogForm.userName"></el-input>
           </el-form-item>
           <el-form-item label="登录密码" prop="password">
-            <el-input v-model="dialogForm.password"></el-input>
+            <el-input type="password" v-model="dialogForm.password"></el-input>
           </el-form-item>
           <el-form-item label="su用户名" prop="suUserName">
             <el-input v-model="dialogForm.suUserName"></el-input>
           </el-form-item>
           <el-form-item label="su密码" prop="suPassword">
-            <el-input v-model="dialogForm.suPassword"></el-input>
+            <el-input type="password" v-model="dialogForm.suPassword"></el-input>
           </el-form-item>
           <el-form-item label="数据库路径" prop="databasePath">
             <el-input v-model="dialogForm.databasePath"></el-input>
@@ -135,7 +147,7 @@
             <el-input v-model="dialogForm.databaseAccount"></el-input>
           </el-form-item>
           <el-form-item label="数据库口令" prop="databasePassword">
-            <el-input v-model="dialogForm.databasePassword"></el-input>
+            <el-input type="password" v-model="dialogForm.databasePassword"></el-input>
           </el-form-item>
           <el-form-item label="数据库实例" prop="databaseInstance">
             <el-input v-model="dialogForm.databaseInstance"></el-input>
@@ -397,7 +409,7 @@ export default {
       this.dialogShow = true;
     },
     resetForm(formName) {
-      this.$refs[formName].resetFields();
+      this.$refs[formName] && this.$refs[formName].resetFields();
     },
     async handleEditClick(id) {
       this.assetsId = id;
@@ -471,4 +483,15 @@ export default {
   height: 600px;
   overflow: auto;
 }
+
+.query-form {
+  position: relative;
+  width: 100%;
+  .add-btn {
+    position: absolute;
+    right: -30px;
+  }
+}
+
+
 </style>

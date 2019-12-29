@@ -59,7 +59,7 @@
 					</el-select>
 				</el-form-item> -->
         <el-form-item label="端口范围" prop="port">
-          <el-input v-model="searchParams.port" placeholder=""></el-input>
+          <el-input v-model="searchParams.port" placeholder="1-65535"></el-input>
         </el-form-item>
         <el-form-item label="扫描方式" prop="scanMethod">
           <el-select v-model="searchParams.scanMethod" placeholder="">
@@ -302,7 +302,6 @@ export default {
       }
     },
     async handleProtoClick(index) {
-      
 			const current = this.tableData[index];
 			// 参数：id  ip   port_type  port
       let params = {
@@ -330,7 +329,7 @@ export default {
 
       this.isLoading = false;
     },
-    async fetchScanResult() {
+    async fetchScanResult(isScan) {
       const params = {
         t: Math.random(),
         pjid: this.getPjId
@@ -359,7 +358,7 @@ export default {
           };
         });
       } else {
-        this.$message.info("扫描结束，未发现开放端口!");
+        isScan && this.$message.info("扫描结束，未发现开放端口!");
       }
 
       this.isLoading = false;
@@ -416,7 +415,7 @@ export default {
       });
 
       if (data.success === "success") {
-        this.fetchScanResult();
+        this.fetchScanResult(1);
       } else {
         this.$message.error("扫描失败，请稍后再试！");
       }
@@ -431,6 +430,8 @@ export default {
       });
 
       data && (this.searchParams.ipRange = data.ip);
+
+      this.fetchScanResult(0);
     },
     async fetchPjTreeData() {
       const { data } = await this.fetch({

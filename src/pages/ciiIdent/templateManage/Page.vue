@@ -131,7 +131,7 @@ export default {
 				params: {
 					name: dialogForm.name,
 					id: dialogForm.id,
-					explain: dialogForm.explain,
+					explain: dialogForm.info,
 					acount: dialogForm.aCount
 				},
         vm: this
@@ -139,14 +139,13 @@ export default {
 
 			if (data.code === 10000) {
 				this.$message.success("编辑成功！");
-				sessionStorage('aCount', dialogForm.aCount);
+				sessionStorage.setItem('aCount', dialogForm.aCount);
 			} else {
 				this.$message.error('编辑失败，请稍后再试！');
 			}
 
 			this.dialogShow = false;
 			this.fetchRules();
-
 		},
 		async fetchRules() {
       const data = await this.fetch({
@@ -154,13 +153,18 @@ export default {
         vm: this
       });
 
-      this.ruleTableData = data.map(element => {
-         return {
-					id: element.id,
-          name: element.name,
-					info: element.explain
-        }
-      });
+			if (data && data[0]) {
+				this.ruleTableData = data.map(element => {
+					return {
+						id: element.id,
+						aCount: element.acount,
+						name: element.name,
+						info: element.explain
+					}
+				});
+				
+				sessionStorage.setItem('aCount', this.ruleTableData[0].aCount);
+			}
 		},
 		async handleEditClick(id) {
 			this.dialogShow = true;

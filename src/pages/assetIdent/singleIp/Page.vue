@@ -90,10 +90,10 @@ export default {
         }
       ],
       searchParams: {
-        startIp: "10.60.4.99",
+        startIp: "",
         scannerType: 2,
         startPort: "1",
-        endPort: "100"
+        endPort: "65535"
       },
       tableData: []
     };

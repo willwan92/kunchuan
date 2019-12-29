@@ -98,6 +98,8 @@
 </template>
 
 <script>
+import { FUZZ_URL } from 'common/axiosClient'
+
 	export default {
 		data() {
 			return {
@@ -147,9 +149,8 @@
 			}
 		},
     methods: {
-      openHTML () {
-        // window.open('http://10.60.100.200/fuzz/html/21_html/main.html', '_blank')
-        window.open('/webapps/dist/html/21_html/main.htmll', '_blank')
+      openHTML() {
+        window.open(`${FUZZ_URL}/html/21_html/main.html`, '_blank');
       },
       handleSelectionChange(val) {
         console.log(val, 'val')

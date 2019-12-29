@@ -6,15 +6,21 @@
 					<el-tree :data="pjTreeData" :props="defaultProps" @node-click="handleNodeClick"></el-tree>
 				</el-scrollbar>
 			</el-col>
-			<el-col class="pj-form" :span="20">
+			<el-col :span="20">
 				<el-form 
-					width="600px"
+					class="pj-form"
 					label-width="100px">
 					<el-form-item label="项目名称">
 						<el-input v-model="form.pjname" readonly="" placeholder=""></el-input>
 					</el-form-item>
 					<el-form-item label="项目类型">
-						<el-input v-model="form.pjtype" readonly="" placeholder=""></el-input>
+						<el-select v-model="getPjType" placeholder="">
+							<el-option v-for="item in pjTypeOption"
+								:key="item.value"
+								:label="item.label"
+								:value="item.value">
+							</el-option>
+						</el-select>
 					</el-form-item>
 					<el-form-item label="项目创建时间">
 						<el-input v-model="form.createTime" readonly="" placeholder=""></el-input>
@@ -66,14 +72,14 @@
 					children: 'children',
 					label: 'pjname'
 				},
-				roleTypeOptions: [
+				pjTypeOption: [
 					{
-						label: '配置管理员',
-						value: 1
+						label: '单系统用户项目',
+						value: '2'
 					},
 					{
-						label: '操作员',
-						value: 2
+						label: '集团用户项目',
+						value: '1'
 					}
 				],
 				tableTitles: [
@@ -99,6 +105,11 @@
 		},
 		created() {
 			this.fetchPjTreeData();
+		},
+		computed: {
+			getPjType() {
+				return this.form.pjtype && this.form.pjtype.charAt(0);
+			}
 		},
 		methods: {
 			//查询
@@ -216,5 +227,7 @@
 
 .pj-form {
 	border-left: 1px solid #ccc;
+	padding-left: 20px;
+	width: 800px;
 }
 </style>

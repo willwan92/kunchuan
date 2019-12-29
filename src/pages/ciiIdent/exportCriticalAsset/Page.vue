@@ -21,14 +21,14 @@
       </el-form>
       <div class="section-title">
         <span>关键性评估规则管理</span>
-				<a :href="exportUrl" type="download">
-					<el-button
-						class="export-btn"
-						type="primary"
-						size="small"
-						>导出</el-button
-					>
-				</a>
+				<el-button
+          class="export-btn"
+          type="primary"
+          size="small"
+          :disabled="!multipleSelection.length"
+          @click="handleExportClick"
+          >导出</el-button
+        >
         
       </div>
 
@@ -54,10 +54,9 @@
 </template>
 
 <script>
-import { getCascaderOptions } from "common/utils";
+import { getCascaderOptions, downloadFileByUrl } from "common/utils";
 import { API_URL } from "common/axiosClient";
 import qs from 'qs';
-
 
 export default {
   data() {
@@ -77,7 +76,7 @@ export default {
   },
   computed: {	
 		exportUrl() {
-			const params = this.getIds();
+      const params = this.getIds();
 			return `${API_URL}/device/getExport?deviceid=${params}`;
 		},
     getPjId() {
@@ -92,6 +91,9 @@ export default {
     }
   },
   methods: {
+    handleExportClick() {
+      downloadFileByUrl(this.exportUrl);
+    },
     async fetchTableData() {
       const resData = JSON.parse(sessionStorage.getItem("affirmRes"));
       this.tableData = resData.map(item => {

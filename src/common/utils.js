@@ -100,6 +100,18 @@ function download(data, name) {
 	link.click()
 }
 
+function downloadFileByUrl(url) {
+	if (!url) {
+		return
+	}
+	let link = document.createElement('a')
+	link.style.display = 'none'
+	link.href = url
+	link.setAttribute('type', 'download');
+	document.body.appendChild(link)
+	link.click()
+}
+
 function toNumberArr(arr) {
 	if (arr && arr[0]) {
 		return arr.map(item => {
@@ -140,6 +152,7 @@ function getCascaderOptions({ arr, label, value, filter = '' }) {
 }
 
 export {
+	downloadFileByUrl,
 	toNumberArr,
 	getCascaderOptions,
 	checkIp,

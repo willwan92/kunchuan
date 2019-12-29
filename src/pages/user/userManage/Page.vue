@@ -9,10 +9,10 @@
           ></el-input>
         </el-form-item>
         <el-form-item label="">
-          <el-button type="primary" @click="fetchData">查 询</el-button>
+          <el-button type="primary" @click="fetchData()">查 询</el-button>
         </el-form-item>
         <el-form-item label="">
-          <el-button class="btn-lg" type="primary" @click="handleEditClick(null)"
+          <el-button class="btn-lg" type="primary" @click="handleAddClick()"
             >添加用户</el-button
           >
         </el-form-item>
@@ -20,7 +20,11 @@
 
       <el-table :data="tableData" border>
         <el-table-column label="用户名" prop="userName"></el-table-column>
-        <el-table-column label="所属角色" prop="roleType"></el-table-column>
+        <el-table-column label="所属角色" prop="">
+          <template slot-scope="scope">
+            {{roleTypeName(scope.row.roleType)}}
+          </template>
+        </el-table-column>
         <!-- <el-table-column
           label="项目权限"
           prop="permissionList"
@@ -30,7 +34,7 @@
         <el-table-column label="邮箱地址" prop="email"></el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
-            <el-button type="text" @click="handleEditClick(scope.row.id)"
+            <el-button type="text" @click="handleEditClick(scope.row)"
               >编辑</el-button
             >
             <el-button type="text" @click="handleDelClick(scope.row.id)"
@@ -52,10 +56,10 @@
         <el-form-item label="用户名称" prop="userName">
           <el-input v-model="dialogForm.userName" :readonly="Boolean(this.id)" autocomplete="off"></el-input>
         </el-form-item>
-				<el-form-item label="用户密码" v-show="id">
+				<el-form-item label="用户密码" v-show="id" prop="password">
           <el-input type="password" v-model="dialogForm.password"></el-input>
         </el-form-item>
-        <el-form-item label="所属角色">
+        <el-form-item label="所属角色" prop="roleType">
           <el-select v-model="dialogForm.roleType" placeholder="">
             <el-option
               v-for="item in roleTypeOptions"
@@ -66,13 +70,13 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="手机号">
+        <el-form-item label="手机号" prop="mobile">
           <el-input v-model="dialogForm.mobile" placeholder=""></el-input>
         </el-form-item>
-        <el-form-item label="固定电话">
+        <el-form-item label="固定电话" prop="telephone">
           <el-input v-model="dialogForm.telephone" placeholder=""></el-input>
         </el-form-item>
-        <el-form-item label="邮箱地址">
+        <el-form-item label="邮箱地址" prop="email">
           <el-input v-model="dialogForm.email" placeholder=""></el-input>
         </el-form-item>
       </el-form>
@@ -99,11 +103,11 @@ export default {
       roleTypeOptions: [
         {
           label: "配置管理员",
-          value: 1
+          value: 2
         },
         {
           label: "操作员",
-          value: 2
+          value: 3
         }
       ],
       dialogForm: {
@@ -128,9 +132,16 @@ export default {
 	computed: {
 		actionName() {
 			return this.id ? '编辑用户' : '添加用户';
-		}
+    }
 	},
   methods: {
+    roleTypeName(roleType) {
+      return roleType === 1 ? '系统管理员' : roleType === 2 ? '配置管理员' : '操作员';
+    },
+    handleAddClick() {
+      this.dialogShow = true;
+      this.resetForm('dialogForm');
+    },
     handleDelClick(id) {
       this.$confirm("确认要删除该用户吗？", "提示", {
         confirmButtonText: "确定",
@@ -142,12 +153,24 @@ export default {
         })
         .catch(() => {});
 		},
-		handleEditClick(id) {
+		handleEditClick({id, index}) {
 			this.id = id;
-			this.dialogShow = true;
+      this.dialogShow = true;
+      
+      const userInfo = this.tableData[index];
 
-			this.fetchData(id);
-		},
+      this.dialogForm = Object.assign({}, this.dialogForm, {
+        userName: userInfo.userName,
+        password: userInfo.password,
+        roleType: userInfo.roleType,
+        mobile: userInfo.mobile,
+        telephone: userInfo.telephone,
+        email: userInfo.email
+      });
+    },
+    resetForm(formName) {
+      this.$refs[formName] && this.$refs[formName].resetFields();
+    },
 		handleComfirmClick() {
 			this.$refs['dialogForm'].validate(valid => {
 				if (!valid) return;
@@ -167,11 +190,11 @@ export default {
 				mobile_code: dialogForm.mobile,
 				fixed_line: dialogForm.telephone,
 				role_id: dialogForm.roleType
-			};
-
+      };
+      
 			if (this.id) {
 				params.user_pwd = dialogForm.password;
-				params.id = this.id;
+				params.user_id = this.id;
 				params.executeType = 2;
 			} else {
 				params.executeType = 1;
@@ -212,47 +235,32 @@ export default {
       }
     },
     //查询
-    async fetchData(userId = null) {
+    async fetchData() {
       const params = {
         start: 0,
-        t: Math.random()
-			};
-			
-			if (userId) {
-				params.user_id = userId;
-			} else {
-        params.user_name = this.form.userName;
-			}
-
+        t: Math.random(),
+        user_name: this.form.userName
+      };
+      
       const { data } = await this.fetchFuzz({
         url: "/fuzz/page/view/system/user!getAllUser.action",
         params: params,
         vm: this
       });
 
-      if (!userId) {
-				this.tableData = data.map(element => {
-					return {
-						id: element[6],
-						userName: element[0],
-						roleType: element[1] === 1 ? '配置管理员' : '操作员',
-						permissionList: element[2],
-						mobile: element[3],
-						telephone: element[4],
-						email: element[5]
-					};
-				});
-			} else {
-				const userInfo = data[0];
-				this.dialogForm = Object.assign({}, this.dialogForm, {
-					userName: userInfo[0],
-					password: userInfo[7],
-					roleType: userInfo[1],
-					mobile: userInfo[3],
-					telephone: userInfo[4],
-					email: userInfo[5]
-				});
-			}
+      this.tableData = data.map((element, index) => {
+        return {
+          index: index,
+          id: element[6],
+          userName: element[0],
+          roleType: element[1],
+          permissionList: element[2],
+          mobile: element[3],
+          telephone: element[4],
+          email: element[5],
+          password: element[7]
+        };
+      });
     }
   }
 };

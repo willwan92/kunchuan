@@ -15,14 +15,14 @@
         </el-form-item>
       </el-form>
       <el-table :data="tableData" border v-loading="isLoading">
-        <el-table-column label="序号" prop="index"></el-table-column>
-        <el-table-column label="IP/资产标识" prop="ip"></el-table-column>
+        <el-table-column label="序号" prop="index" width="50px"></el-table-column>
+        <el-table-column label="IP/资产标识" prop="ip" width="100px"></el-table-column>
         <el-table-column label="资产类型" prop="assetType"></el-table-column>
         <el-table-column label="设备型号" prop="deviceNum"></el-table-column>
         <el-table-column label="版本号" prop="version"></el-table-column>
         <el-table-column label="生产厂家" prop="vendorName"></el-table-column>
         <el-table-column label="操作系统" prop="deviceOs"></el-table-column>
-        <el-table-column label="所属关键业务" prop="">
+        <el-table-column label="所属关键业务" width="200px" prop="">
           <template slot-scope="scope">
             <el-cascader
               filterable
@@ -73,8 +73,6 @@ export default {
 	},
   methods: {
     async handleKbChange(row) {
-      console.log( row);
-      
       const data = await this.fetch({
         url: "/device/getDeviceByKbname",
         params: {
@@ -136,7 +134,7 @@ export default {
       if (data && data[0]) {
          this.tableData = data.map((item, index) => {
           return {
-            index: index,
+            index: index + 1,
             ip: item.ip,
             id: item.deviceid,
             assetType: item.devtype,

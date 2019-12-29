@@ -28,19 +28,9 @@
         <el-table-column label="设备型号" prop="deviceNum"></el-table-column>
         <el-table-column label="版本号" prop="version"></el-table-column>
         <el-table-column label="操作系统" prop="deviceOs"></el-table-column>
-        <el-table-column label="所属关键系统" prop="kbName">
-          <template slot-scope="scope">
-            <el-cascader
-              filterable
-              v-model="scope.row.kbName"
-              :disabled="true"
-              :options="businessOptions"
-              :props="{ expandTrigger: 'hover' }"
-            >
-            </el-cascader>
-          </template>
+        <el-table-column label="所属关键系统" prop="kbName" width="240px">
         </el-table-column>
-        <el-table-column label="关键性" prop="">
+        <el-table-column label="关键性" prop="" width="220px">
 					<template slot-scope="scope">
             <el-input v-model="scope.row.kbValue" placeholder="例：A1 B2 B3 C4">
                <template slot="append">
@@ -153,7 +143,7 @@ export default {
       const pjId = this.getPjId;
 
       const data = await this.fetch({
-        url: "/device/getDeviceinfoBypjname",
+        url: "/device/getDeviceinfoFindAll",
         params: {
           pjid: pjId
         },
@@ -171,8 +161,8 @@ export default {
             version: item.version,
             vendorName: item.vendor,
             deviceOs: item.os,
-            kbName: item.kbname && item.kbname.split('/'),
-            kbValue: item.keychoice,
+            kbName: item.kbname,
+            kbValue: item.keychoice
           };
         });
       } else {
