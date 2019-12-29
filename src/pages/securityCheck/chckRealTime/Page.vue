@@ -37,7 +37,7 @@
         title="核查报告" :visible.sync="dialogVisible" width="30%" :before-close="handleClose">
         <div style="padding: 20px;">
           <div>
-            <span style="padding-right: 40px;">报告预览</span><span>预览（html）</span>
+            <span style="padding-right: 40px;">报告预览</span><span @click="openHTML">预览（html）</span>
           </div>
           <div style="margin-top: 20px;">
             <span style="padding-right: 40px;">报告下载</span>
@@ -147,6 +147,10 @@
 			}
 		},
     methods: {
+      openHTML () {
+        // window.open('http://10.60.100.200/fuzz/html/21_html/main.html', '_blank')
+        window.open('/webapps/dist/html/21_html/main.htmll', '_blank')
+      },
       handleSelectionChange(val) {
         console.log(val, 'val')
         this.multipleSelection = val
