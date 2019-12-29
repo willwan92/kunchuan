@@ -1,66 +1,68 @@
 <template>
-	<!-- 备份管理 -->
-	<div class="page">
-		<div class="section">
-			<el-form :inline="true" label-width="75px">
-				<el-form-item label="项目名称">
-					<el-cascader :show-all-levels="false" :options="pjOptions" :props="{ expandTrigger: 'hover' }" filterable v-model="pjValue">
-					</el-cascader>
-				</el-form-item>
-				<el-form-item label="">
-					<el-button type="primary" @click="fetchTableData">查询</el-button>
-				</el-form-item>
-				<el-form-item label="" prop="">
-					<el-upload class="upload-demo" ref="upload" action="https://jsonplaceholder.typicode.com/posts/" :before-remove="beforeRemove" :on-remove="handleRemove" :file-list="fileList1" :auto-upload="true" :limit="1">
-						<el-button type="primary" @click="submitUpload">上传</el-button>
-					</el-upload>
-				</el-form-item>
-			</el-form>
-			<div class="tabs-wrapper">
-				<el-tabs v-model="tabName" type="card" @tab-click="handleClick">
-					<el-tab-pane label="主机类资产" name="1">
-						<el-table :data="tableData1" border>
-							<el-table-column label="备份文件名" prop="copyName"></el-table-column>
-							<el-table-column label="备份时间" prop="copyTime"></el-table-column>
-							<el-table-column label="备份位置" prop="copyPosition"></el-table-column>
-							<el-table-column label="操作">
-								<template slot-scope="scope">
-									<el-button size="mini" type="primary" @click="handleLoad(scope.$index, scope.row)">下载</el-button>
-									<el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
-								</template>
-							</el-table-column>
-						</el-table>
-					</el-tab-pane>
-					<el-tab-pane label="网络类资产" name="2">
-						<el-table :data="tableData2" border>
-							<el-table-column label="备份文件名" prop="copyName"></el-table-column>
-							<el-table-column label="备份时间" prop="copyTime"></el-table-column>
-							<el-table-column label="备份位置" prop="copyPosition"></el-table-column>
-						</el-table>
-					</el-tab-pane>
-					<el-tab-pane label="数据类资产" name="3">
-						<el-table :data="tableData3" border>
-							<el-table-column label="备份文件名" prop="copyName"></el-table-column>
-							<el-table-column label="备份时间" prop="copyTime"></el-table-column>
-							<el-table-column label="备份位置" prop="copyPosition"></el-table-column>
-							<el-table-column label="操作">
-								<template slot-scope="scope">
-									<el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
-								</template>
-							</el-table-column>
-						</el-table>
-					</el-tab-pane>
-				</el-tabs>
-			</div>
-		</div>
-	</div>
+  <!-- 备份管理 -->
+  <div class="page">
+    <div class="section">
+      <el-form :inline="true" label-width="75px">
+        <el-form-item label="项目名称">
+          <el-cascader :show-all-levels="false" :options="pjOptions" :props="{ expandTrigger: 'hover' }" filterable v-model="pjValue">
+          </el-cascader>
+        </el-form-item>
+        <el-form-item label="">
+          <el-button type="primary" @click="fetchTableData">查询</el-button>
+        </el-form-item>
+        <el-form-item label="" prop="">
+          <el-upload class="upload-demo" ref="upload" action="https://jsonplaceholder.typicode.com/posts/" :before-remove="beforeRemove" :on-remove="handleRemove" :file-list="fileList1" :auto-upload="true" :limit="1">
+            <el-button type="primary" @click="submitUpload">上传</el-button>
+          </el-upload>
+        </el-form-item>
+      </el-form>
+      <div class="tabs-wrapper">
+        <el-tabs v-model="tabName" type="card" @tab-click="handleClick">
+          <el-tab-pane label="主机类资产" name="1">
+            <el-table :data="tableData1" border>
+              <el-table-column label="备份文件名" prop="copyName"></el-table-column>
+              <el-table-column label="备份时间" prop="copyTime"></el-table-column>
+              <el-table-column label="备份位置" prop="copyPosition"></el-table-column>
+              <el-table-column label="操作">
+                <template slot-scope="scope">
+                  <el-button size="mini" type="primary" @click="handleLoad(scope.$index, scope.row)"><a style="color: #fff" href="https://raw.githubusercontent.com/ElementUI/Resources/master/Element_Components_v2.0.0.rplib">下载</a></el-button>
+                  <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-tab-pane>
+          <el-tab-pane label="网络类资产" name="2">
+            <el-table :data="tableData2" border>
+              <el-table-column label="备份文件名" prop="copyName"></el-table-column>
+              <el-table-column label="备份时间" prop="copyTime"></el-table-column>
+              <el-table-column label="备份位置" prop="copyPosition"></el-table-column>
+            </el-table>
+          </el-tab-pane>
+          <el-tab-pane label="数据类资产" name="3">
+            <el-table :data="tableData3" border>
+              <el-table-column label="备份文件名" prop="copyName"></el-table-column>
+              <el-table-column label="备份时间" prop="copyTime"></el-table-column>
+              <el-table-column label="备份位置" prop="copyPosition"></el-table-column>
+              <el-table-column label="操作">
+                <template slot-scope="scope">
+                  <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </el-tab-pane>
+        </el-tabs>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
+import { getCascaderOptions } from "common/utils";
+
 export default {
   data() {
     return {
-      pjOptions: "",
+      pjOptions: [],
       tabName: "1",
       tableData1: [],
       tableData2: [],
@@ -109,9 +111,34 @@ export default {
         url: "/porject/getProjectList",
         vm: this
       });
-      this.pjOptions = this.traverseArr(data);
+
+      this.pjOptions = getCascaderOptions({
+        arr: data,
+        label: "pjname",
+        value: "id",
+        filter: "isleaf"
+      });
     },
     handleClick() {},
+    handleDelete() {
+      this.$confirm("确定删除？", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          this.$message({
+            type: "success",
+            message: "删除成功!"
+          });
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除"
+          });
+        });
+    },
     rowSubmit(index, row) {
       row.version = this.rowEditData.version
         ? this.rowEditData.version
@@ -131,6 +158,7 @@ export default {
         type: "success"
       });
     },
+    handleLoad() {},
     resetForm(formName) {
       this.$refs[formName].resetFields();
     },
@@ -240,10 +268,10 @@ export default {
   position: relative;
   box-sizing: border-box;
   /deep/.el-upload-list {
-    // position: absolute;
-    // left: 100px;
-		// top: -3px;
-		display: none;
+    position: absolute;
+    left: 100px;
+    top: -3px;
+    // display: none;
   }
 }
 </style>

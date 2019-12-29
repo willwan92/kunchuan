@@ -71,14 +71,14 @@
 					<el-col :span="12">
 						<el-form-item label="IP地址2:" prop="">
 							<el-col :span="22">
-								<el-input v-model="form1.Ip2" readonly></el-input>
+								<el-input v-model="form1.Ip2" disabled="true"></el-input>
 							</el-col>
 						</el-form-item>
 					</el-col>
 					<el-col :span="12">
 						<el-form-item label="IP地址3:" prop="">
 							<el-col :span="22">
-								<el-input v-model="form1.Ip3" readonly></el-input>
+								<el-input v-model="form1.Ip3" disabled="true"></el-input>
 							</el-col>
 						</el-form-item>
 					</el-col>
@@ -87,14 +87,14 @@
 					<el-col :span="12">
 						<el-form-item label="MAC地址2:" prop="">
 							<el-col :span="22">
-								<el-input v-model="form1.Mac2" readonly></el-input>
+								<el-input v-model="form1.Mac2" disabled="true"></el-input>
 							</el-col>
 						</el-form-item>
 					</el-col>
 					<el-col :span="12">
 						<el-form-item label="MAC地址3:" prop="">
 							<el-col :span="22">
-								<el-input v-model="form1.Mac3" readonly></el-input>
+								<el-input v-model="form1.Mac3" disabled="true"></el-input>
 							</el-col>
 						</el-form-item>
 					</el-col>
@@ -103,14 +103,14 @@
 					<el-col :span="12">
 						<el-form-item label="部署位置3:" prop="">
 							<el-col :span="22">
-								<el-input v-model="form1.Pos3" readonly></el-input>
+								<el-input v-model="form1.Pos3" disabled="true"></el-input>
 							</el-col>
 						</el-form-item>
 					</el-col>
 					<el-col :span="12">
 						<el-form-item label="投入使用时间:" prop="">
 							<el-col :span="22">
-								<el-input v-model="form1.startTime" readonly></el-input>
+								<el-input v-model="form1.startTime" disabled="true"></el-input>
 							</el-col>
 						</el-form-item>
 					</el-col>
@@ -119,14 +119,14 @@
 					<el-col :span="12">
 						<el-form-item label="软件安装情况:" prop="">
 							<el-col :span="22">
-								<el-input v-model="form1.use" readonly></el-input>
+								<el-input v-model="form1.use" disabled="true"></el-input>
 							</el-col>
 						</el-form-item>
 					</el-col>
 					<el-col :span="12">
 						<el-form-item label="功能简述:" prop="">
 							<el-col :span="22">
-								<el-input type="textarea" v-model="form1.des" readonly></el-input>
+								<el-input type="textarea" v-model="form1.des" disabled="true"></el-input>
 							</el-col>
 						</el-form-item>
 					</el-col>
@@ -218,14 +218,14 @@
 					<el-col :span="12">
 						<el-form-item label="IP地址2:" prop="">
 							<el-col :span="22">
-								<el-input v-model="form2.Ip2" readonly></el-input>
+								<el-input v-model="form2.Ip2" disabled="true"></el-input>
 							</el-col>
 						</el-form-item>
 					</el-col>
 					<el-col :span="12">
 						<el-form-item label="IP地址3:" prop="">
 							<el-col :span="22">
-								<el-input v-model="form2.Ip3" readonly></el-input>
+								<el-input v-model="form2.Ip3" disabled="true"></el-input>
 							</el-col>
 						</el-form-item>
 					</el-col>
@@ -234,14 +234,14 @@
 					<el-col :span="12">
 						<el-form-item label="MAC地址2:" prop="">
 							<el-col :span="22">
-								<el-input v-model="form2.Mac2" readonly></el-input>
+								<el-input v-model="form2.Mac2" disabled="true"></el-input>
 							</el-col>
 						</el-form-item>
 					</el-col>
 					<el-col :span="12">
 						<el-form-item label="MAC地址3:" prop="">
 							<el-col :span="22">
-								<el-input v-model="form2.Mac3" readonly></el-input>
+								<el-input v-model="form2.Mac3" disabled="true"></el-input>
 							</el-col>
 						</el-form-item>
 					</el-col>
@@ -250,14 +250,14 @@
 					<el-col :span="12">
 						<el-form-item label="部署位置3:" prop="">
 							<el-col :span="22">
-								<el-input v-model="form2.Pos3" readonly></el-input>
+								<el-input v-model="form2.Pos3" disabled="true"></el-input>
 							</el-col>
 						</el-form-item>
 					</el-col>
 					<el-col :span="12">
 						<el-form-item label="投入使用时间:" prop="">
 							<el-col :span="22">
-								<el-input readonly v-model="form2.startTime"></el-input>
+								<el-input disabled="true" v-model="form2.startTime"></el-input>
 							</el-col>
 						</el-form-item>
 					</el-col>
@@ -266,14 +266,14 @@
 					<el-col :span="12">
 						<el-form-item label="软件版本号:" prop="">
 							<el-col :span="22">
-								<el-input v-model="form2.version" readonly></el-input>
+								<el-input v-model="form2.version" disabled="true"></el-input>
 							</el-col>
 						</el-form-item>
 					</el-col>
 					<el-col :span="12">
 						<el-form-item label="功能简述:" prop="">
 							<el-col :span="22">
-								<el-input type="textarea" v-model="form2.des" readonly></el-input>
+								<el-input type="textarea" v-model="form2.des" disabled="true"></el-input>
 							</el-col>
 						</el-form-item>
 					</el-col>
@@ -365,14 +365,14 @@
 					<el-col :span="12">
 						<el-form-item label="存储位置:" prop="pos">
 							<el-col :span="22">
-								<el-input v-model="form3.pos" readonly></el-input>
+								<el-input v-model="form3.pos" disabled="true"></el-input>
 							</el-col>
 						</el-form-item>
 					</el-col>
 					<el-col :span="12">
 						<el-form-item label="占用空间:" prop="space">
 							<el-col :span="22">
-								<el-input v-model="form3.space" readonly></el-input>
+								<el-input v-model="form3.space" disabled="true"></el-input>
 							</el-col>
 						</el-form-item>
 					</el-col>
@@ -381,14 +381,14 @@
 					<el-col :span="12">
 						<el-form-item label="版本号:" prop="version">
 							<el-col :span="22">
-								<el-input v-model="form3.version" readonly></el-input>
+								<el-input v-model="form3.version" disabled="true"></el-input>
 							</el-col>
 						</el-form-item>
 					</el-col>
 					<el-col :span="12">
 						<el-form-item label="最终更新时间:" prop="updateTime">
 							<el-col :span="22">
-								<el-input v-model="form3.updateTime" readonly></el-input>
+								<el-input v-model="form3.updateTime" disabled="true"></el-input>
 							</el-col>
 						</el-form-item>
 					</el-col>
@@ -397,14 +397,14 @@
 					<el-col :span="12">
 						<el-form-item label="打开方式:" prop="open">
 							<el-col :span="22">
-								<el-input v-model="form3.open" readonly></el-input>
+								<el-input v-model="form3.open" disabled="true"></el-input>
 							</el-col>
 						</el-form-item>
 					</el-col>
 					<el-col :span="12">
 						<el-form-item label="功能简述:" prop="des">
 							<el-col :span="22">
-								<el-input type="textarea" v-model="form3.des" readonly></el-input>
+								<el-input type="textarea" v-model="form3.des" disabled="true"></el-input>
 							</el-col>
 						</el-form-item>
 					</el-col>
@@ -477,6 +477,8 @@
 </template>
 
 <script>
+import { getCascaderOptions } from "common/utils";
+
 export default {
   data() {
     return {
@@ -560,7 +562,13 @@ export default {
         url: "/porject/getProjectList",
         vm: this
       });
-      this.pjOptions = this.traverseArr(data);
+
+      this.pjOptions = getCascaderOptions({
+        arr: data,
+        label: "pjname",
+        value: "id",
+        filter: "isleaf"
+      });
     }
   },
   created() {
