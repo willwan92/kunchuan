@@ -34,39 +34,18 @@
 					<el-button type="primary" @click="add()">添加</el-button>
 				</el-form-item>
 			</el-form>
-
-			<div class="tabs-wrapper">
-				<el-tabs v-model="tabName" type="card" @tab-click="handleClick">
-					<el-tab-pane label="主机类资产" name="1">
-						<el-table :data="tableData1" border>
-							<el-table-column label="序号" prop="id"></el-table-column>
-							<el-table-column label="漏洞名称" prop="bugName"></el-table-column>
-							<el-table-column label="解决方案" prop="solution"></el-table-column>
-							<el-table-column label="补丁下载地址" prop="load"></el-table-column>
-							<el-table-column label="操作">
-								<template slot-scope="scope">
-									<el-button size="mini" type="primary" @click="handleCopy(scope.$index, scope.row)">复制链接</el-button>
-									<el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
-								</template>
-							</el-table-column>
-						</el-table>
-					</el-tab-pane>
-					<el-tab-pane label="网络类资产" name="2">
-						<el-table :data="tableData2" border>
-							<el-table-column label="序号" prop="id"></el-table-column>
-							<el-table-column label="漏洞名称" prop="bugName"></el-table-column>
-							<el-table-column label="解决方案" prop="solution"></el-table-column>
-							<el-table-column label="补丁下载地址" prop="load"></el-table-column>
-							<el-table-column label="操作">
-								<template slot-scope="scope">
-									<el-button size="mini" type="primary" @click="handleCopy(scope.$index, scope.row)">复制链接</el-button>
-									<el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
-								</template>
-							</el-table-column>
-						</el-table>
-					</el-tab-pane>
-				</el-tabs>
-			</div>
+			<el-table :data="tableData1" border>
+				<el-table-column label="序号" prop="id"></el-table-column>
+				<el-table-column label="漏洞名称" prop="bugName"></el-table-column>
+				<el-table-column label="解决方案" prop="solution"></el-table-column>
+				<el-table-column label="补丁下载地址" prop="load"></el-table-column>
+				<el-table-column label="操作">
+					<template slot-scope="scope">
+						<el-button size="mini" type="primary" @click="handleCopy(scope.$index, scope.row)">复制链接</el-button>
+						<el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+					</template>
+				</el-table-column>
+			</el-table>
 		</div>
 		<el-dialog title="添加" :visible.sync="dialogVisible" width="50%">
 			<el-form width="600px" label-width="110px" ref="form" :model="form">
@@ -121,10 +100,7 @@
 export default {
   data() {
     return {
-      tabName: "1",
       tableData1: [],
-      tableData2: [],
-      tableData3: [],
       form: {
         id: "",
         bugName: "",
@@ -274,21 +250,7 @@ export default {
         solution: "无",
         load: "无"
       }
-    ];
-    this.tableData2 = [
-      {
-        id: "1",
-        bugName: "交换机内核组件信息泄露漏洞",
-        solution: "目前厂商已发布升级补丁以修复漏洞",
-        load: "无"
-      },
-      {
-        id: "2",
-        bugName: "华为交换机安全漏洞",
-        solution: "无",
-        load: "无"
-      }
-    ];
+    ]
   }
 };
 </script>
