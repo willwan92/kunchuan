@@ -4,7 +4,7 @@
       <el-form :inline="true" label-width="75px">
         <el-form-item label="用户名称">
           <el-input
-            v-model="form.username"
+            v-model="form.userName"
             placeholder="请输入用户名称"
           ></el-input>
         </el-form-item>
@@ -12,7 +12,7 @@
           <el-button type="primary" @click="fetchData">查 询</el-button>
         </el-form-item>
         <el-form-item label="">
-          <el-button class="btn-lg" type="primary" @click="dialogShow = true"
+          <el-button class="btn-lg" type="primary" @click="handleEditClick(null)"
             >添加用户</el-button
           >
         </el-form-item>
@@ -21,10 +21,10 @@
       <el-table :data="tableData" border>
         <el-table-column label="用户名" prop="userName"></el-table-column>
         <el-table-column label="所属角色" prop="roleType"></el-table-column>
-        <el-table-column
+        <!-- <el-table-column
           label="项目权限"
           prop="permissionList"
-        ></el-table-column>
+        ></el-table-column> -->
         <el-table-column label="手机号" prop="mobile"></el-table-column>
         <el-table-column label="固话" prop="telephone"></el-table-column>
         <el-table-column label="邮箱地址" prop="email"></el-table-column>
@@ -45,11 +45,12 @@
       :title="actionName"
       :visible.sync="dialogShow"
       width="600px"
+			:close-on-click-modal="false"
       @close="dialogShow = false"
     >
-      <el-form :model="dialogForm" ref="form" label-width="80px">
-        <el-form-item label="用户名称">
-          <el-input v-model="dialogForm.userName"></el-input>
+      <el-form :model="dialogForm" :rules="userRules" ref="dialogForm" label-width="80px">
+        <el-form-item label="用户名称" prop="userName">
+          <el-input v-model="dialogForm.userName" :readonly="Boolean(this.id)" autocomplete="off"></el-input>
         </el-form-item>
 				<el-form-item label="用户密码" v-show="id">
           <el-input type="password" v-model="dialogForm.password"></el-input>
@@ -90,10 +91,10 @@ import { judgeGender, deepCopy, commonExport } from "common/utils";
 export default {
   data() {
     return {
-			id: '',
+			id: null,
       dialogShow: false,
       form: {
-        username: ""
+        userName: ""
       },
       roleTypeOptions: [
         {
@@ -112,9 +113,13 @@ export default {
         mobile: "",
         email: "",
         telephone: ""
-      },
+			},
+			userRules: {
+				userName: [
+					{ required: true, message: '请输入用户名', trigger: 'blur' }
+				]
+			},
       tableData: [],
-      pageNum: 1
     };
   },
   created() {
@@ -122,7 +127,7 @@ export default {
 	},
 	computed: {
 		actionName() {
-			return this.id ? '添加用户' : '编辑用户';
+			return this.id ? '编辑用户' : '添加用户';
 		}
 	},
   methods: {
@@ -136,11 +141,26 @@ export default {
           this.delUserById(id);
         })
         .catch(() => {});
-    },
+		},
+		handleEditClick(id) {
+			this.id = id;
+			this.dialogShow = true;
+
+			this.fetchData(id);
+		},
+		handleComfirmClick() {
+			this.$refs['dialogForm'].validate(valid => {
+				if (!valid) return;
+				this.saveUser();
+			})
+		},
     async saveUser() {
       // executeType 此参数为1 表示执行新增操作
 			// 修改功能 原项目用户名不可修改 executeType 此参数为2 表示执行修改操作
 			// user_pwd
+
+			let dialogForm = this.dialogForm;
+
       const params = {
 				user_name: dialogForm.userName,
 				email: dialogForm.email,
@@ -154,7 +174,7 @@ export default {
 				params.id = this.id;
 				params.executeType = 2;
 			} else {
-				params.executeType = 2;
+				params.executeType = 1;
 			}
 
       const data = await this.postFuzz({
@@ -162,12 +182,17 @@ export default {
         params: params,
         vm: this
       });
-
+			
+			this.dialogShow = false;
       if (data.state === 1) {
-        this.$message.success(`${actionName}成功！`);
+				this.$message({
+					showClose: true,
+					duration: 0,
+          message: data.msg
+        });
         this.fetchData();
       } else {
-        this.$message.error(`${actionName}失败，请稍后再试！`);
+        this.$message.error(`${this.actionName}失败，${data.msg}`);
       }
     },
     async delUserById(id) {
@@ -187,12 +212,17 @@ export default {
       }
     },
     //查询
-    async fetchData() {
+    async fetchData(userId = null) {
       const params = {
-        start: this.pageNum,
-        t: Math.random(),
-        user_name: this.form.username
-      };
+        start: 0,
+        t: Math.random()
+			};
+			
+			if (userId) {
+				params.user_id = userId;
+			} else {
+        params.user_name = this.form.userName;
+			}
 
       const { data } = await this.fetchFuzz({
         url: "/fuzz/page/view/system/user!getAllUser.action",
@@ -200,32 +230,29 @@ export default {
         vm: this
       });
 
-      this.tableData = data.map(element => {
-        return {
-          id: element[6],
-          userName: element[0],
-          roleType: element[1],
-          permissionList: element[2],
-          mobile: element[3],
-          telephone: element[4],
-          email: element[5]
-        };
-      });
-    },
-    handleComfirmClick() {},
-    editItem(id) {},
-    createParams() {
-      let params = deepCopy(this.searchParams);
-      params.pageNum = this.currentPage;
-      return params;
-    },
-    viewDetail(row) {
-      this.$router.push({
-        path: "/user/userDetail",
-        query: {
-          id: row.userId
-        }
-      });
+      if (!userId) {
+				this.tableData = data.map(element => {
+					return {
+						id: element[6],
+						userName: element[0],
+						roleType: element[1] === 1 ? '配置管理员' : '操作员',
+						permissionList: element[2],
+						mobile: element[3],
+						telephone: element[4],
+						email: element[5]
+					};
+				});
+			} else {
+				const userInfo = data[0];
+				this.dialogForm = Object.assign({}, this.dialogForm, {
+					userName: userInfo[0],
+					password: userInfo[7],
+					roleType: userInfo[1],
+					mobile: userInfo[3],
+					telephone: userInfo[4],
+					email: userInfo[5]
+				});
+			}
     }
   }
 };
