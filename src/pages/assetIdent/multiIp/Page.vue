@@ -86,7 +86,7 @@
 					endIp: '',
 					scannerType: 2,
 					startPort: '1',
-					endPort: '100',
+					endPort: '65535',
 				},
 				tableData: [],
 				currentRowIp: '',
@@ -238,7 +238,7 @@
 							cveId: ''
 						}
 					})
-				} else {
+				} else if (data.data && !data.data.length) {
 					this.timer && this.$message.info('扫描结束，未发现开放端口!')
 				}
 
