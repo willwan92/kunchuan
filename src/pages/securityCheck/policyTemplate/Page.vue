@@ -32,11 +32,6 @@
                   </template>
                 </el-table-column>
               </el-table>
-              <div v-if="label === '主机类策略组'" style="text-align: center;margin-top: 30px;">
-                <el-pagination background :current-page.sync="page" @current-change="handleCurrentChange"
-                  :page-size="size" layout="prev, pager, next" :total="20">
-                </el-pagination>
-              </div>
             </template>
             <template v-else>
               <span class="el-icon-refresh-left re-back" @click="itemDetail = false">返回</span>
@@ -53,6 +48,11 @@
                         </template>
                       </el-table-column>
                     </el-table>
+                    <div v-if="label === '主机类策略组'" style="text-align: center;margin-top: 30px;">
+                      <el-pagination background :current-page.sync="page" @current-change="handleCurrentChange"
+                                     :page-size="size" layout="prev, pager, next" :total="20">
+                      </el-pagination>
+                    </div>
                   </template>
                 </el-tab-pane>
               </el-tabs>
@@ -218,24 +218,16 @@
         formLabelWidth: '120px',
         type: '',
         checkData: [
-          {
-            check_num: 'Linux',
-            check_name: '口令锁定策略',
-            check_desc: '设置口令认证失败后锁定策略',
-            check_val: '5'
-          }
+          {check_num: 'windows-1', check_name: '启用审核对象访问的审核', check_desc: '启用审核对象访问的审核', check_val: '3'},
+          {check_num: 'windows-2', check_name: '关键权限指派安全要求取得文件或其他对象的所有权', check_desc: '关键权限指派安全要求取得文件或其他对象的所有权', check_val: '*S-1-5-32-544'},
+          {check_num: 'windows-3', check_name: '关键权限指派安全要求关闭系统', check_desc: '关键权限指派安全要求关闭系统', check_val: '*S-1-5-32-544'},
+          {check_num: 'windows-4', check_name: '修改默认远程登录端口', check_desc: '修改默认远程登录端口', check_val: 'Oxd3d'},
+          {check_num: 'windows-5', check_name: '口令重复使用次数显示', check_desc: '口令重复使用次数显示', check_val: '5'},
         ],
         itemDetail: false, // 详情
         checkItemData: [
-          {
-            check_num: 'Windows-1',
-            check_name: '口令锁定策略',
-            check_type: '/主机/Windows'
-          }, {
-            check_num: 'Windows-2',
-            check_name: '查找未授权的SUID-SGID文件',
-            check_type: '/主机/Windows'
-          }
+          {check_num: 'Windows-1', check_name: '口令锁定策略', check_type: '/主机/Windows'},
+          {check_num: 'Windows-2', check_name: '查找未授权的SUID-SGID文件', check_type: '/主机/Windows'}
         ],
         checkItemDetailName: 'basicInfo',
         checkBasicInfo: {
@@ -256,27 +248,26 @@
           disable: true,
         },
         copyData: [
-          {name: 'Windows主机配置策略', type: '68/1', attr: '预定义'},
-          {name: 'Windows主机配置策略-1', type: '50/1', attr: '预定义'},
-          {name: 'Windows主机配置策略-2', type: '51/1', attr: '预定义'},
-          {name: 'Windows主机配置策略-3', type: '48/1', attr: '预定义'},
-          {name: 'Windows主机配置策略-4', type: '25/1', attr: '预定义'},
-          {name: 'Windows主机配置策略-5', type: '45/1', attr: '预定义'},
-          {name: 'Windows主机配置策略-6', type: '55/1', attr: '预定义'},
-          {name: 'Windows主机配置策略-7', type: '65/1', attr: '预定义'},
-          {name: 'Windows主机配置策略-8', type: '52/1', attr: '预定义'},
-          {name: 'Windows主机配置策略-9', type: '45/1', attr: '预定义'},
-          {name: 'Windows主机配置策略-10', type: '35/1', attr: '预定义'},
-          {name: 'Windows主机配置策略-11', type: '55/1', attr: '预定义'},
-          {name: 'Windows主机配置策略-12', type: '54/1', attr: '预定义'},
-          {name: 'Windows主机配置策略-13', type: '56/1', attr: '预定义'},
-          {name: 'Windows主机配置策略-14', type: '58/1', attr: '预定义'},
-          {name: 'Windows主机配置策略-15', type: '45/1', attr: '预定义'},
-          {name: 'Windows主机配置策略-16', type: '65/1', attr: '预定义'},
-          {name: 'Windows主机配置策略-17', type: '25/1', attr: '预定义'},
-          {name: 'Windows主机配置策略-18', type: '58/1', attr: '预定义'},
-          {name: 'Windows主机配置策略-19', type: '59/1', attr: '预定义'},
-          {name: 'Windows主机配置策略-20', type: '60/1', attr: '预定义'},
+          {check_num: 'Windows-1', check_name: '启用审核对象访问的审核', check_type: '/主机/Windows'},
+          {check_num: 'Windows-2', check_name: '关键权限指派安全要求取得文件或者其他对象的所有权', check_type: '/主机/Windows'},
+          {check_num: 'Windows-3', check_name: '关键权限指派安全要求关闭系统', check_type: '/主机/Windows'},
+          {check_num: 'Windows-4', check_name: '修改默认远程登录端口', check_type: '/主机/Windows'},
+          {check_num: 'Windows-5', check_name: '口令重复使用次数限制', check_type: '/主机/Windows'},
+          {check_num: 'Windows-6', check_name: '共享文件夹权限设置', check_type: '/主机/Windows'},
+          {check_num: 'Windows-7', check_name: '记录账户登录日志', check_type: '/主机/Windows'},
+          {check_num: 'Windows-8', check_name: 'TCPIP筛选配置', check_type: '/主机/Windows'},
+          {check_num: 'Windows-9', check_name: '关闭默认共享', check_type: '/主机/Windows'},
+          {check_num: 'Windows-10', check_name: '启用审查账户管理的审核', check_type: '/主机/Windows'},
+          {check_num: 'Windows-11', check_name: '启用SYN攻击保护', check_type: '/主机/Windows'},
+          {check_num: 'Windows-12', check_name: '日志文件大小设置', check_type: '/主机/Windows'},
+          {check_num: 'Windows-13', check_name: '禁用guest用户', check_type: '/主机/Windows'},
+          {check_num: 'Windows-14', check_name: '启用审核过程的追踪审核', check_type: '/主机/Windows'},
+          {check_num: 'Windows-15', check_name: '启用审核系统事件的审核', check_type: '/主机/Windows'},
+          {check_num: 'Windows-16', check_name: '启用审核目录服务访问的审核', check_type: '/主机/Windows'},
+          {check_num: 'Windows-17', check_name: '口令生存周期要求', check_type: '/主机/Windows'},
+          {check_num: 'Windows-18', check_name: '启用审核特权使用的审核', check_type: '/主机/Windows'},
+          {check_num: 'Windows-19', check_name: '启用并正确配置Windows网络时间同步', check_type: '/主机/Windows'},
+          {check_num: 'Windows-20', check_name: '安装系统补丁Hotfix', check_type: '/主机/Windows'},
         ]
       }
     },
@@ -284,9 +275,9 @@
       handleCurrentChange (val) {
         this.page = val
         if (val === 1) {
-          this.tableData = this.copyData.slice(0, 10)
+          this.checkItemData = this.copyData.slice(0, 10)
         } else {
-          this.tableData = this.copyData.slice(10)
+          this.checkItemData = this.copyData.slice(10)
         }
       },
       handleNodeClick (data) {
@@ -299,7 +290,14 @@
             attr: '预定义'
           }]
         } else if (data.label === '主机类策略组') {
-          this.tableData = this.copyData.slice(0, 10)
+          // this.tableData = this.copyData.slice(0, 10)
+          this.tableData = [
+            {name: 'Linux配置策略', type: '57/1', attr: '预定义'},
+            {name: 'Windows主机配置策略', type: '68/1', attr: '预定义'},
+            {name: 'AIX主机配置策略', type: '50/1', attr: '预定义'},
+            {name: 'Solaris主机配置策略', type: '51/1', attr: '预定义'},
+            {name: 'HP-UX主机配置策略', type: '48/1', attr: '预定义'},
+            ]
         } else {
           this.tableData = [
             {name: 'oracle数据库配置策略', type: '33/1', attr: '预定义'},
@@ -356,6 +354,7 @@
       },
       handleClick (row) {
         this.itemDetail = !this.itemDetail
+        this.checkItemData = this.copyData.slice(0, 10)
       }
 
     }
