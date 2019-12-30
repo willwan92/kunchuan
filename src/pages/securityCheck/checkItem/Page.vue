@@ -26,6 +26,11 @@
                   </template>
                 </el-table-column>
               </el-table>
+              <div v-if="label === 'windows'" style="text-align: center;margin-top: 30px;">
+                <el-pagination background :current-page.sync="page" @current-change="handleCurrentChange"
+                               :page-size="size" layout="prev, pager, next" :total="20">
+                </el-pagination>
+              </div>
             </template>
             <template v-else>
               <span class="el-icon-refresh-left re-back" @click="itemDetail = false">返回</span>
@@ -111,6 +116,9 @@
   export default {
     data() {
       return {
+        page: 1,
+        size: 10,
+        label: '',
         activeName: 'first',
         tableData: [
           {num: 'Linux-1', name: '口令锁定策略', desc: '对于采用静态口令，应采用设置用户...', type: '自动', attr: '系统内置'},
@@ -206,11 +214,42 @@
           point: '', // 检查点
           rule: 'v0 && v1', // 检查点规则
           disable: true
-        }
+        },
+        copyData: [
+          {num: 'windows-1', name: '启用审核对象访问的审核', desc: '启用组策略中对windows系统的审核对象的访问，成功和失败都要访问...', type: '自动', attr: '系统内置'},
+          {num: 'windows-2', name: '关键权限指派安全要求取得文件或其他...', desc: '在本地安全设置中取得文件或其他对象的所以权限...', type: '自动', attr: '系统内置'},
+          {num: 'windows-3', name: '关键权限指派安全要求关闭系统', desc: '在本地安全设置中关闭系统仅指派给admin...', type: '自动', attr: '系统内置'},
+          {num: 'windows-4', name: '修改默认远程登录端口...', desc: '如对互联网开放WindowsTerminal服务（remote...', type: '自动', attr: '系统内置'},
+          {num: 'windows-5', name: '口令重复使用字数限制', desc: '对于采用静态口令认证的技术设备，应配置设备，...', type: '自动', attr: '系统内置'},
+          {num: 'windows-6', name: '共享文件夹权限设置', desc: '查看每个共享文件夹的共享权限，只允许授权的...', type: '自动', attr: '系统内置'},
+          {num: 'windows-7', name: '记录账户登录日志...', desc: '设备应配置日志功能，对用户登录进行记录...', type: '自动', attr: '系统内置'},
+          {num: 'windows-8', name: 'TCOIP筛选配置', desc: '对没有自带防火墙的windows系统，启用...', type: '自动', attr: '系统内置'},
+          {num: 'windows-9', name: '关闭默认共享', desc: '非域环境中，关闭window硬盘默认共享，例如...', type: '自动', attr: '系统内置'},
+          {num: 'windows-10', name: '启用审核账号的管理审核', desc: '启用组策略中对windows系统的账号审核管理...', type: '自动', attr: '系统内置'},
+          {num: 'windows-11', name: '启用SYN攻击保护', desc: '启用SYN攻击保护，制定出发SYN洪水攻击保护...', type: '自动', attr: '系统内置'},
+          {num: 'windows-12', name: '日志文件大小设置', desc: '设置日志应用文件大小至少小于8192kb,设置系统...', type: '自动', attr: '系统内置'},
+          {num: 'windows-13', name: '禁用guest用户', desc: '删除或锁定与设备运行，维护等于工作无关的装好...', type: '自动', attr: '系统内置'},
+          {num: 'windows-14', name: '启用审核过程追踪的审核', desc: '启用组策略中对Windows系统的审核追踪...', type: '自动', attr: '系统内置'},
+          {num: 'windows-15', name: '启用审核过程事件的审核', desc: '启用组策略中对Windows系统的系统事件...', type: '自动', attr: '系统内置'},
+          {num: 'windows-16', name: '启用审核目录服务访问的审核', desc: '启用组策略中对Windows系统的审核目录服务...', type: '自动', attr: '系统内置'},
+          {num: 'windows-17', name: '口令生存周期要求', desc: '对于采用静态口令认证系统的审核设备，账户口令的生成...', type: '自动', attr: '系统内置'},
+          {num: 'windows-18', name: '启用审核特权使用的审核', desc: '启用组策略中对Windows系统的审核特权使用...', type: '自动', attr: '系统内置'},
+          {num: 'windows-19', name: '启用并正确配置Windows网络时间', desc: '通过微软active directory管理的终端，或者是独立...', type: '自动', attr: '系统内置'},
+          {num: 'windows-20', name: '安装系统补丁', desc: '应安装最新的补丁，对服务器系统应先进行...', type: '自动', attr: '系统内置'},
+        ]
       }
     },
     methods: {
+      handleCurrentChange (val) {
+        this.page = val
+        if (val === 1) {
+          this.tableData = this.copyData.slice(0, 10)
+        } else {
+          this.tableData = this.copyData.slice(10)
+        }
+      },
       handleNodeClick (data) {
+        this.label = data.label
         if (data.label === 'Linux') {
           this.tableData = [
             {num: 'Linux-1', name: '口令锁定策略', desc: '对于采用静态口令，应采用设置用户...', type: '自动', attr: '系统内置'},
@@ -221,11 +260,13 @@
             {num: 'Huawei(sw)-1', name: '已知典型攻击防护', desc: '通过ACL配置对常见的漏洞攻击及进行...', type: '自动', attr: '系统内置'},
             {num: 'Huawei(sw)-2', name: '修改SNMP默认的community字符串', desc: '系统应修改SNMP默认团体字符串...', type: '自动', attr: '系统内置'}
           ]
-        } else {
+        } else if (data.label === 'oracle') {
           this.tableData = [
             {num: 'Oracle-1', name: '检查是否根据业务要求定制数据库审查策略', desc: '检查是否根据业务要求定制数据库审查策略...', type: '自动', attr: '系统内置'},
             {num: 'Oracle-2', name: '口令生存期', desc: '对于采用静态口令认证技术的数据库，账户口令...', type: '自动', attr: '系统内置'}
           ]
+        } else if (data.label === 'windows') {
+          this.tableData = this.copyData.slice(0, 10)
         }
       },
       /**
