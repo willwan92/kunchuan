@@ -4,6 +4,7 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import lodash from "lodash"
+import moment from "moment"
 import cookies from 'js-cookies'
 import 'normalize.css/normalize.css'
 import './assets/styles/common.less'
@@ -21,6 +22,7 @@ Vue.config.productionTip = false;
 Vue.prototype._ = lodash;
 Vue.prototype.$cookies = cookies;
 Vue.prototype.fetch = fetch;
+Vue.prototype.moment = moment;
 Vue.prototype.fetchFuzz = fetchFuzz;
 Vue.prototype.postFuzz = postFuzz;
 
@@ -35,13 +37,4 @@ new Vue({
     router,
     components: { App },
     template: '<App/>'
-})
-
-router.beforeEach((to, from, next) => {
-    const session = cookies.getItem('JSESSIONID');
-    console.log(session, to.path)
-    if (!session && to.path !== '/login') {
-        next('/login');
-    }
-    next();
 })

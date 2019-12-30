@@ -39,7 +39,7 @@ export default {
 		}, 
 		confirmLogout() {
 			sessionStorage.removeItem('account');
-			this.$cookies.removeItem('JSESSIONID');
+			sessionStorage.removeItem('SESSIONID');
 			this.logoutDialogVisible = false;
 			this.$router.push('/login');
 		}

@@ -47,6 +47,7 @@
         <el-table-column label="设备型号" prop="deviceNum"></el-table-column>
         <el-table-column label="版本号" prop="version"></el-table-column>
         <el-table-column label="操作系统" prop="deviceOs"></el-table-column>
+        <el-table-column label="备注" prop="remark"></el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button type="text" @click="handleEditClick(scope.row.id)"
@@ -152,6 +153,9 @@
           <el-form-item label="数据库实例" prop="databaseInstance">
             <el-input v-model="dialogForm.databaseInstance"></el-input>
           </el-form-item>
+          <el-form-item label="备注" prop="remark">
+            <el-input v-model="dialogForm.remark"></el-input>
+          </el-form-item>
         </el-form>
 
         <span slot="footer">
@@ -232,7 +236,8 @@ export default {
         databasePath: "",
         databaseAccount: "",
         databasePassword: "",
-        databaseInstance: ""
+        databaseInstance: "",
+        remark: ""
       },
       rules: {
         ip: [{ validator: validateIp, trigger: "blur" }]
