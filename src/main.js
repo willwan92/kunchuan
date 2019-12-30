@@ -4,6 +4,8 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import lodash from "lodash"
+import moment from "moment"
+import cookies from 'js-cookies'
 import 'normalize.css/normalize.css'
 import './assets/styles/common.less'
 import './theme/index.css'
@@ -18,7 +20,9 @@ Vue.config.productionTip = false;
 
 
 Vue.prototype._ = lodash;
+Vue.prototype.$cookies = cookies;
 Vue.prototype.fetch = fetch;
+Vue.prototype.moment = moment;
 Vue.prototype.fetchFuzz = fetchFuzz;
 Vue.prototype.postFuzz = postFuzz;
 

@@ -1,5 +1,5 @@
 <template functional>
-  <el-submenu :index="props.menuData.path + '/' + props.menuData.children[0].path">
+  <el-submenu :index="props.menuData.path">
     <template slot="title">
         <i class=""></i>
         <span>{{ props.menuData.meta.title }}</span>

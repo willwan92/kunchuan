@@ -14,7 +14,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="">
-          <el-button type="primary" @click="fetchTableData">查询</el-button>
+          <el-button type="primary" @click="query()">查询</el-button>
         </el-form-item>
         <el-form-item label="" prop="">
           <el-upload class="upload-demo" ref="upload" action="https://jsonplaceholder.typicode.com/posts/" :before-remove="beforeRemove" :on-remove="handleRemove" :file-list="fileList1" :auto-upload="true" :limit="1">
@@ -52,13 +52,7 @@ export default {
       tableData1: [],
       form: {},
       fileList1: [],
-      tableData1: [
-        {
-          copyName: "",
-          copyTime: "",
-          copyPosition: ""
-        }
-      ]
+      tableData1: []
     };
   },
   methods: {
@@ -110,22 +104,32 @@ export default {
     },
     beforeRemove(file, fileList) {
       return this.$confirm(`确定移除 ${file.name}？`);
+    },
+    query() {
+      if (this.queryForm.pjValue == "" && this.queryForm.assetSign == "") {
+        this.tableData1 = [];
+        this.$message({
+          message: "请至少选择一个查询项",
+          type: "warning"
+        });
+      } else {
+        this.tableData1 = [
+          {
+            copyName: "收藏夹.zip",
+            copyTime: "2019/12/1 13:56:03",
+            copyPosition: "/usr/local/etc/data"
+          },
+          {
+            copyName: "1.txt",
+            copyTime: "2019/12/1 13:56:54",
+            copyPosition: "/usr/local/etc/data"
+          }
+        ];
+      }
     }
   },
   created() {
     this.fetchPjTreeData();
-    this.tableData1 = [
-      {
-        copyName: "收藏夹.zip",
-        copyTime: "2019/12/1 13:56:03",
-        copyPosition: "/usr/local/etc/data"
-      },
-      {
-        copyName: "1.txt",
-        copyTime: "2019/12/1 13:56:54",
-        copyPosition: "/usr/local/etc/data"
-      }
-    ];
   }
 };
 </script>

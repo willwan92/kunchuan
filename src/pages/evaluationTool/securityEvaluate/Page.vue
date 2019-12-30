@@ -262,14 +262,54 @@ export default {
     };
   },
   methods: {
-    load() {},
-    add() {},
-    output() {
-      // this.$message({
-      //   message: "导出成功",
-      //   type: "success"
-      // });
+    load() {
+      if (this.queryForm.pjValue == "" && this.queryForm.charts == "") {
+        this.tableData = [];
+        this.$message({
+          message: "请至少选择一个查询项",
+          type: "warning"
+        });
+      } else {
+        this.tableData = [
+          {
+            id: 1,
+            checkItem: "责任落实",
+            checkChildItem: "网络安全负责人",
+            require:
+              "1.各单位（企业）应明确单位网络安全直接责任人;2.各单位（企业）应明确网络安全具体负责人。",
+            method:
+              "查验有关领导（网络安全直接责任人和具体负责人）工作分工的相关文件或任命通知;2.查验网络安全相关工作批示、会议记录等，了解主管领导履职情况。",
+            standard:
+              "1.缺少网络安全直接责任人和具体负责人扣4分；2.网络安全主管领导是单位（企业）正副职领导，否则扣2分（相关人事任命正式文件或通知，可作为本项符合的支撑性材料）。",
+            baseMark: 4
+          },
+          {
+            id: 2,
+            checkItem: "责任落实",
+            checkChildItem: "网络安全机构",
+            require: "设立负责网络安全管理工作的内设机构，并明确机构负责人。",
+            method:
+              "1.查验单位各内设机构职责分工等文件，检查是否指定了网络安全管理机构,或者成立了网络与信息安全领导小组，有相关批示文件；2.检查文件或通知下发的时间不大于5年。",
+            standard:
+              "1.未成立网络安全组织机构，扣4分；2.网络安全组织机构成立文件明显过期或失效，扣2分。",
+            baseMark: 4
+          },
+          {
+            id: 3,
+            checkItem: "责任落实",
+            checkChildItem: "人员管理",
+            require: "各单位（企业）应配备专职网络安全岗位和网络安全工作人员。",
+            method:
+              "查验单位（企业）网络安全岗位职责文件，检查系统管理员、网络管理员、网络安全员、一般工作人员等不同岗位的网络安全责任是否明确。",
+            standard:
+              "单位（企业）未配备专职网络安全管理人员和网络安全，扣4分。",
+            baseMark: 4
+          }
+        ];
+      }
     },
+    add() {},
+    output() {},
     async fetchPjTreeData() {
       const { data } = await this.fetch({
         url: "/porject/getProjectList",
@@ -327,42 +367,6 @@ export default {
   },
   created() {
     this.fetchPjTreeData();
-    let list = [
-      {
-        id: 1,
-        checkItem: "责任落实",
-        checkChildItem: "网络安全负责人",
-        require:
-          "1.各单位（企业）应明确单位网络安全直接责任人;2.各单位（企业）应明确网络安全具体负责人。",
-        method:
-          "查验有关领导（网络安全直接责任人和具体负责人）工作分工的相关文件或任命通知;2.查验网络安全相关工作批示、会议记录等，了解主管领导履职情况。",
-        standard:
-          "1.缺少网络安全直接责任人和具体负责人扣4分；2.网络安全主管领导是单位（企业）正副职领导，否则扣2分（相关人事任命正式文件或通知，可作为本项符合的支撑性材料）。",
-        baseMark: 4
-      },
-      {
-        id: 2,
-        checkItem: "责任落实",
-        checkChildItem: "网络安全机构",
-        require: "设立负责网络安全管理工作的内设机构，并明确机构负责人。",
-        method:
-          "1.查验单位各内设机构职责分工等文件，检查是否指定了网络安全管理机构,或者成立了网络与信息安全领导小组，有相关批示文件；2.检查文件或通知下发的时间不大于5年。",
-        standard:
-          "1.未成立网络安全组织机构，扣4分；2.网络安全组织机构成立文件明显过期或失效，扣2分。",
-        baseMark: 4
-      },
-      {
-        id: 3,
-        checkItem: "责任落实",
-        checkChildItem: "人员管理",
-        require: "各单位（企业）应配备专职网络安全岗位和网络安全工作人员。",
-        method:
-          "查验单位（企业）网络安全岗位职责文件，检查系统管理员、网络管理员、网络安全员、一般工作人员等不同岗位的网络安全责任是否明确。",
-        standard: "单位（企业）未配备专职网络安全管理人员和网络安全，扣4分。",
-        baseMark: 4
-      }
-    ];
-    this.tableData = list;
   }
 };
 </script>

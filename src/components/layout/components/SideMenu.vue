@@ -5,6 +5,7 @@
 				background-color="#009688"
 				text-color="#b3e0dc"
 				:default-active="$route.path"
+				:default-openeds="activeSubmenu"
 				active-text-color="#fff"
 				:unique-opened="uniqueOpened">
 				<!-- <el-menu-item index="1">
@@ -38,14 +39,21 @@ export default {
 			menuList: []
 		}
 	},
+	computed: {
+		activeSubmenu() {
+			return this.$route.path.match(/^\/\w+/g);
+		}
+	},
 	components: {
 		SubMenu
 	},
 	created() {
-		console.log(this.$route.path)
 		this.menuList = this.filterMenuList(routes);
 	},
 	methods: {
+		aaa() {
+			console.log()
+		},
 		filterMenuList(routes) {
 			return routes.filter(item => {
 				if (item.meta && item.meta.title) {

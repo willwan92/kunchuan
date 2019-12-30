@@ -21,7 +21,6 @@
 import Header from './components/Header';
 import SideMenu from './components/SideMenu';
 import AppMain from './components/AppMain';
-import { removeToken } from 'common/utils';
 
 export default {
 	components: {
@@ -39,8 +38,8 @@ export default {
 			this.logoutDialogVisible = true;
 		}, 
 		confirmLogout() {
-			removeToken();
 			sessionStorage.removeItem('account');
+			sessionStorage.removeItem('SESSIONID');
 			this.logoutDialogVisible = false;
 			this.$router.push('/login');
 		}
@@ -72,7 +71,6 @@ export default {
 			height: 100%;
 			background-color: @themeColor;
 		}
-		
 
 		#app-main {
 			margin-left: @leftWidth;

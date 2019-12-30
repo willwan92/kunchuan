@@ -30,9 +30,9 @@
           >
           <el-button
             class="btn-lg"
-            :disabled="!getPjId"
             type="primary"
-            @click="0"
+            :disabled="!getPjId"
+            @click="handleExportClick"
             >导出资产</el-button
           >
         </el-form-item>
@@ -47,6 +47,7 @@
         <el-table-column label="设备型号" prop="deviceNum"></el-table-column>
         <el-table-column label="版本号" prop="version"></el-table-column>
         <el-table-column label="操作系统" prop="deviceOs"></el-table-column>
+        <el-table-column label="备注" prop="remark"></el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button type="text" @click="handleEditClick(scope.row.id)"
@@ -152,6 +153,9 @@
           <el-form-item label="数据库实例" prop="databaseInstance">
             <el-input v-model="dialogForm.databaseInstance"></el-input>
           </el-form-item>
+          <el-form-item label="备注" prop="remark">
+            <el-input v-model="dialogForm.remark"></el-input>
+          </el-form-item>
         </el-form>
 
         <span slot="footer">
@@ -166,7 +170,8 @@
 </template>
 
 <script>
-import { checkIp, getCascaderOptions } from "common/utils";
+import { checkIp, getCascaderOptions, downloadFileByUrl } from "common/utils";
+import { API_URL } from "common/axiosClient";
 
 export default {
   data() {
@@ -231,7 +236,8 @@ export default {
         databasePath: "",
         databaseAccount: "",
         databasePassword: "",
-        databaseInstance: ""
+        databaseInstance: "",
+        remark: ""
       },
       rules: {
         ip: [{ validator: validateIp, trigger: "blur" }]
@@ -407,6 +413,10 @@ export default {
       this.resetForm("dialogForm");
       this.assetsId = '';
       this.dialogShow = true;
+    },
+    handleExportClick() {
+      const url = `${API_URL}/export/getExport?pjid=${this.getPjId}`;
+      downloadFileByUrl(url);
     },
     resetForm(formName) {
       this.$refs[formName] && this.$refs[formName].resetFields();

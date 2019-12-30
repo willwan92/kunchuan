@@ -1,99 +1,99 @@
 <template>
-	<!-- 安全补丁管理 -->
-	<div class="page">
-		<div class="section">
-			<el-form :inline="true" label-width="70px" :model="queryForm">
-				<el-form-item label="资产类型" prop="">
-					<el-select placeholder="请选择" v-model="queryForm.assetsValue" clearable>
-						<el-option v-for="item in assetsOptions" :key="item.value" :label="item.label" :value="item.value">
-						</el-option>
-					</el-select>
-				</el-form-item>
-				<el-form-item label="设备型号" prop="">
-					<el-select placeholder="请选择" v-model="queryForm.equipmentValue" clearable>
-						<el-option v-for="item in equipmentOptions" :key="item.value" :label="item.label" :value="item.value">
-						</el-option>
-					</el-select>
-				</el-form-item>
-				<el-form-item label="厂家名称" prop="">
-					<el-select placeholder="请选择" v-model="queryForm.factoryValue" clearable>
-						<el-option v-for="item in factoryOptions" :key="item.value" :label="item.label" :value="item.value">
-						</el-option>
-					</el-select>
-				</el-form-item>
-				<el-form-item label="操作系统" prop="">
-					<el-select placeholder="请选择" v-model="queryForm.systemValue" clearable>
-						<el-option v-for="item in systemOptions" :key="item.value" :label="item.label" :value="item.value">
-						</el-option>
-					</el-select>
-				</el-form-item>
-				<el-form-item>
-					<el-button type="primary" @click="search()">查询</el-button>
-				</el-form-item>
-				<el-form-item>
-					<el-button type="primary" @click="add()">添加</el-button>
-				</el-form-item>
-			</el-form>
-			<el-table :data="tableData1" border>
-				<el-table-column label="序号" prop="id"></el-table-column>
-				<el-table-column label="漏洞名称" prop="bugName"></el-table-column>
-				<el-table-column label="解决方案" prop="solution"></el-table-column>
-				<el-table-column label="补丁下载地址" prop="load"></el-table-column>
-				<el-table-column label="操作">
-					<template slot-scope="scope">
-						<el-button size="mini" type="primary" @click="handleCopy(scope.$index, scope.row)">复制链接</el-button>
-						<el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
-					</template>
-				</el-table-column>
-			</el-table>
-		</div>
-		<el-dialog title="添加" :visible.sync="dialogVisible" width="50%">
-			<el-form width="600px" label-width="110px" ref="form" :model="form">
-				<el-row>
-					<el-col :span="12">
-						<el-form-item label="序号:" prop="id">
-							<el-col :span="22">
-								<el-input v-model="form.id"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-					<el-col :span="12">
-						<el-form-item label="漏洞名称:" prop="bugName">
-							<el-col :span="22">
-								<el-input v-model="form.bugName"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-				</el-row>
-				<el-row>
-					<el-col :span="12">
-						<el-form-item label="解决方案:" prop="solution">
-							<el-col :span="22">
-								<el-input v-model="form.solution"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-					<el-col :span="12">
-						<el-form-item label="补丁下载地址:" prop="load">
-							<el-col :span="22">
-								<el-input v-model="form.load"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-				</el-row>
-				<el-row>
-					<el-col :span="12">
-						<el-form-item>
-							<el-col :span="22">
-								<el-button type="primary" @click="submit()">提交</el-button>
-								<el-button type="primary" @click="resetForm('form')">重置</el-button>
-							</el-col>
-						</el-form-item>
-					</el-col>
-				</el-row>
-			</el-form>
-		</el-dialog>
-	</div>
+  <!-- 安全补丁管理 -->
+  <div class="page">
+    <div class="section">
+      <el-form :inline="true" label-width="70px" :model="queryForm">
+        <el-form-item label="资产类型" prop="">
+          <el-select placeholder="请选择" v-model="queryForm.assetsValue" clearable>
+            <el-option v-for="item in assetsOptions" :key="item.value" :label="item.label" :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="设备型号" prop="">
+          <el-select placeholder="请选择" v-model="queryForm.equipmentValue" clearable>
+            <el-option v-for="item in equipmentOptions" :key="item.value" :label="item.label" :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="厂家名称" prop="">
+          <el-select placeholder="请选择" v-model="queryForm.factoryValue" clearable>
+            <el-option v-for="item in factoryOptions" :key="item.value" :label="item.label" :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="操作系统" prop="">
+          <el-select placeholder="请选择" v-model="queryForm.systemValue" clearable>
+            <el-option v-for="item in systemOptions" :key="item.value" :label="item.label" :value="item.value">
+            </el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="query()">查询</el-button>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="add()">添加</el-button>
+        </el-form-item>
+      </el-form>
+      <el-table :data="tableData1" border>
+        <el-table-column label="序号" prop="id"></el-table-column>
+        <el-table-column label="漏洞名称" prop="bugName"></el-table-column>
+        <el-table-column label="解决方案" prop="solution"></el-table-column>
+        <el-table-column label="补丁下载地址" prop="load"></el-table-column>
+        <el-table-column label="操作">
+          <template slot-scope="scope">
+            <el-button size="mini" type="primary" @click="handleCopy(scope.$index, scope.row)">复制链接</el-button>
+            <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </div>
+    <el-dialog title="添加" :visible.sync="dialogVisible" width="50%">
+      <el-form width="600px" label-width="110px" ref="form" :model="form">
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="序号:" prop="id">
+              <el-col :span="22">
+                <el-input v-model="form.id"></el-input>
+              </el-col>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="漏洞名称:" prop="bugName">
+              <el-col :span="22">
+                <el-input v-model="form.bugName"></el-input>
+              </el-col>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="解决方案:" prop="solution">
+              <el-col :span="22">
+                <el-input v-model="form.solution"></el-input>
+              </el-col>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="补丁下载地址:" prop="load">
+              <el-col :span="22">
+                <el-input v-model="form.load"></el-input>
+              </el-col>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item>
+              <el-col :span="22">
+                <el-button type="primary" @click="submit()">提交</el-button>
+                <el-button type="primary" @click="resetForm('form')">重置</el-button>
+              </el-col>
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form>
+    </el-dialog>
+  </div>
 </template>
 
 <script>
@@ -235,25 +235,39 @@ export default {
         message: "已复制",
         type: "success"
       });
+    },
+    query() {
+      if (
+        this.queryForm.assetsValue == "" &&
+        this.queryForm.equipmentValue == "" &&
+        this.queryForm.factoryValue == "" &&
+        this.queryForm.systemValue == ""
+      ) {
+        this.tableData1 = [];
+        this.$message({
+          message: "请至少选择一个查询项",
+          type: "warning"
+        });
+      } else {
+        this.tableData1 = [
+          {
+            id: "1",
+            bugName: "Microsoft Windows内核组件信息泄露漏洞",
+            solution: "目前厂商已发布升级补丁以修复漏洞",
+            load:
+              "https://portal.msrc.microsoft.com/en-US/security-guidance/advisory/CVE-2017-8680"
+          },
+          {
+            id: "2",
+            bugName: "Microsoft Windows Shell 安全漏洞",
+            solution: "无",
+            load: "无"
+          }
+        ];
+      }
     }
   },
-  created() {
-    this.tableData1 = [
-      {
-        id: "1",
-        bugName: "Microsoft Windows内核组件信息泄露漏洞",
-        solution: "目前厂商已发布升级补丁以修复漏洞",
-        load:
-          "https://portal.msrc.microsoft.com/en-US/security-guidance/advisory/CVE-2017-8680"
-      },
-      {
-        id: "2",
-        bugName: "Microsoft Windows Shell 安全漏洞",
-        solution: "无",
-        load: "无"
-      }
-    ];
-  }
+  created() {}
 };
 </script>
 <style lang="less" scoped>

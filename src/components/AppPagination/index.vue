@@ -2,12 +2,12 @@
 @desc 公用分页组件
  */
 <template>
-  <div class="lv-pagination-wrapper">
+  <div class="app-pagination-wrapper">
     <el-pagination
       @size-change="handleSizeChange"
       @current-change="handleCurrentChange"
       :current-page="pageData.page ? pageData.page : 1"
-      :page-sizes="pageData.sizeLists ? pageData.sizeLists : [10, 20, 30, 40, 50]"
+      :page-sizes="pageData.sizeLists ? pageData.sizeLists : [10]"
       :page-size="pageData.pageSize ? pageData.pageSize : 10"
       :layout="pageData.layout ? pageData.layout : 'total, sizes, prev, pager, next, jumper'"
       :total="pageData.total ? pageData.total : 0"
@@ -17,7 +17,7 @@
  
 <script>
 export default {
-  name: 'lv-page',
+  name: 'app-pagination',
   props: {
     pageData: {
       type: Object,
@@ -37,7 +37,3 @@ export default {
   }
 }
 </script>
-
-<style lang="less" scoped>
-
-</style>
