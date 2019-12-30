@@ -113,7 +113,7 @@ export default {
       dialogForm: {
 				userName: "",
 				password: "",
-        roleType: 1,
+        roleType: 2,
         mobile: "",
         email: "",
         telephone: ""

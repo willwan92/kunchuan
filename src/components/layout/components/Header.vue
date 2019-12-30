@@ -31,12 +31,11 @@
 			return {
 				userName: '',
 				levelList: null,
-				logoutDialogVisible: false
 			}
 		},
 		created() {
 			this.getLevelList();
-			this.userName = 'admin'
+			this.userName = sessionStorage.getItem('account');
 		},
 		methods: {
 			logout() {

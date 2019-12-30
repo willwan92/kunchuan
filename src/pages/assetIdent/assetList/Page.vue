@@ -30,9 +30,9 @@
           >
           <el-button
             class="btn-lg"
-            :disabled="!getPjId"
             type="primary"
-            @click="0"
+            :disabled="!getPjId"
+            @click="handleExportClick"
             >导出资产</el-button
           >
         </el-form-item>
@@ -166,7 +166,8 @@
 </template>
 
 <script>
-import { checkIp, getCascaderOptions } from "common/utils";
+import { checkIp, getCascaderOptions, downloadFileByUrl } from "common/utils";
+import { API_URL } from "common/axiosClient";
 
 export default {
   data() {
@@ -407,6 +408,10 @@ export default {
       this.resetForm("dialogForm");
       this.assetsId = '';
       this.dialogShow = true;
+    },
+    handleExportClick() {
+      const url = `${API_URL}/export/getExport?pjid=${this.getPjId}`;
+      downloadFileByUrl(url);
     },
     resetForm(formName) {
       this.$refs[formName] && this.$refs[formName].resetFields();

@@ -31,8 +31,6 @@
 <script>
 import sha1 from 'js-sha1';
 import md5 from 'md5';
-import uuidv1 from 'uuid/v1';
-import cookies from 'js-cookies';
 import { FUZZ_URL } from "common/axiosClient";
 import { getToken, setToken, removeToken } from "common/utils";
 
@@ -48,7 +46,6 @@ export default {
   },
   created() {
   },
-
   methods: {
     async login() {
       let loginParams = this.loginParams;
@@ -72,8 +69,9 @@ export default {
       const state = data.sate ? data.sate : '';
       const info = data.info ? data.info : '';
       
-      if (state === '8') {
+      if (state === '8' || state === '9') {
         this.$message.success('登录成功！');
+        sessionStorage.setItem('account', params.userName);
         this.$router.push({
           path: "/user/userManage"
         });
