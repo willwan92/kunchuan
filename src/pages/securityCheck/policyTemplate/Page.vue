@@ -32,11 +32,16 @@
                   </template>
                 </el-table-column>
               </el-table>
+              <div v-if="label === '主机类策略组'" style="text-align: center;margin-top: 30px;">
+                <el-pagination background :current-page.sync="page" @current-change="handleCurrentChange"
+                  :page-size="size" layout="prev, pager, next" :total="20">
+                </el-pagination>
+              </div>
             </template>
             <template v-else>
               <span class="el-icon-refresh-left re-back" @click="itemDetail = false">返回</span>
               <el-tabs v-model="activeName" type="card">
-                <el-tab-pane label="Linux主机配置策略的检查项列表" name="first">
+                <el-tab-pane label="windows主机配置策略的检查项列表" name="first">
                   <template>
                     <el-table :data="checkItemData" border style="width: 100%">
                       <el-table-column prop="check_num" label="检查项编号"></el-table-column>
@@ -166,6 +171,8 @@
       //   attr: '预定义'
       // };
       return {
+        page: 1,
+        size: 10,
         activeName: 'first',
         tableData:  [{
           name: '全局策略',
@@ -196,6 +203,7 @@
             label: '负载均衡策略组',
           }]
         }],
+        label: '',
         defaultProps: {
           children: 'children',
           label: 'label'
@@ -220,20 +228,20 @@
         itemDetail: false, // 详情
         checkItemData: [
           {
-            check_num: 'Linux-1',
+            check_num: 'Windows-1',
             check_name: '口令锁定策略',
-            check_type: '/主机/Linux'
+            check_type: '/主机/Windows'
           }, {
-            check_num: 'Linux-2',
+            check_num: 'Windows-2',
             check_name: '查找未授权的SUID-SGID文件',
-            check_type: '/主机/Linux'
+            check_type: '/主机/Windows'
           }
         ],
         checkItemDetailName: 'basicInfo',
         checkBasicInfo: {
           name: '口令锁定策略', // 检查项名称
-          type: '/主机/Linux', // 设备类型
-          num: 'Linux-1', // 检查项编号
+          type: '/主机/Windows', // 设备类型
+          num: 'Windows-1', // 检查项编号
           itemize: '1', // 所属分类
           custom: '/自定义分组/自定义1', // 自定义组
           allocation: '对于采用静态口令认证技术的设备，应配置当用户连续认证失败次数超过6次（不含6次），锁定该用户使用的账号', // 配置要求
@@ -245,13 +253,45 @@
           parsingWay: '1', // 解析方式
           point: '', // 检查点
           rule: 'v0 && v1', // 检查点规则
-          disable: true
-        }
+          disable: true,
+        },
+        copyData: [
+          {name: 'Windows主机配置策略', type: '68/1', attr: '预定义'},
+          {name: 'Windows主机配置策略-1', type: '50/1', attr: '预定义'},
+          {name: 'Windows主机配置策略-2', type: '51/1', attr: '预定义'},
+          {name: 'Windows主机配置策略-3', type: '48/1', attr: '预定义'},
+          {name: 'Windows主机配置策略-4', type: '25/1', attr: '预定义'},
+          {name: 'Windows主机配置策略-5', type: '45/1', attr: '预定义'},
+          {name: 'Windows主机配置策略-6', type: '55/1', attr: '预定义'},
+          {name: 'Windows主机配置策略-7', type: '65/1', attr: '预定义'},
+          {name: 'Windows主机配置策略-8', type: '52/1', attr: '预定义'},
+          {name: 'Windows主机配置策略-9', type: '45/1', attr: '预定义'},
+          {name: 'Windows主机配置策略-10', type: '35/1', attr: '预定义'},
+          {name: 'Windows主机配置策略-11', type: '55/1', attr: '预定义'},
+          {name: 'Windows主机配置策略-12', type: '54/1', attr: '预定义'},
+          {name: 'Windows主机配置策略-13', type: '56/1', attr: '预定义'},
+          {name: 'Windows主机配置策略-14', type: '58/1', attr: '预定义'},
+          {name: 'Windows主机配置策略-15', type: '45/1', attr: '预定义'},
+          {name: 'Windows主机配置策略-16', type: '65/1', attr: '预定义'},
+          {name: 'Windows主机配置策略-17', type: '25/1', attr: '预定义'},
+          {name: 'Windows主机配置策略-18', type: '58/1', attr: '预定义'},
+          {name: 'Windows主机配置策略-19', type: '59/1', attr: '预定义'},
+          {name: 'Windows主机配置策略-20', type: '60/1', attr: '预定义'},
+        ]
       }
     },
     methods: {
+      handleCurrentChange (val) {
+        this.page = val
+        if (val === 1) {
+          this.tableData = this.copyData.slice(0, 10)
+        } else {
+          this.tableData = this.copyData.slice(10)
+        }
+      },
       handleNodeClick (data) {
         console.log(data)
+        this.label = data.label
         if (data.label === '综合类策略组') {
           this.tableData = [{
             name: '全局策略',
@@ -259,10 +299,7 @@
             attr: '预定义'
           }]
         } else if (data.label === '主机类策略组') {
-          this.tableData = [
-            {name: 'Linux主机配置策略', type: '57/1', attr: '预定义'},
-            {name: 'Windows主机配置策略', type: '68/1', attr: '预定义'}
-          ]
+          this.tableData = this.copyData.slice(0, 10)
         } else {
           this.tableData = [
             {name: 'oracle数据库配置策略', type: '33/1', attr: '预定义'},
