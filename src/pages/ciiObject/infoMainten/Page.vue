@@ -2,60 +2,60 @@
 	<!-- 信息维护 -->
 	<div class="page">
 		<div class="section">
-			<el-form :inline="true" label-width="75px" :model="queryForm">
+			<el-form :inline="true" label-width="75px">
 				<el-form-item label="项目名称">
-					<el-cascader :show-all-levels="false" :options="pjOptions" :props="{ expandTrigger: 'hover' }" filterable v-model="queryForm.pjValue">
+					<el-cascader :show-all-levels="false" :options="pjOptions" :props="{ expandTrigger: 'hover' }" filterable v-model="pjValue">
 					</el-cascader>
 				</el-form-item>
 				<el-form-item label="">
-					<el-button type="primary" @click="fetchTableData">查询</el-button>
+					<el-button type="primary" @click="fetchData">查询</el-button>
 				</el-form-item>
 			</el-form>
 			<div class="tabs-wrapper">
-				<el-tabs v-model="tabName" type="card" @tab-click="handleClick">
+				<el-tabs v-model="tabName" type="card" @tab-click="0">
 					<el-tab-pane label="主机类资产" name="1">
 						<el-table :data="tableData1" border>
-							<el-table-column label="序号" prop="id"></el-table-column>
-							<el-table-column label="IP/资产标识" prop="IPaddress"></el-table-column>
-							<el-table-column label="资产类型" prop="AssetType"></el-table-column>
-							<el-table-column label="设备型号" prop="EquipmentModel"></el-table-column>
-							<el-table-column label="操作系统" prop="system"></el-table-column>
+							<el-table-column label="序号" prop="index"></el-table-column>
+							<el-table-column label="IP/资产标识" prop="iPAddress"></el-table-column>
+							<el-table-column label="资产类型" prop="assetType"></el-table-column>
+							<el-table-column label="设备型号" prop="equipmentModel"></el-table-column>
+							<el-table-column label="操作系统" prop="os"></el-table-column>
 							<el-table-column label="所属关键业务" prop="KeyBusiness"></el-table-column>
 							<el-table-column label="操作">
 								<template slot-scope="scope">
-									<el-button size="mini" @click="rowView1(scope.$index, scope.row)">查看</el-button>
-									<el-button size="mini" @click="rowEdit1(scope.$index, scope.row)">编辑</el-button>
+									<el-button type="text" @click="rowView1(scope.row)">查看</el-button>
+									<el-button type="text" @click="rowEdit1(scope.row)">编辑</el-button>
 								</template>
 							</el-table-column>
 						</el-table>
 					</el-tab-pane>
 					<el-tab-pane label="网络类资产" name="2">
 						<el-table :data="tableData2" border>
-							<el-table-column label="序号" prop="id"></el-table-column>
-							<el-table-column label="IP/资产标识" prop="IPaddress"></el-table-column>
-							<el-table-column label="资产类型" prop="AssetType"></el-table-column>
-							<el-table-column label="设备型号" prop="EquipmentModel"></el-table-column>
-							<el-table-column label="厂家名称" prop="system"></el-table-column>
+							<el-table-column label="序号" prop="index"></el-table-column>
+							<el-table-column label="IP/资产标识" prop="iPAddress"></el-table-column>
+							<el-table-column label="资产类型" prop="assetType"></el-table-column>
+							<el-table-column label="设备型号" prop="equipmentModel"></el-table-column>
+							<el-table-column label="厂家名称" prop="vendorName"></el-table-column>
 							<el-table-column label="所属关键业务" prop="KeyBusiness"></el-table-column>
 							<el-table-column label="操作">
 								<template slot-scope="scope">
-									<el-button size="mini" @click="rowView2(scope.$index, scope.row)">查看</el-button>
-									<el-button size="mini" @click="rowEdit2(scope.$index, scope.row)">编辑</el-button>
+									<el-button type="text" @click="rowView1(scope.row)">查看</el-button>
+									<el-button type="text" @click="rowEdit1(scope.row)">编辑</el-button>
 								</template>
 							</el-table-column>
 						</el-table>
 					</el-tab-pane>
 					<el-tab-pane label="数据类资产" name="3">
 						<el-table :data="tableData3" border>
-							<el-table-column label="序号" prop="id"></el-table-column>
-							<el-table-column label="IP/资产标识" prop="IPaddress"></el-table-column>
-							<el-table-column label="设备型号" prop="EquipmentModel"></el-table-column>
-							<el-table-column label="厂家名称" prop="system"></el-table-column>
+							<el-table-column label="序号" prop="index"></el-table-column>
+							<el-table-column label="IP/资产标识" prop="iPAddress"></el-table-column>
+							<el-table-column label="设备型号" prop="equipmentModel"></el-table-column>
+							<el-table-column label="厂家名称" prop="vendorName"></el-table-column>
 							<el-table-column label="所属关键业务" prop="KeyBusiness"></el-table-column>
 							<el-table-column label="操作">
 								<template slot-scope="scope">
-									<el-button size="mini" @click="rowView3(scope.$index, scope.row)">查看</el-button>
-									<el-button size="mini" @click="rowEdit3(scope.$index, scope.row)">编辑</el-button>
+									<el-button type="text" @click="rowView2(scope.row)">查看</el-button>
+									<el-button type="text" @click="rowEdit2(scope.row)">编辑</el-button>
 								</template>
 							</el-table-column>
 						</el-table>
@@ -64,526 +64,119 @@
 			</div>
 		</div>
 
-		<!-- 主机类资产 -->
-		<el-dialog title="查看" :visible.sync="dialogVisibleView1" width="50%">
+		<!-- 主机类资产和网络类资产 -->
+		<el-dialog :title="operateName" :visible.sync="dialogVisible1" width="800px">
 			<el-form width="600px" label-width="100px" ref="form1" :model="form1">
-				<el-row>
+				<el-row :gutter="20">
 					<el-col :span="12">
-						<el-form-item label="IP地址2:" prop="">
-							<el-col :span="22">
-								<el-input v-model="form1.Ip2" disabled="true"></el-input>
-							</el-col>
+						<el-form-item label="IP地址2:" prop="ip2">
+							<el-input :readonly="operate === 'view'" v-model="form1.ip2"></el-input>
 						</el-form-item>
 					</el-col>
 					<el-col :span="12">
-						<el-form-item label="IP地址3:" prop="">
-							<el-col :span="22">
-								<el-input v-model="form1.Ip3" disabled="true"></el-input>
-							</el-col>
+						<el-form-item label="IP地址3:" prop="ip3">
+							<el-input :readonly="operate === 'view'" v-model="form1.ip3"></el-input>
 						</el-form-item>
 					</el-col>
 				</el-row>
-				<el-row>
+				<el-row :gutter="20">
 					<el-col :span="12">
-						<el-form-item label="MAC地址2:" prop="">
-							<el-col :span="22">
-								<el-input v-model="form1.Mac2" disabled="true"></el-input>
-							</el-col>
+						<el-form-item label="MAC地址2:" prop="mac2">
+								<el-input :readonly="operate === 'view'" v-model="form1.mac2"></el-input>
 						</el-form-item>
 					</el-col>
 					<el-col :span="12">
-						<el-form-item label="MAC地址3:" prop="">
-							<el-col :span="22">
-								<el-input v-model="form1.Mac3" disabled="true"></el-input>
-							</el-col>
+						<el-form-item label="MAC地址3:" prop="mac3">
+								<el-input :readonly="operate === 'view'" v-model="form1.mac3"></el-input>
 						</el-form-item>
 					</el-col>
 				</el-row>
-				<el-row>
+				<el-row :gutter="20">
 					<el-col :span="12">
-						<el-form-item label="部署位置3:" prop="">
-							<el-col :span="22">
-								<el-input v-model="form1.Pos3" disabled="true"></el-input>
-							</el-col>
+						<el-form-item label="部署位置:" prop="position">
+								<el-input :readonly="operate === 'view'" v-model="form1.position"></el-input>
 						</el-form-item>
 					</el-col>
 					<el-col :span="12">
-						<el-form-item label="投入使用时间:" prop="">
-							<el-col :span="22">
-								<el-input v-model="form1.startTime" disabled="true"></el-input>
-							</el-col>
+						<el-form-item label="投入使用时间:" prop="commissioningdate">
+								<el-input :readonly="operate === 'view'" v-model="form1.commissioningdate"></el-input>
 						</el-form-item>
 					</el-col>
 				</el-row>
-				<el-row>
+				<el-row :gutter="20">
 					<el-col :span="12">
-						<el-form-item label="软件安装情况:" prop="">
-							<el-col :span="22">
-								<el-input v-model="form1.use" disabled="true"></el-input>
-							</el-col>
+						<el-form-item v-if="tabName === '1'" label="软件安装情况:" prop="">
+								<el-input :readonly="operate === 'view'" v-model="softwaresituation"></el-input>
+						</el-form-item>
+						<el-form-item v-if="tabName === '2'" label="软件版本号:" prop="">
+								<el-input v-model="softwareversion"></el-input>
 						</el-form-item>
 					</el-col>
 					<el-col :span="12">
-						<el-form-item label="功能简述:" prop="">
-							<el-col :span="22">
-								<el-input type="textarea" v-model="form1.des" disabled="true"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-				</el-row>
-			</el-form>
-		</el-dialog>
-		<el-dialog title="编辑" :visible.sync="dialogVisibleEdit1" width="50%">
-			<el-form width="600px" label-width="100px" ref="form1" :model="form1">
-				<el-row>
-					<el-col :span="12">
-						<el-form-item label="IP地址2:" prop="Ip2">
-							<el-col :span="22">
-								<el-input v-model="form1.Ip2"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-					<el-col :span="12">
-						<el-form-item label="IP地址3:" prop="Ip3">
-							<el-col :span="22">
-								<el-input v-model="form1.Ip3"></el-input>
-							</el-col>
+						<el-form-item label="功能简述:" prop="functiondetail">
+								<el-input :readonly="operate === 'view'" type="textarea" v-model="form1.functiondetail"></el-input>
 						</el-form-item>
 					</el-col>
 				</el-row>
-				<el-row>
-					<el-col :span="12">
-						<el-form-item label="MAC地址2:" prop="Mac2">
-							<el-col :span="22">
-								<el-input v-model="form1.Mac2"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-					<el-col :span="12">
-						<el-form-item label="MAC地址3:" prop="Mac3">
-							<el-col :span="22">
-								<el-input v-model="form1.Mac3"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-				</el-row>
-				<el-row>
-					<el-col :span="12">
-						<el-form-item label="部署位置3:" prop="Pos3">
-							<el-col :span="22">
-								<el-input v-model="form1.Pos3"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-					<el-col :span="12">
-						<el-form-item label="投入使用时间:" prop="startTime">
-							<el-col :span="22">
-								<el-input v-model="form1.startTime"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-				</el-row>
-				<el-row>
-					<el-col :span="12">
-						<el-form-item label="软件安装情况:" prop="use">
-							<el-col :span="22">
-								<el-input v-model="form1.use"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-					<el-col :span="12">
-						<el-form-item label="功能简述:" prop="des">
-							<el-col :span="22">
-								<el-input type="textarea" v-model="form1.des"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-				</el-row>
-				<el-row>
+				<el-row v-show="operate === 'edit'" :gutter="20">
 					<el-col :span="12">
 						<el-form-item>
-							<el-col :span="22">
-								<el-button type="primary" @click="submit()">提交</el-button>
+								<el-button type="primary" @click="updateAssetsInfo">提交</el-button>
 								<el-button type="primary" @click="resetForm('form1')">重置</el-button>
-							</el-col>
-						</el-form-item>
-					</el-col>
-				</el-row>
-			</el-form>
-		</el-dialog>
-		<!-- 网络类资产 -->
-		<el-dialog title="查看" :visible.sync="dialogVisibleView2" width="50%">
-			<el-form width="600px" label-width="100px" ref="form2" :model="form2">
-				<el-row>
-					<el-col :span="12">
-						<el-form-item label="IP地址2:" prop="">
-							<el-col :span="22">
-								<el-input v-model="form2.Ip2" disabled="true"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-					<el-col :span="12">
-						<el-form-item label="IP地址3:" prop="">
-							<el-col :span="22">
-								<el-input v-model="form2.Ip3" disabled="true"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-				</el-row>
-				<el-row>
-					<el-col :span="12">
-						<el-form-item label="MAC地址2:" prop="">
-							<el-col :span="22">
-								<el-input v-model="form2.Mac2" disabled="true"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-					<el-col :span="12">
-						<el-form-item label="MAC地址3:" prop="">
-							<el-col :span="22">
-								<el-input v-model="form2.Mac3" disabled="true"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-				</el-row>
-				<el-row>
-					<el-col :span="12">
-						<el-form-item label="部署位置3:" prop="">
-							<el-col :span="22">
-								<el-input v-model="form2.Pos3" disabled="true"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-					<el-col :span="12">
-						<el-form-item label="投入使用时间:" prop="">
-							<el-col :span="22">
-								<el-input disabled="true" v-model="form2.startTime"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-				</el-row>
-				<el-row>
-					<el-col :span="12">
-						<el-form-item label="软件版本号:" prop="">
-							<el-col :span="22">
-								<el-input v-model="form2.version" disabled="true"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-					<el-col :span="12">
-						<el-form-item label="功能简述:" prop="">
-							<el-col :span="22">
-								<el-input type="textarea" v-model="form2.des" disabled="true"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-				</el-row>
-			</el-form>
-		</el-dialog>
-		<el-dialog title="编辑" :visible.sync="dialogVisibleEdit2" width="50%">
-			<el-form width="600px" label-width="100px" ref="form2" :model="form2">
-				<el-row>
-					<el-col :span="12">
-						<el-form-item label="IP地址2:" prop="">
-							<el-col :span="22">
-								<el-input v-model="form2.Ip2"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-					<el-col :span="12">
-						<el-form-item label="IP地址3:" prop="">
-							<el-col :span="22">
-								<el-input v-model="form2.Ip3"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-				</el-row>
-				<el-row>
-					<el-col :span="12">
-						<el-form-item label="MAC地址2:" prop="">
-							<el-col :span="22">
-								<el-input v-model="form2.Mac2"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-					<el-col :span="12">
-						<el-form-item label="MAC地址3:" prop="">
-							<el-col :span="22">
-								<el-input v-model="form2.Mac3"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-				</el-row>
-				<el-row>
-					<el-col :span="12">
-						<el-form-item label="部署位置3:" prop="">
-							<el-col :span="22">
-								<el-input v-model="form2.Pos3"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-					<el-col :span="12">
-						<el-form-item label="投入使用时间:" prop="">
-							<el-col :span="22">
-								<el-input v-model="form2.startTime"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-				</el-row>
-				<el-row>
-					<el-col :span="12">
-						<el-form-item label="软件版本号:" prop="">
-							<el-col :span="22">
-								<el-input type="textarea" v-model="form2.version"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-					<el-col :span="12">
-						<el-form-item label="功能简述:" prop="">
-							<el-col :span="22">
-								<el-input type="textarea" v-model="form2.des"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-				</el-row>
-				<el-row>
-					<el-col :span="12">
-						<el-form-item>
-							<el-col :span="22">
-								<el-button type="primary" @click="submit()">提交</el-button>
-								<el-button type="primary" @click="resetForm('form2')">重置</el-button>
-							</el-col>
 						</el-form-item>
 					</el-col>
 				</el-row>
 			</el-form>
 		</el-dialog>
 		<!-- 数据类资产 -->
-		<el-dialog title="查看" :visible.sync="dialogVisibleView3" width="50%">
-			<el-form width="600px" v-if="rowEdit3Index==0" label-width="100px" ref="form3" :model="form3">
-				<el-row>
+		<el-dialog :title="operateName" :visible.sync="dialogVisible2" width="800px">
+			<el-form width="600px" label-width="100px" ref="form2" :model="form2">
+				<el-row :gutter="20">
 					<el-col :span="12">
-						<el-form-item label="存储位置:" prop="pos">
-							<el-col :span="22">
-								<el-input v-model="form3.pos" disabled="true"></el-input>
-							</el-col>
+						<el-form-item label="存储位置:" prop="storagepath">
+							<el-input :readonly="operate === 'view'" v-model="form2.storagepath"></el-input>
 						</el-form-item>
 					</el-col>
 					<el-col :span="12">
-						<el-form-item label="占用空间:" prop="space">
-							<el-col :span="22">
-								<el-input v-model="form3.space" disabled="true"></el-input>
-							</el-col>
+						<el-form-item label="占用空间:" prop="usedspace">
+							<el-input :readonly="operate === 'view'" v-model="form2.usedspace"></el-input>
 						</el-form-item>
 					</el-col>
 				</el-row>
-				<el-row>
+				<el-row :gutter="20">
 					<el-col :span="12">
 						<el-form-item label="版本号:" prop="version">
-							<el-col :span="22">
-								<el-input v-model="form3.version" disabled="true"></el-input>
-							</el-col>
+								<el-input :readonly="operate === 'view'" v-model="form2.version"></el-input>
 						</el-form-item>
 					</el-col>
 					<el-col :span="12">
-						<el-form-item label="最终更新时间:" prop="updateTime">
-							<el-col :span="22">
-								<el-input v-model="form3.updateTime" disabled="true"></el-input>
-							</el-col>
+						<el-form-item label="最终更新时间:" prop="updated">
+								<el-input :readonly="operate === 'view'" v-model="form2.updated"></el-input>
 						</el-form-item>
 					</el-col>
 				</el-row>
-				<el-row>
+				<el-row :gutter="20">
 					<el-col :span="12">
-						<el-form-item label="打开方式:" prop="open">
-							<el-col :span="22">
-								<el-input v-model="form3.open" disabled="true"></el-input>
-							</el-col>
+						<el-form-item label="打开方式:" prop="runas">
+								<el-input :readonly="operate === 'view'" v-model="form2.runas"></el-input>
 						</el-form-item>
 					</el-col>
 					<el-col :span="12">
-						<el-form-item label="功能简述:" prop="des">
-							<el-col :span="22">
-								<el-input type="textarea" v-model="form3.des" disabled="true"></el-input>
-							</el-col>
+						<el-form-item label="功能简述:" prop="functiondetail">
+								<el-input :readonly="operate === 'view'" v-model="form2.functiondetail"></el-input>
 						</el-form-item>
 					</el-col>
 				</el-row>
-			</el-form>
-			<el-form width="600px" v-else label-width="100px" ref="form4" :model="form4">
-				<el-row>
+				<el-row :gutter="20">
 					<el-col :span="12">
-						<el-form-item label="存储位置:" prop="pos">
-							<el-col :span="22">
-								<el-input v-model="form4.pos" disabled="true"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-					<el-col :span="12">
-						<el-form-item label="占用空间:" prop="space">
-							<el-col :span="22">
-								<el-input v-model="form4.space" disabled="true"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-				</el-row>
-				<el-row>
-					<el-col :span="12">
-						<el-form-item label="版本号:" prop="version">
-							<el-col :span="22">
-								<el-input v-model="form4.version" disabled="true"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-					<el-col :span="12">
-						<el-form-item label="最终更新时间:" prop="updateTime">
-							<el-col :span="22">
-								<el-input v-model="form4.updateTime" disabled="true"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-				</el-row>
-				<el-row>
-					<el-col :span="12">
-						<el-form-item label="打开方式:" prop="open">
-							<el-col :span="22">
-								<el-input v-model="form4.open" disabled="true"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-					<el-col :span="12">
-						<el-form-item label="功能简述:" prop="des">
-							<el-col :span="22">
-								<el-input type="textarea" v-model="form4.des" disabled="true"></el-input>
-							</el-col>
+						<el-form-item>
+								<el-button type="primary" @click="updateDataAssetsInfo">保存</el-button>
+								<el-button type="primary" @click="resetForm('form2')">重置</el-button>
 						</el-form-item>
 					</el-col>
 				</el-row>
 			</el-form>
 		</el-dialog>
-		<el-dialog title="编辑" :visible.sync="dialogVisibleEdit3" width="50%">
-			<el-form v-if="rowEdit3Index==0" width="600px" label-width="100px" ref="form3" :model="form3">
-				<el-row>
-					<el-col :span="12">
-						<el-form-item label="存储位置:" prop="pos">
-							<el-col :span="22">
-								<el-input v-model="form3.pos"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-					<el-col :span="12">
-						<el-form-item label="占用空间:" prop="space">
-							<el-col :span="22">
-								<el-input v-model="form3.space"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-				</el-row>
-				<el-row>
-					<el-col :span="12">
-						<el-form-item label="版本号:" prop="version">
-							<el-col :span="22">
-								<el-input v-model="form3.version"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-					<el-col :span="12">
-						<el-form-item label="最终更新时间:" prop="updateTime">
-							<el-col :span="22">
-								<el-input v-model="form3.updateTime"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-				</el-row>
-				<el-row>
-					<el-col :span="12">
-						<el-form-item label="打开方式:" prop="open">
-							<el-col :span="22">
-								<el-input v-model="form3.open"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-					<el-col :span="12">
-						<el-form-item label="功能简述:" prop="des">
-							<el-col :span="22">
-								<el-input type="textarea" v-model="form3.des"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-				</el-row>
-				<el-row>
-					<el-col :span="12">
-						<el-form-item>
-							<el-col :span="22">
-								<el-button type="primary" @click="submit()">提交</el-button>
-								<el-button type="primary" @click="resetForm('form3')">重置</el-button>
-							</el-col>
-						</el-form-item>
-					</el-col>
-				</el-row>
-			</el-form>
-			<el-form v-else width="600px" label-width="100px" ref="form4" :model="form4">
-				<el-row>
-					<el-col :span="12">
-						<el-form-item label="存储位置:" prop="pos">
-							<el-col :span="22">
-								<el-input v-model="form4.pos"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-					<el-col :span="12">
-						<el-form-item label="占用空间:" prop="space">
-							<el-col :span="22">
-								<el-input v-model="form4.space"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-				</el-row>
-				<el-row>
-					<el-col :span="12">
-						<el-form-item label="版本号:" prop="version">
-							<el-col :span="22">
-								<el-input v-model="form4.version"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-					<el-col :span="12">
-						<el-form-item label="最终更新时间:" prop="updateTime">
-							<el-col :span="22">
-								<el-input v-model="form4.updateTime"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-				</el-row>
-				<el-row>
-					<el-col :span="12">
-						<el-form-item label="打开方式:" prop="open">
-							<el-col :span="22">
-								<el-input v-model="form4.open"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-					<el-col :span="12">
-						<el-form-item label="功能简述:" prop="des">
-							<el-col :span="22">
-								<el-input type="textarea" v-model="form4.des"></el-input>
-							</el-col>
-						</el-form-item>
-					</el-col>
-				</el-row>
-				<el-row>
-					<el-col :span="12">
-						<el-form-item>
-							<el-col :span="22">
-								<el-button type="primary" @click="submit()">提交</el-button>
-								<el-button type="primary" @click="resetForm('form4')">重置</el-button>
-							</el-col>
-						</el-form-item>
-					</el-col>
-				</el-row>
-			</el-form>
-		</el-dialog>
-
 	</div>
 </template>
 
@@ -593,92 +186,263 @@ import { getCascaderOptions } from "common/utils";
 export default {
   data() {
     return {
+			operate: 'edit',
       pjOptions: [],
-      queryForm: {
-        pjValue: ""
-      },
+      pjValue: [],
       tabName: "1",
       tableData1: [],
       tableData2: [],
       tableData3: [],
-      dialogVisibleView1: false,
-      dialogVisibleView2: false,
-      dialogVisibleView3: false,
-      dialogVisibleEdit1: false,
-      dialogVisibleEdit2: false,
-      dialogVisibleEdit3: false,
+      dialogVisible1: false,
+      dialogVisible2: false,
       form1: {
-        Ip2: "",
-        Ip3: "",
-        Mac2: "",
-        Mac3: "",
-        Pos3: "",
-        startTime: "",
-        des: "",
-        use: ""
-      },
-      form2: {
-        Ip2: "",
-        Ip3: "",
-        Mac2: "",
-        Mac3: "",
-        Pos3: "",
-        startTime: "",
-        des: "",
-        version: ""
-      },
-      form3: {
-        pos: "",
-        space: "",
+        ip2: "",
+        ip3: "",
+        mac2: "",
+        mac3: "",
+        position: "",
+        commissioningdate: "",
+        functiondetail: ""
+			},
+			form2: {
+        storagepath: "",
+        usedspace: "",
         version: "",
-        updateTime: "",
-        open: "",
-        des: ""
-      },
-      form4: {
-        pos: "",
-        space: "",
-        version: "",
-        updateTime: "",
-        open: "",
-        des: ""
-      },
-      rowEdit3Index: ""
+        updated: "",
+        runas: "",
+        functiondetail: ""
+			},
+			softwaresituation: "",
+			softwareversion: ""
     };
+	},
+	created() {
+		this.fetchPjTreeData();
+  },
+	computed: {
+    getPjId() {
+      let id;
+      if (this.pjValue && this.pjValue[0]) {
+        id = this.pjValue.slice(-1)[0];
+      } else {
+        id = null;
+      }
+
+      return id;
+		},
+		operateName() {
+      return this.operate === "edit" ? "编辑资产" : "查看资产";
+    }
   },
   methods: {
-    rowView1(index, row) {
-      this.dialogVisibleView1 = true;
+		async fetchData() {
+			await this.fetchTableData('tableData1');
+			await this.fetchTableData('tableData2');
+			await this.fetchTableData('tableData3');
+		},
+		async fetchTableData(table) {
+			const pjId = this.getPjId;
+
+			if (!pjId) {
+				this.$message.info("请选择项目");
+				return;
+			}
+
+			let url = '';
+			if (table === 'tableData1') {
+				url = "/device/sortDevclass";
+			} else if (table === 'tableData2') {
+				url = "/device/sortDevclassTwo";
+			} else if (table === 'tableData3') {
+				url = "/device/sortDevclassThree";
+			}
+
+			const data = await this.fetch({
+				url: url,
+				params: {
+					pjid: pjId
+				},
+				vm: this
+			});
+
+			this.mapTableData(table, data);
+		},
+		mapTableData(table, data) {
+			if (!data || !data[0]) {
+				return;
+			}
+			
+			if (table === 'tableData1') {
+				this.tableData1 = data.map((item, index) => { 
+					return {
+						id: item.deviceid,
+						index: index + 1,
+						iPAddress: item.ip,
+						assetType: item.devtype,
+						equipmentModel: item.name,
+						os: item.os,
+						KeyBusiness: item.kbname,
+					};
+				});
+			} else if (table === 'tableData2') {
+				this.tableData2 = data.map((item, index) => { 
+					return {
+						id: item.deviceid,
+						index: index + 1,
+						iPAddress: item.ip,
+						assetType: item.devtype,
+						equipmentModel: item.name,
+						vendorName: item.vendor,
+						KeyBusiness: item.kbname,
+					};
+				});
+			} else if (table === 'tableData3') {
+				this.tableData3 = data.map((item, index) => { 
+					return {
+						id: item.deviceid,
+						index: index + 1,
+						iPAddress: item.ip,
+						equipmentModel: item.name,
+						vendorName: item.vendor,
+						KeyBusiness: item.kbname,
+					};
+				});
+			}	
+		},
+		async fetchDataAssetsInfoById(id) {
+			let url = '/device/selectDataId';
+
+			const data = await this.fetch({
+				url: url,
+				params: {
+					deviceid: id
+				},
+        vm: this
+			});
+
+			if  (data && data[0]) {
+				const detail = data[0];
+				this.form2 = {
+					storagepath: detail.storagepath,
+					usedspace: detail.usedspace,
+					version: detail.version,
+					updated: detail.updated,
+					runas: detail.runas,
+					functiondetail: detail.functiondetail
+				}
+			} else {
+				this.$message.error('获取资产数据失败，请稍后再试')
+			}
+		},
+		async fetchAssetsInfoById(id) {
+			let url;
+			if (this.tabName === '1') {
+				url = "/device/selectDeviceinfoId";
+			} else if (this.tabName === '2') {
+				url = "/device/selectNetworkId";
+			}
+
+			const data = await this.fetch({
+				url: url,
+				params: {
+					deviceid: id
+				},
+        vm: this
+			});
+
+			if  (data && data[0]) {
+				const detail = data[0];
+				let mapDetail = {
+					ip2: detail.ip2,
+					ip3: detail.ip3,
+					mac2: detail.mac2,
+					mac3: detail.mac3,
+					position: detail.position,
+					commissioningdate: detail.commissioningdate,
+					functiondetail: detail.functiondetail
+				};
+
+				if (this.tabName === '1') {
+					this.softwaresituation = detail.softwaresituation;
+				} else if (this.tabName === '2') {
+					this.softwareversion = detail.softwareversion;
+				}
+
+				this.form1 = mapDetail;
+			} else {
+				this.$message.error('获取资产数据失败，请稍后再试')
+			}
+		},
+    rowView1(row) {
+			this.dialogVisible1 = true;
+			this.operate = 'view';
+			this.fetchAssetsInfoById(row.id);
     },
-    rowEdit1(index, row) {
-      this.dialogVisibleEdit1 = true;
+    rowEdit1(row) {
+      this.dialogVisible1 = true;
+			this.operate = 'edit';
+			this.assetsId = row.id;
+			this.fetchAssetsInfoById(row.id);
+		},
+		rowView2(row) {
+			this.dialogVisible2 = true;
+			this.operate = 'view';
+			this.fetchDataAssetsInfoById(row.id);
     },
-    rowView2(index, row) {
-      this.dialogVisibleView2 = true;
-    },
-    rowEdit2(index, row) {
-      this.dialogVisibleEdit2 = true;
-    },
-    rowView3(index, row) {
-      this.rowEdit3Index = index;
-      this.dialogVisibleView3 = true;
-    },
-    rowEdit3(index, row) {
-      this.rowEdit3Index = index;
-      this.dialogVisibleEdit3 = true;
-    },
-    submit() {
-      this.dialogVisibleView1 = false;
-      this.dialogVisibleView2 = false;
-      this.dialogVisibleView3 = false;
-      this.dialogVisibleEdit1 = false;
-      this.dialogVisibleEdit2 = false;
-      this.dialogVisibleEdit3 = false;
-      this.$message({
-        message: "提交成功",
-        type: "success"
-      });
-    },
+    rowEdit2(row) {
+      this.dialogVisible2 = true;
+			this.operate = 'edit';
+			this.assetsId = row.id;
+			this.fetchDataAssetsInfoById(row.id);
+		},
+		async updateDataAssetsInfo() {
+			let params = this._.clone(this.form2);
+			params.deviceid = this.assetsId;
+			
+			const data = await this.fetch({
+				url: "/device/updateDataId",
+				params: params,
+        vm: this
+			});
+
+			if  (data && data.code === 10000) {
+				this.$message.success(`${this.operateName}成功`)
+				this.dialogVisible2 = false;
+				this.fetchTableData('tableData3');
+			} else {
+				this.$message.error(`${this.operateName}失败，请稍后再试`)
+			}
+		},
+		async updateAssetsInfo() {
+			let url;
+			let params = this._.clone(this.form1);
+			params.deviceid = this.assetsId;
+			if (this.tabName === '1') {
+				url = "/device/updateIp";
+				params.softwaresituation = this.softwaresituation;
+			} else if (this.tabName === '2') {
+				url = "/device/updateNetworkId";
+				params.softwareversion = this.softwareversion;
+			}
+			
+			const data = await this.fetch({
+				url: url,
+				params: params,
+        vm: this
+			});
+
+			if  (data && data.code === 10000) {
+				this.$message.success(`${this.operateName}成功`)
+				this.dialogVisible1 = false;
+				if (this.tabName === '1') {
+					this.fetchTableData('tableData1');
+				} else if (this.tabName === '2') {
+					this.fetchTableData('tableData2');
+				}
+			} else {
+				this.$message.error(`${this.operateName}失败，请稍后再试`)
+			}
+		},
     resetForm(formName) {
       this.$refs[formName].resetFields();
     },
@@ -695,114 +459,6 @@ export default {
         filter: "isleaf"
       });
     }
-  },
-  created() {
-    this.fetchPjTreeData();
-    this.tableData1 = [
-      {
-        id: "1",
-        IPaddress: "10.155.10.12",
-        AssetType: "主机",
-        EquipmentModel: "Windows",
-        system: "Windows 10 Enterprise 2016 LTSB 14393",
-        KeyBusiness: "制丝生产业务/制丝监控系统"
-      },
-      {
-        id: "2",
-        IPaddress: "10.155.10.17",
-        AssetType: "主机",
-        EquipmentModel: "Windows",
-        system: "Windows 7 Ultimate 7601 Service Pack 1",
-        KeyBusiness: "复烤生产业务/复烤监控系统"
-      },
-      {
-        id: "3",
-        IPaddress: "10.155.10.19",
-        AssetType: "主机",
-        EquipmentModel: "Linux",
-        system: "Linux 2.6.32",
-        KeyBusiness: "卷接包生产业务/视频监控系统"
-      }
-    ];
-    this.tableData2 = [
-      {
-        id: "1",
-        IPaddress: "10.155.11.25",
-        AssetType: "交换机",
-        EquipmentModel: "Quidway S9306",
-        system: "Huawei",
-        KeyBusiness: "制丝生产业务/制丝监控系统"
-      },
-      {
-        id: "2",
-        IPaddress: "10.155.10.17",
-        AssetType: "路由器",
-        EquipmentModel: "Quidway NetEngine 80",
-        system: "Huawei",
-        KeyBusiness: "复烤生产业务/复烤生产系统"
-      },
-      {
-        id: "3",
-        IPaddress: "10.155.11.100",
-        AssetType: "交换机",
-        EquipmentModel: "S5352C-EI",
-        system: "Huawei",
-        KeyBusiness: "卷接包生产业务/视频监控系统"
-      }
-    ];
-    this.tableData3 = [
-      {
-        id: "1",
-        IPaddress: "1",
-        EquipmentModel: "step7",
-        system: "Siemens",
-        KeyBusiness: "制丝生产业务/制丝生产系统"
-      },
-      {
-        id: "2",
-        IPaddress: "2",
-        EquipmentModel: "wincc ",
-        system: "Siemens",
-        KeyBusiness: "复烤生产业务/复烤生产系统"
-      }
-    ];
-
-    this.form1 = {
-      Ip2: "192.168.10.12",
-      Ip3: "192.168.1.12",
-      Mac2: "82:f6:75:41:dc:01",
-      Mac3: "82:f6:75:41:dc:04",
-      Pos3: "交换机s5700的14口",
-      startTime: 46,
-      des: "制丝监控系统浏览器",
-      use: "谷歌浏览器"
-    };
-    this.form2 = {
-      Ip2: "192.168.11.12",
-      Ip3: "192.168.12.12",
-      Mac2: "82:f5:75:41:dc:03",
-      Mac3: "82:f6:75:42:dc:05",
-      Pos3: "交换机s5700的14口",
-      startTime: 134,
-      version: 1,
-      des: "多个浏览器访问制丝监控系统"
-    };
-    this.form3 = {
-      pos: "d:RTU",
-      space: "30M",
-      version: "1",
-      updateTime: "2019/12/4 14:54:23",
-      open: "step7",
-      des: "制丝电控程序"
-    };
-    this.form4 = {
-      pos: "d:RTU",
-      space: "30M",
-      version: "1",
-      updateTime: "2019/12/4 14:54:23",
-      open: "wincc",
-      des: "制丝监控程序"
-    };
   }
 };
 </script>

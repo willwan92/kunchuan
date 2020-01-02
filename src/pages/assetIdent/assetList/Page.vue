@@ -13,23 +13,31 @@
           >
           </el-cascader>
         </el-form-item>
-        <el-form-item label="" class="add-btn">
+
+        <el-form-item label="" class="">
           <el-button
-            class="btn-lg"
             :disabled="!getPjId"
             type="primary"
             @click="handleAddClick"
             >添加资产</el-button
           >
+        </el-form-item>
+
+        <el-form-item label="">
+          <el-upload
+            :action="uploadAssetsUrl"
+            :before-upload="beforeUpload"
+            :on-success="uploadSuccess"
+            :on-error="uploadError"
+            multiple
+            :limit="1">
+            <el-button type="primary" 
+            :disabled="!getPjId">导入资产</el-button>
+          </el-upload>
+        </el-form-item>
+
+        <el-form-item label="">
           <el-button
-            class="btn-lg"
-            :disabled="!getPjId"
-            type="primary"
-            @click="0"
-            >导入资产</el-button
-          >
-          <el-button
-            class="btn-lg"
             type="primary"
             :disabled="!getPjId"
             @click="handleExportClick"
@@ -47,7 +55,7 @@
         <el-table-column label="设备型号" prop="deviceNum"></el-table-column>
         <el-table-column label="版本号" prop="version"></el-table-column>
         <el-table-column label="操作系统" prop="deviceOs"></el-table-column>
-        <el-table-column label="备注" prop="remark"></el-table-column>
+        <el-table-column label="备注" prop="comments"></el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
             <el-button type="text" @click="handleEditClick(scope.row.id)"
@@ -129,6 +137,9 @@
               </el-option>
             </el-select>
           </el-form-item>
+          <el-form-item label="备注" prop="comments">
+            <el-input v-model="dialogForm.comments"></el-input>
+          </el-form-item>
           <el-form-item label="用户名" prop="userName">
             <el-input v-model="dialogForm.userName"></el-input>
           </el-form-item>
@@ -153,9 +164,6 @@
           <el-form-item label="数据库实例" prop="databaseInstance">
             <el-input v-model="dialogForm.databaseInstance"></el-input>
           </el-form-item>
-          <el-form-item label="备注" prop="remark">
-            <el-input v-model="dialogForm.remark"></el-input>
-          </el-form-item>
         </el-form>
 
         <span slot="footer">
@@ -171,7 +179,7 @@
 
 <script>
 import { checkIp, getCascaderOptions, downloadFileByUrl } from "common/utils";
-import { API_URL } from "common/axiosClient";
+import { API_URL, FUZZ_URL } from "common/axiosClient";
 
 export default {
   data() {
@@ -237,7 +245,7 @@ export default {
         databaseAccount: "",
         databasePassword: "",
         databaseInstance: "",
-        remark: ""
+        comments: ""
       },
       rules: {
         ip: [{ validator: validateIp, trigger: "blur" }]
@@ -263,9 +271,55 @@ export default {
     },
     actionName() {
       return this.assetsId ? "编辑" : "添加";
+    },
+    uploadAssetsUrl() {
+      return `${FUZZ_URL}/fuzz/page/view/station/device!addDeviceImport.action`;
     }
   },
   methods: {
+    checkFileType(file, validTypes) {
+      if (!file || !Array.isArray(validTypes)) {
+        return false;
+      }
+
+      // 获取文件扩展名
+      const fileType = file.name.match(/\.\w+$/g)[0];
+      debugger
+
+      for(let i = 0, len = validTypes.length; i < len; i++)  {
+        if (fileType === validTypes[i]) {
+          return true;
+        }
+      }
+
+      return false;
+    },
+    beforeUpload(file) {
+      if (!this.checkFileType(file, ['.xls', '.xlsx'])) {
+        this.$message.error('上传文件类型错误，只能上传".xlsx"或".xls"文件！');
+        return false;
+      }
+      
+      // this.uploadFile(file);
+      return true;
+    },
+    async uploadFile(file) {
+      
+      // const data = await this.postFuzz({
+      //   url: "/fuzz/page/view/station/device!addDeviceImport.action",
+      //   params: {
+      //     filename: file
+      //   },
+      //   vm: this
+      // });
+
+    },
+    uploadSuccess(res, file, fileList) {
+      console.log(res);
+    },
+    uploadError(err, file, fileList) {
+      console.log(err);
+    },
     initData() {
       this.fetchAssetsTypeData();
       this.fetchVendorsData();
@@ -298,7 +352,8 @@ export default {
           vendorName: item[5],
           deviceNum: item[6],
           version: item[7],
-          deviceOs: item[8]
+          deviceOs: item[8],
+          comments: item[11]
         };
       });
     },
@@ -370,6 +425,7 @@ export default {
         devicenum: form.version,
         devicelist: form.assetsType,
         deviceos: form.deviceOs,
+        description: form.comments,
         devicelogin: form.loginMethod,
         deviceusr: form.userName,
         devicepass: form.password,
