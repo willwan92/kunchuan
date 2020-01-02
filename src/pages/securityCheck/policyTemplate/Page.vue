@@ -3,25 +3,20 @@
 		<div class="goodsTop">
       <el-container style="min-height: 500px; height: 100%;border: 1px solid #eee">
         <el-aside width="300px" style="padding: 20px;">
-          <!--<el-button icon="el-icon-circle-plus-outline" @click="handleTree('add')"></el-button>-->
-          <!--<el-button icon="el-icon-edit-outline" @click="handleTree('edit')"></el-button>-->
-          <!--<el-button icon="el-icon-delete" @click="handleTree('delete')"></el-button>-->
           <el-tree :data="data" :props="defaultProps" @node-click="handleNodeClick" style="margin-top: 20px;"></el-tree>
         </el-aside>
         <el-container>
           <el-main style="position: relative;">
             <template v-if="!itemDetail">
-              <!--<el-button icon="el-icon-plus">新增</el-button>-->
-              <!--<el-button icon="el-icon-close">删除</el-button>-->
               <el-table ref="multipleTable" :data="tableData" tooltip-effect="dark" style="width: 100%;margin-top: 20px;">
-                <el-table-column type="selection" width="55"></el-table-column>
+                <el-table-column type="selection":selectable='selectable' width="55"></el-table-column>
                 <el-table-column prop="name" label="策略模板名称"></el-table-column>
                 <el-table-column prop="type" label="检查项/设备类型"></el-table-column>
-                <el-table-column prop="attr" label="模板属性"></el-table-column>
-                <el-table-column prop="edit" label="编辑">
+                <el-table-column prop="attr" label="模板属性" width="100"></el-table-column>
+                <el-table-column prop="edit" label="编辑" width="80">
                   <template slot-scope="scope">{{'-'}}</template>
                 </el-table-column>
-                <el-table-column prop="custom" label="自定义参数">
+                <el-table-column prop="custom" label="自定义参数" width="110">
                   <template slot-scope="scope">
                     <i class="el-icon-s-tools" @click="checkList = true"></i>
                   </template>
@@ -32,6 +27,11 @@
                   </template>
                 </el-table-column>
               </el-table>
+              <div style="text-align: center;margin-top: 30px;" v-if="tableTotals !== 0">
+                <el-pagination background :current-page.sync="resData.page" :total="tableTotals"
+                               @current-change="handleCurrentChange" :page-size="resData.size" layout="prev, pager, next">
+                </el-pagination>
+              </div>
             </template>
             <template v-else>
               <span class="el-icon-refresh-left re-back" @click="itemDetail = false">返回</span>
@@ -171,42 +171,20 @@
       //   attr: '预定义'
       // };
       return {
+        resData: {
+          page: 1,
+          size: 10
+        },
+        tableTotals: 0, // 查询策略组总条数
         page: 1,
         size: 10,
         activeName: 'first',
-        tableData:  [{
-          name: '全局策略',
-          type: '1576/47',
-          attr: '预定义'
-        }],
-        data: [{
-          label: '内置策略组',
-          children: [{
-            label: '综合类策略组',
-          }, {
-            label: '主机类策略组',
-          }, {
-            label: '数据库类策略组',
-          },{
-            label: '中间件策略组',
-          },{
-            label: '路由器策略组',
-          },{
-            label: '交换机策略组',
-          },{
-            label: '防火墙策略组',
-          },{
-            label: 'WLAN策略组',
-          },{
-            label: '虚拟机策略组',
-          },{
-            label: '负载均衡策略组',
-          }]
-        }],
-        label: '',
+        tableData:  [],
+        data: [{name: '内置策略组', pid: 0, _id: 1, is_buildin: 1, children: []}],
+        activeLabel: '',
         defaultProps: {
           children: 'children',
-          label: 'label'
+          label: 'name'
         },
         editTree: false, // 添加或者编辑树形结构dialog
         checkList: false, // 核查项列表dialog
@@ -271,8 +249,13 @@
         ]
       }
     },
+    mounted () {
+      this.$nextTick(() => {
+        this.initData()
+      })
+    },
     methods: {
-      handleCurrentChange (val) {
+      handleCurrentChange(val) {
         this.page = val
         if (val === 1) {
           this.checkItemData = this.copyData.slice(0, 10)
@@ -280,71 +263,50 @@
           this.checkItemData = this.copyData.slice(10)
         }
       },
-      handleNodeClick (data) {
-        console.log(data)
-        this.label = data.label
-        if (data.label === '综合类策略组') {
-          this.tableData = [{
-            name: '全局策略',
-            type: '1576/47',
-            attr: '预定义'
-          }]
-        } else if (data.label === '主机类策略组') {
-          // this.tableData = this.copyData.slice(0, 10)
-          this.tableData = [
-            {name: 'Linux配置策略', type: '57/1', attr: '预定义'},
-            {name: 'Windows主机配置策略', type: '68/1', attr: '预定义'},
-            {name: 'AIX主机配置策略', type: '50/1', attr: '预定义'},
-            {name: 'Solaris主机配置策略', type: '51/1', attr: '预定义'},
-            {name: 'HP-UX主机配置策略', type: '48/1', attr: '预定义'},
-            ]
-        } else {
-          this.tableData = [
-            {name: 'oracle数据库配置策略', type: '33/1', attr: '预定义'},
-            {name: 'sqlsever配置策略', type: '16/1', attr: '预定义'}
-          ]
-        }
+      async getTableList(id) {
+        await this.postFuzz({
+          url: "/fuzz/page/view/checkmanage/strategy!searchTypeBygroupid.action",
+          params: {start: this.resData.page, group_id: id},
+          vm: this
+        }).then(res => {
+          console.log(res.reu, 'reu')
+          let _this = this
+          this.tableData = res.reu.map((item, index) => {
+            return {
+              name: item[1],
+              type: item[2],
+              attr: item[3],
+              is_buildin: _this.data[0]['children'][index]['is_buildin']
+            }
+          })
+        })
+        console.log(this.tableData, 'getTable')
       },
-      /**
-       * 树形结构操作
-       * @param type
-       */
-      handleTree (type) {
-        this.type = type
-        if (type === 'add') { // 增加
-          this.editTree = true
-        } else if (type === 'edit') { // 编辑
-          this.editTree = true
-        } else { // 删除
-          this.$confirm('您确认是否要删除该组?', '确认', {
-            confirmButtonText: '确定',
-            cancelButtonText: '取消',
-            type: 'warning',
-            center: true
-          }).then(() => {
-            this.$message({
-              type: 'success',
-              message: '删除成功!'
-            });
-          }).catch(() => {
-            this.$message({
-              type: 'info',
-              message: '已取消删除'
-            });
-          });
+
+      handleNodeClick(data) {
+        console.log(data)
+        this.activeLabel = data
+        if (data.pid === 1) {
+          this.resData.page = 1
+          this.getTableList(data.id)
+          this.postFuzz({
+            url: '/fuzz/page/view/checkmanage/strategy!findTotals.action', params: {group_id: data.id}, vm: this
+          }).then(res => {
+            this.tableTotals = res.totalNum
+          })
         }
       },
       /**
        * 检查项设置
        */
-      checkRowData () {
+      checkRowData() {
 
       },
       /**
        * 自定义设置参数
        * @param type
        */
-      setArguments (type) {
+      setArguments(type) {
         this.checkList = false
         let _messages = type === 'ok' ? '自定义参数设置成功' : '已取消自定义参数设置'
         this.$message({
@@ -352,11 +314,43 @@
           type: 'info'
         });
       },
-      handleClick (row) {
+      handleClick(row) {
         this.itemDetail = !this.itemDetail
         this.checkItemData = this.copyData.slice(0, 10)
-      }
+      },
+      /**
+       * 分页点击
+       */
+      handleCurrentChange(val) {
+        this.resData.page = val
+        this.getTableList(this.activeLabel.id)
+      },
+      /**
+       * 树形结构数据
+       */
+      async initData() {
+        const {data} = await this.fetchFuzz({
+          url: '/fuzz/page/view/strategy!strategyTree.action',
+          vm: this
+        })
 
+        let children = []
+        data.forEach(item => {
+          if (item.pid !== 0) {
+            children.push(item)
+          }
+        })
+        this.data[0]['children'] = children
+      },
+      /**
+       * 判断复选框是否可点击
+       * @param row
+       * @param index
+       * @returns {number} 0 no 1 yes
+       */
+      selectable(row, index) {
+        return row.is_buildin === 1 ? 0 : 1
+      },
     }
   }
 </script>
