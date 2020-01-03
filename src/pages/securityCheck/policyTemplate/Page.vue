@@ -74,15 +74,11 @@
                         <el-input v-model="checkBasicInfo.check_code" :disabled="checkBasicInfo.disable"></el-input>
                       </el-form-item>
                       <el-form-item label="所属分类">
-                        <el-select v-model="checkBasicInfo.check_type" placeholder="--请选择--" :disabled="checkBasicInfo.disable">
-                          <el-option label="账号管理" value="11"></el-option>
-                          <el-option label="账号管理" value="2"></el-option>
-                          <el-option label="账号管理" value="3"></el-option>
-                        </el-select>
+                        <el-input v-model="checkBasicInfo.whattype" :disabled="checkBasicInfo.disable"></el-input>
                       </el-form-item>
-                      <el-form-item label="自定义组">
-                        <el-input v-model="checkBasicInfo.sys_code" :disabled="checkBasicInfo.disable"></el-input>
-                      </el-form-item>
+                      <!--<el-form-item label="自定义组">-->
+                        <!--<el-input v-model="checkBasicInfo.sys_code" :disabled="checkBasicInfo.disable"></el-input>-->
+                      <!--</el-form-item>-->
                       <el-form-item label="配置要求">
                         <el-input type="textarea" v-model="checkBasicInfo.check_content" :disabled="checkBasicInfo.disable"></el-input>
                       </el-form-item>
@@ -108,7 +104,7 @@
                         </el-radio-group>
                       </el-form-item>
                       <el-form-item label="检查脚本">
-                        <el-input v-model="checkBasicInfo.script" :disabled="checkBasicInfo.disable"></el-input>
+                        <el-input v-model="checkBasicInfo.name" :disabled="checkBasicInfo.disable"></el-input>
                       </el-form-item>
                       <el-form-item label="解析方式">
                         <el-radio-group v-model="checkBasicInfo.parse_type" :disabled="checkBasicInfo.disable">
