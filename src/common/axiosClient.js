@@ -19,10 +19,19 @@ const axiosClient = axios.create({
         'Content-Type': 'application/x-www-form-urlencoded'
     },
     transformRequest: [
-        function(data, headers) {
+        function (data, headers) {
             return qs.stringify(data);
         }
     ]
+});
+
+const axiosClientUpload = axios.create({
+    baseURL: HOST === HOST_DEVELOPMENT ? '/api' : URL_PRODUCTION,
+    timeout: 100000,
+    responseType: 'json',
+    headers: {
+        'Content-Type': 'multipart/form-data'
+    }
 });
 
 const axiosClientFuzz = axios.create({
@@ -33,10 +42,19 @@ const axiosClientFuzz = axios.create({
         'Content-Type': 'application/x-www-form-urlencoded'
     },
     transformRequest: [
-        function(data, headers) {
+        function (data, headers) {
             return qs.stringify(data);
         }
     ]
+});
+
+const axiosUploadFuzz = axios.create({
+    baseURL: HOST === HOST_DEVELOPMENT ? '/fuzzApi' : URL_PRODUCTION_FUZZ,
+    timeout: 100000,
+    responseType: 'json',
+    headers: {
+        'Content-Type': 'multipart/form-data'
+    }
 });
 
 // 拦截请求, 登录接口不传token
@@ -71,4 +89,4 @@ axiosClient.interceptors.request.use(
 // })
 
 
-export { axiosClient, axiosClientFuzz, FUZZ_URL, API_URL };
+export { axiosClient, axiosClientFuzz, FUZZ_URL, API_URL, axiosClientUpload, axiosUploadFuzz };

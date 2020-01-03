@@ -179,7 +179,7 @@
 
 <script>
 import { checkIp, getCascaderOptions, downloadFileByUrl } from "common/utils";
-import { API_URL, FUZZ_URL } from "common/axiosClient";
+import { API_URL, FUZZ_URL, axiosUploadFuzz } from "common/axiosClient";
 
 export default {
   data() {
@@ -284,7 +284,6 @@ export default {
 
       // 获取文件扩展名
       const fileType = file.name.match(/\.\w+$/g)[0];
-      debugger
 
       for(let i = 0, len = validTypes.length; i < len; i++)  {
         if (fileType === validTypes[i]) {
@@ -300,18 +299,16 @@ export default {
         return false;
       }
       
-      // this.uploadFile(file);
-      return true;
+      this.uploadFile(file);
+      return false;
     },
     async uploadFile(file) {
-      
-      // const data = await this.postFuzz({
-      //   url: "/fuzz/page/view/station/device!addDeviceImport.action",
-      //   params: {
-      //     filename: file
-      //   },
-      //   vm: this
-      // });
+      let params = new FormData();
+      params.append('pjid', this.getPjId)
+      params.append('filename', file)
+
+      const data = await axiosUploadFuzz.post("/fuzz/page/view/station/device!addDeviceImport.action", params);
+      console.log(data);
 
     },
     uploadSuccess(res, file, fileList) {
