@@ -18,7 +18,7 @@
                 </el-table-column>
                 <el-table-column prop="custom" label="自定义参数" width="110">
                   <template slot-scope="scope">
-                    <i class="el-icon-s-tools" @click="checkList = true"></i>
+                    <i class="el-icon-s-tools" @click="getArguments(scope.row)"></i>
                   </template>
                 </el-table-column>
                 <el-table-column fixed="right" label="详情" width="100">
@@ -145,12 +145,27 @@
         </el-container>
       </el-container>
       <el-dialog title="核查项列表" :visible.sync="checkList">
-        <el-table :data="checkData" border style="width: 100%" @row-click="checkRowData">
-          <el-table-column prop="check_num" label="检查项编号" width="180"></el-table-column>
+        <el-table :data="checkData" border style="width: 100%" :span-method="objectSpanMethod" align="center">
+          <el-table-column prop="check_num" label="检查项编号" width="180">
+            <template slot-scope="scope"><p v-html="scope.row.check_num"></p></template>
+          </el-table-column>
           <el-table-column prop="check_name" label="检查项名称" width="180"></el-table-column>
-          <el-table-column prop="check_desc" label="基线值说明"></el-table-column>
-          <el-table-column prop="check_val" label="基线值"></el-table-column>
+          <el-table-column prop="check_desc" label="基线值说明">
+            <template slot-scope="scope"><p v-html="scope.row.check_desc"></p></template>
+          </el-table-column>
+          <el-table-column prop="check_val" label="基线值">
+            <template slot-scope="scope">
+              <p v-html="scope.row.check_val" @dblclick="modifyBaseVal(scope.row)" v-if="!checkData[scope.row.index]['show']"></p>
+              <el-input v-if="checkData[scope.row.index]['show']"
+                        v-model="checkData[scope.row.index]['check_val']"></el-input>
+            </template>
+          </el-table-column>
         </el-table>
+        <div style="text-align: center;margin-top: 30px;" v-if="checkTotals !== 0">
+          <el-pagination background :current-page.sync="resData.page" :total="checkTotals"
+                         @current-change="(val) => handleCurrentChange(val, 'check')" :page-size="resData.size" layout="prev, pager, next">
+          </el-pagination>
+        </div>
         <div slot="footer" class="dialog-footer" style="text-align: center;">
           <el-button @click="setArguments('close')">取 消</el-button>
           <el-button type="primary" @click="setArguments('ok')">确 定</el-button>
@@ -170,6 +185,7 @@
         }, // 分页数据
         tableTotals: 0, // 查询策略组总条数
         detailTotal: 0, // 检查项总数
+        checkTotals: 0, // 自定义参数总数
         activeName: 'first',
         tableData:  [], // 默认表格数据
         data: [{name: '内置策略组', pid: 0, _id: 1, is_buildin: 1, children: []}], // 树形数据
@@ -177,6 +193,7 @@
         csId: '',
         checkid: '',
         scriptId: '',
+        lastId: '',
         defaultProps: {
           children: 'children',
           label: 'name'
@@ -190,7 +207,8 @@
         itemDetailTitle: '', // 详情主类
         checkItemData: [], // 详情table
         checkItemDetailName: 'basicInfo',
-        checkBasicInfo: {} // 详情基本信息
+        checkBasicInfo: {}, // 详情基本信息
+        spanArr: [] // 合并数组
       }
     },
     computed: {
@@ -217,7 +235,7 @@
       async getTableList(id) {
         await this.postFuzz({
           url: "/fuzz/page/view/checkmanage/strategy!searchTypeBygroupid.action",
-          params: {start: this.resData.page, group_id: id},
+          params: {start: (parseInt(this.resData.page - 1) * 10), group_id: id},
           vm: this
         }).then(res => {
           let _this = this
@@ -232,24 +250,80 @@
           })
         })
       },
-
-      /**
-       * 检查项设置
-       */
-      checkRowData() {
-
-      },
       /**
        * 自定义设置参数
        * @param type
        */
       setArguments(type) {
         this.checkList = false
+        this.resData.page = 1
         let _messages = type === 'ok' ? '自定义参数设置成功' : '已取消自定义参数设置'
         this.$message({
           message: _messages,
           type: 'info'
         });
+      },
+      /**
+       * 打开自定义参数弹框
+       * @param type
+       */
+      getArguments (row) {
+        console.log(row, 'zidingyi')
+        this.resData.page = 1
+        this.checkList = true
+        this.lastId = row.id
+        this.getArgumentsList(this.lastId)
+        this.getTotalNumber(row.id, 'cs_id').then(response => {
+          this.checkTotals = response.totalNum
+        })
+      },
+      async getArgumentsList (cs_id) {
+        await this.fetchFuzz({url: '/fuzz/page/view/strategy!findSelfDefinedById.action',
+          params: {cs_id, start: (parseInt(this.resData.page - 1) * 10)}, vm: this}).then(res => {
+          console.log(res, 'get custom')
+          let data = res.reu
+          data.forEach((item, index) => {
+            let _data = item[3].split('</a>')
+            console.log(_data, 'item 333')
+            for (let i = 0, _len = _data.length; i < _len - 1; i++) {
+              let _startIdx = _data[i].indexOf('>') + 1
+              let val = _data[i].slice(_startIdx)
+              let obj = {
+                check_num: item[0], check_name: item[1], check_desc: item[2],
+                check_val: val, index: index, show: false // 双击判断输入框显示
+              }
+              this.checkData.push(obj)
+            }
+          })
+          let spanArr = [] // 设定一个数组来存放要连续合并的格数，同时还要设定一个变量来记录，当时间段不同时数据的索引
+          let contactDot = 0
+          let tableData = this.checkData
+          tableData.forEach((item, idx) => {
+            if (idx === 0) {
+              spanArr.push(1)
+            } else {
+              if (item.index === tableData[idx - 1].index) { // index相同合并
+                spanArr[contactDot] += 1
+                spanArr.push(0)
+              } else {
+                spanArr.push(1)
+                contactDot = idx
+              }
+            }
+          })
+          this.spanArr = spanArr
+        })
+        console.log(this.checkData, 'checkDatacheckDatacheckDatacheckData')
+      },
+      objectSpanMethod ({ row, column, rowIndex, columnIndex }) {
+        if (columnIndex === 0) {
+          const _row = this.spanArr[rowIndex]
+          const _col = _row > 0 ? 1 : 0
+          return {
+            rowspan: _row,
+            colspan: _col
+          }
+        }
       },
       /**
        * 点击table详情
@@ -271,7 +345,7 @@
       async getDetailItem (cs_id) {
         this.csId = cs_id
         await this.fetchFuzz({url: '/fuzz/page/view/checkmanage/strategy!findStrategyById.action',
-          params: {cs_id , start: this.resData.page, t: Math.random()}, vm: this}).then (res => {
+          params: {cs_id , start: (parseInt(this.resData.page - 1) * 10), t: Math.random()}, vm: this}).then (res => {
           let data = res.reu, check_id = res.checkid
           this.checkItemData = data.map((item, index) => {
             return {
@@ -370,6 +444,8 @@
         this.resData.page = val
         if (type === 'table') {
           this.getTableList(this.activeLabel.id)
+        } else if (type === 'check') {
+          this.getArgumentsList(this.lastId)
         } else {
           this.getDetailItem(this.csId)
         }
@@ -385,7 +461,11 @@
         } else { // 基本信息
           this.getItemView(this.checkid, 'checkItemDetailinfo')
         }
-
+      },
+      modifyBaseVal (row) {
+        console.log(row, 'modify')
+        console.log(this.checkData[row.index])
+        this.$set(this.checkData[row.index], 'show', true)
       }
     }
   }
