@@ -235,7 +235,7 @@
       async getTableList(id) {
         await this.postFuzz({
           url: "/fuzz/page/view/checkmanage/strategy!searchTypeBygroupid.action",
-          params: {start: this.resData.page, group_id: id},
+          params: {start: (parseInt(this.resData.page - 1) * 10), group_id: id},
           vm: this
         }).then(res => {
           let _this = this
@@ -279,7 +279,7 @@
       },
       async getArgumentsList (cs_id) {
         await this.fetchFuzz({url: '/fuzz/page/view/strategy!findSelfDefinedById.action',
-          params: {cs_id, start: this.resData.page}, vm: this}).then(res => {
+          params: {cs_id, start: (parseInt(this.resData.page - 1) * 10)}, vm: this}).then(res => {
           console.log(res, 'get custom')
           let data = res.reu
           data.forEach((item, index) => {
@@ -345,7 +345,7 @@
       async getDetailItem (cs_id) {
         this.csId = cs_id
         await this.fetchFuzz({url: '/fuzz/page/view/checkmanage/strategy!findStrategyById.action',
-          params: {cs_id , start: this.resData.page, t: Math.random()}, vm: this}).then (res => {
+          params: {cs_id , start: (parseInt(this.resData.page - 1) * 10), t: Math.random()}, vm: this}).then (res => {
           let data = res.reu, check_id = res.checkid
           this.checkItemData = data.map((item, index) => {
             return {
