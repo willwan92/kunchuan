@@ -24,6 +24,23 @@ function compare(property) {
 	}
 }
 
+function checkFileType(file, validTypes) {
+	if (!file || !Array.isArray(validTypes)) {
+		return false;
+	}
+
+	// 获取文件扩展名
+	const fileType = file.name.match(/\.\w+$/g)[0];
+
+	for(let i = 0, len = validTypes.length; i < len; i++)  {
+		if (fileType === validTypes[i]) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
 function judgePayStatus(statusCode) {
 	let res;
 	switch (statusCode) {
@@ -152,6 +169,7 @@ function getCascaderOptions({ arr, label, value, filter = '' }) {
 }
 
 export {
+	checkFileType,
 	downloadFileByUrl,
 	toNumberArr,
 	getCascaderOptions,

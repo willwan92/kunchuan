@@ -4,18 +4,21 @@
     <div class="section list">
       <el-form :inline="true" label-width="75px">
         <el-form-item label="" prop="">
-          <el-upload class="upload-demo" ref="upload" action="https://jsonplaceholder.typicode.com/posts/" :before-remove="beforeRemove" :on-remove="handleRemove" :file-list="fileList1" :auto-upload="true" :limit="1">
-            <el-button type="primary" @click="submitUpload">导入模板</el-button>
+          <el-upload
+            action="#"
+            :before-upload="beforeUpload">
+            <el-button type="primary" 
+          >导入模板</el-button>
           </el-upload>
         </el-form-item>
       </el-form>
       <div>
-        <el-table :data="tableData1" border :span-method="objectSpanMethod" v-loading="isLoading" :element-loading-text="loadingText">
-          <el-table-column label="序号" prop="id"></el-table-column>
-          <el-table-column label="模板名称" prop="modelName"></el-table-column>
-          <el-table-column label="操作" prop="deal">
+        <el-table :data="tableData" border v-loading="isLoading">
+          <el-table-column label="序号" width="100" prop="index"></el-table-column>
+          <el-table-column label="模板名称" prop="filename"></el-table-column>
+          <el-table-column label="操作"  width="100">
             <template slot-scope="scope">
-              <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+              <el-button size="mini" type="danger" @click="handleDelete(scope.row)">删除</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -25,10 +28,13 @@
 </template>
 
 <script>
+import { axiosClientUpload } from "common/axiosClient";
+import { checkFileType } from "common/utils";
+const path = '/cfgtools/usr/local/safetyassessfile/';
 export default {
   data() {
     return {
-      tableData1: [],
+      tableData: [],
       form: {
         id: "",
         modelName: ""
@@ -37,46 +43,78 @@ export default {
       dialogVisible: false
     };
   },
+  created() {
+    this.fetchTableData();
+  },
   methods: {
-    load() {},
-    submit() {
-      this.dialogVisible = false;
-      this.$message({
-        message: "提交成功",
-        type: "success"
+    beforeUpload(file) {
+      if (!checkFileType(file, ['.xls', '.xlsx'])) {
+        this.$message.error('上传文件类型错误，只能上传".xlsx"或".xls"文件！');
+        return false;
+      }
+      
+      this.uploadFile(file);
+      return false;
+    },
+    async uploadFile(file) {
+      let params = new FormData();
+      params.append('file', file);
+      params.append('filepath', path);
+
+      const { data } = await axiosClientUpload.post("/uploadFile", params);
+
+      if  (data && data.code === 10000) {
+				this.$message.success("模板导入成功");
+				this.fetchTableData();
+			} else {
+				this.$message.error("模板导入失败，请稍后再试")
+			}
+    },
+    async fetchTableData() {
+      const data = await this.fetch({
+        url: '/file/fileNameUrlPath',
+        vm: this
       });
+
+      if (data || data[0]) {
+				this.tableData = data.map((item, index) => { 
+					return {
+						index: index + 1,
+						filename: item
+					};
+				});
+			}
     },
-    resetForm(formName) {
-      this.$refs[formName].resetFields();
+    async delFile(filename) {
+      const data = await this.fetch({
+        url: '/deleteFileName',
+        params: {
+          filePath: path,
+          fileName: filename
+        },
+        vm: this
+      });
+
+      if  (data && data.code === 10000) {
+				this.$message.success("模板删除成功");
+				this.fetchTableData();
+			} else {
+				this.$message.error("模板删除失败，请稍后再试")
+			}
     },
-    handleDelete() {
-      this.$confirm("确定删除？", "提示", {
+    handleDelete(row) {
+      this.$confirm("确定删除吗？", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       })
-        .then(() => {
-          this.$message({
-            type: "success",
-            message: "删除成功!"
-          });
-        })
-        .catch(() => {
-          this.$message({
-            type: "info",
-            message: "已取消删除"
-          });
-        });
+      .then(() => {
+        this.delFile(row.filename);
+      })
+      .catch(() => {
+      });
     }
   },
-  created() {
-    this.tableData1 = [
-      {
-        id: 1,
-        modelName: "关键信息基础设施网络安全检查表"
-      }
-    ]
-  }
 };
 </script>
 <style lang="less" scoped>

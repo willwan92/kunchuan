@@ -30,20 +30,14 @@
           </el-select>
         </el-form-item>
         <el-form-item label="">
-          <el-button type="primary" @click="query()">查询</el-button>
+          <el-button type="primary" @click="fetchTableData">查询</el-button>
         </el-form-item>
         <el-form-item label="" prop="">
           <el-upload
-            class="upload-demo"
-            ref="upload"
-            action="https://jsonplaceholder.typicode.com/posts/"
-            :before-remove="beforeRemove"
-            :on-remove="handleRemove"
-            :file-list="fileList1"
-            :auto-upload="true"
-            :limit="1"
-          >
-            <el-button type="primary" @click="submitUpload">上传</el-button>
+            action="#"
+            :before-upload="beforeUpload">
+            <el-button type="primary" 
+          >上传备份</el-button>
           </el-upload>
         </el-form-item>
       </el-form>
@@ -56,12 +50,8 @@
             <el-button
               size="mini"
               type="primary"
-              @click="handleLoad(scope.$index, scope.row)"
-              ><a
-                style="color: #fff"
-                href="https://raw.githubusercontent.com/ElementUI/Resources/master/Element_Components_v2.0.0.rplib"
-                >下载</a
-              ></el-button
+              @click="handleDownload(scope.row)"
+              >下载</el-button
             >
             <el-button
               size="mini"
@@ -77,8 +67,9 @@
 </template>
 
 <script>
-import { getCascaderOptions } from "common/utils";
-
+import { API_URL, axiosClientUpload } from "common/axiosClient";
+import { getCascaderOptions, downloadFileByUrl, checkFileType } from "common/utils";
+const baseDir = '/cfgtools/usr/local/backfile/';
 export default {
   data() {
     return {
@@ -106,7 +97,26 @@ export default {
     }
   },
   methods: {
-    async query() {
+    beforeUpload(file) {
+      this.uploadFile(file);
+      return false;
+    },
+    async uploadFile(file) {
+      let params = new FormData();
+      
+      params.append('file', file);
+      params.append('filepath', `${baseDir}${this.deviceid}/`);
+
+      const { data } = await axiosClientUpload.post("/uploadFile", params);
+
+      if  (data && data.code === 10000) {
+				this.$message.success("上传备份成功");
+				this.fetchTableData();
+			} else {
+				this.$message.error("上传备份失败，请稍后再试")
+			}
+    },
+    async fetchTableData() {
       if (this.deviceid == "") {
         this.$message({
           message: "请选择项目和IP/资产标识",
@@ -194,7 +204,10 @@ export default {
         type: "success"
       });
     },
-    handleLoad() {},
+    handleDownload(row) {
+      const url = `${API_URL}/downloadFileName?path=${row.filepath}&fileName=${row.filename}`;
+      downloadFileByUrl(url);
+    },
     submitUpload() {
       console.log(this.fileList1);
       this.$refs.upload.submit();
