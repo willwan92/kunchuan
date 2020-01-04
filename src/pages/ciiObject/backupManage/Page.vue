@@ -2,14 +2,30 @@
   <!-- 备份管理 -->
   <div class="page">
     <div class="section">
-      <el-form :inline="true" label-width="75px" :model="queryForm">
+      <el-form :inline="true" label-width="75px">
         <el-form-item label="项目名称">
-          <el-cascader :show-all-levels="false" :options="pjOptions" :props="{ expandTrigger: 'hover' }" filterable v-model="queryForm.pjValue">
+          <el-cascader
+            :show-all-levels="false"
+            :options="pjOptions"
+            :props="{ expandTrigger: 'hover' }"
+            filterable
+            @change="fetchAssetSignOptions"
+            v-model="pjValue"
+          >
           </el-cascader>
         </el-form-item>
         <el-form-item label="IP/资产标识" label-width="90px">
-          <el-select placeholder="请选择" v-model="queryForm.assetSign" clearable>
-            <el-option v-for="item in assetSignOptions" :key="item.value" :label="item.label" :value="item.value">
+          <el-select
+            placeholder="请选择"
+            v-model="deviceid"
+            clearable
+          >
+            <el-option
+              v-for="item in assetSignOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            >
             </el-option>
           </el-select>
         </el-form-item>
@@ -17,19 +33,42 @@
           <el-button type="primary" @click="query()">查询</el-button>
         </el-form-item>
         <el-form-item label="" prop="">
-          <el-upload class="upload-demo" ref="upload" action="https://jsonplaceholder.typicode.com/posts/" :before-remove="beforeRemove" :on-remove="handleRemove" :file-list="fileList1" :auto-upload="true" :limit="1">
+          <el-upload
+            class="upload-demo"
+            ref="upload"
+            action="https://jsonplaceholder.typicode.com/posts/"
+            :before-remove="beforeRemove"
+            :on-remove="handleRemove"
+            :file-list="fileList1"
+            :auto-upload="true"
+            :limit="1"
+          >
             <el-button type="primary" @click="submitUpload">上传</el-button>
           </el-upload>
         </el-form-item>
       </el-form>
-      <el-table :data="tableData1" border>
-        <el-table-column label="备份文件名" prop="copyName"></el-table-column>
-        <el-table-column label="备份时间" prop="copyTime"></el-table-column>
-        <el-table-column label="备份位置" prop="copyPosition"></el-table-column>
+      <el-table :data="tableData" border>
+        <el-table-column label="备份文件名" prop="filename"></el-table-column>
+        <el-table-column label="备份时间" prop="backuptime"></el-table-column>
+        <el-table-column label="备份位置" prop="filepath"></el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
-            <el-button size="mini" type="primary" @click="handleLoad(scope.$index, scope.row)"><a style="color: #fff" href="https://raw.githubusercontent.com/ElementUI/Resources/master/Element_Components_v2.0.0.rplib">下载</a></el-button>
-            <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+            <el-button
+              size="mini"
+              type="primary"
+              @click="handleLoad(scope.$index, scope.row)"
+              ><a
+                style="color: #fff"
+                href="https://raw.githubusercontent.com/ElementUI/Resources/master/Element_Components_v2.0.0.rplib"
+                >下载</a
+              ></el-button
+            >
+            <el-button
+              size="mini"
+              type="danger"
+              @click="handleDelete(scope.$index, scope.row)"
+              >删除</el-button
+            >
           </template>
         </el-table-column>
       </el-table>
@@ -45,17 +84,78 @@ export default {
     return {
       pjOptions: [],
       assetSignOptions: [],
-      queryForm: {
-        assetSign: "",
-        pjValue: ""
-      },
-      tableData1: [],
-      form: {},
+      pjValue: [],
+      deviceid: '',
       fileList1: [],
-      tableData1: []
+      tableData: []
     };
   },
+  created() {
+    this.fetchPjTreeData();
+  },
+  computed: {
+    getPjId() {
+      let id;
+      if (this.pjValue && this.pjValue[0]) {
+        id = this.pjValue.slice(-1)[0];
+      } else {
+        id = null;
+      }
+
+      return id;
+    }
+  },
   methods: {
+    async query() {
+      if (this.deviceid == "") {
+        this.$message({
+          message: "请选择项目和IP/资产标识",
+          type: "warning"
+        });
+
+        return;
+      }
+
+      const data = await this.fetch({
+        url: "/back/getSelectByDeviceid",
+        params: {
+          deviceid: this.deviceid
+        },
+        vm: this
+      });
+
+      if (data && data[0]) {
+        this.tableData = data.map(item => {
+          return {
+            id: item.id,
+            deviceid: item.deviceid,
+            filename: item.filename,
+            filepath: item.filepath,
+            backuptime: item.backuptime,
+          };
+        });
+      }
+
+      
+    },
+    async fetchAssetSignOptions() {
+      const data = await this.fetch({
+        url: "/back/getSelectByPjid",
+        params: {
+          pjid: this.getPjId
+        },
+        vm: this
+      });
+
+      if (data && data[0]) {
+        this.assetSignOptions = data.map(item => {
+          return {
+            value: item.deviceid,
+            label: item.ip
+          };
+        });
+      }
+    },
     async fetchPjTreeData() {
       const { data } = await this.fetch({
         url: "/porject/getProjectList",
@@ -104,32 +204,8 @@ export default {
     },
     beforeRemove(file, fileList) {
       return this.$confirm(`确定移除 ${file.name}？`);
-    },
-    query() {
-      if (this.queryForm.pjValue == "" && this.queryForm.assetSign == "") {
-        this.tableData1 = [];
-        this.$message({
-          message: "请至少选择一个查询项",
-          type: "warning"
-        });
-      } else {
-        this.tableData1 = [
-          {
-            copyName: "收藏夹.zip",
-            copyTime: "2019/12/1 13:56:03",
-            copyPosition: "/usr/local/etc/data"
-          },
-          {
-            copyName: "1.txt",
-            copyTime: "2019/12/1 13:56:54",
-            copyPosition: "/usr/local/etc/data"
-          }
-        ];
-      }
     }
-  },
-  created() {
-    this.fetchPjTreeData();
+    
   }
 };
 </script>

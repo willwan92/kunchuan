@@ -6,13 +6,14 @@
       </div>
       <el-form class="time-form" size="small" label-width="75px">
         <el-form-item label="当前时间">
-          <el-input v-model="fileName" placeholder=""></el-input>
+          <el-input v-model="formatTime" readonly="" placeholder=""></el-input>
         </el-form-item>
         <el-form-item label="修改时间">
-          <el-input v-model="fileName" placeholder=""></el-input>
+          <el-date-picker type="datetime" v-model="changedTime" placeholder="选择日期时间">
+          </el-date-picker>
         </el-form-item>
-        <el-form-item label="修改时间">
-          <el-button type="primary" @click="0">保存</el-button>
+        <el-form-item label="">
+          <el-button type="primary" @click="updateServerTime">保存</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -23,7 +24,7 @@
       </div>
       <el-form class="time-form" size="small" label-width="75px">
         <el-form-item label="同步方式">
-          <el-radio-group v-model="syncType">
+          <el-radio-group v-model="syncType" @change="handleSyncTypeChange">
 						<el-radio :label="0">内网同步</el-radio>
           	<el-radio :label="1">外网同步</el-radio>
 					</el-radio-group>
@@ -53,9 +54,12 @@ import { judgeGender, deepCopy, commonExport } from 'common/utils'
 export default {
 	data() {
 		return {
-			fileName: '',
+      fileName: '',
+      timer: null,
 			timeServer: '',
-			syncType: 1,
+      syncType: 1,
+      serverTime: '',
+      changedTime: '',
 			timeServerOptions: [
 				{
 					value: 'cn.ntp.org.cn',
@@ -78,21 +82,77 @@ export default {
 	},
 	created() {
 		this.getSystemTime();
-	},
+  },
+  destroyed() {
+    clearInterval(this.timer);
+  },
+  computed: {
+    formatTime() {
+      return this.moment(this.serverTime).format('YYYY-MM-DD HH:mm:ss');
+    }
+  },
 	methods: {
-		handleSyncClick() {
+    handleSyncTypeChange() {
+      this.timeServer = '';
+    },
+		async handleSyncClick() {
+      if (!this.timeServer) {
+        this.$message.error('请填写同步来源！');
+        return;
+      }
 
-		},
-		handleCurrentChange(page) {
-			this.currentPage = page;
-			this.fetchData();
-		},
+      const data = await this.postFuzz({
+        url: '/fuzz/page/view/sysconfig/sysconfig!netTime.action',
+        params: {
+          ipaddr: this.timeServer
+        },
+        vm: this
+      });
+      
+      if (data && data.state === 1) {
+        this.$message.success('同步时间成功');
+        this.getSystemTime();
+      } else {
+        this.$message.error('同步时间失败，请检查您的网络配置')
+      }
+    },
+    async updateServerTime() {
+      const time = this.moment(this.changedTime).format('YYYY-MM-DD HH:mm:ss');
+      const data = await this.postFuzz({
+        url: '/fuzz/page/view/sysconfig/sysconfig!modifyTime.action',
+        params: {
+          modifydate: time
+        },
+        vm: this
+      });
+      
+      if (data && data.state === 1) {
+        this.$message.success('修改系统时间成功');
+        this.getSystemTime();
+        this.changedTime = '';
+      } else {
+        this.$message.error('修改系统时间失败，请稍后重试')
+      }
+    },
+    updateTime() {
+      if (!this.timer) {
+        this.timer = setInterval(() => {
+          this.serverTime += 1000;
+        }, 1000)
+      }
+    },
 		async getSystemTime() {
 			const data = await this.fetchFuzz({
 				url: "/fuzz/page/view/sysconfig/sysconfig!getSystemTime.action",
 				vm: this
 			});
 
+      if (data && data.ServerTime) {
+        this.serverTime = data.ServerTime;
+        this.updateTime();
+      } else {
+        // this.$message.error('获取系统时间失败')
+      }
 		}
 	}
 }

@@ -22,6 +22,7 @@
         <el-table-column label="关键性评级" prop="class"></el-table-column>
         <el-table-column label="关键性" prop="KbValue"></el-table-column>
         <el-table-column label="指标" prop="info"></el-table-column>
+        <el-table-column label="量化标准" prop="standard"></el-table-column>
       </el-table>
     </div>
 
@@ -218,6 +219,7 @@ export default {
 						KbValue: item[1],
 						class: item[2],
 						info: item[3],
+						standard: item[5]
 					})
         });
     },
