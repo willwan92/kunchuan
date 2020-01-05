@@ -168,7 +168,25 @@ function getCascaderOptions({ arr, label, value, filter = '' }) {
 	return tmpArr;
 }
 
+function getTreeData(arr) {
+	let tmpArr = [];
+	let tmpObj = {};
+
+	arr.forEach(item => {
+		tmpObj = Object.assign({}, item);
+
+		if (item.children && item.children[0]) {
+			tmpObj.children = getTreeData(item.children);
+		}
+
+		tmpArr.push(tmpObj);
+	});
+
+	return tmpArr;
+}
+
 export {
+	getTreeData,
 	checkFileType,
 	downloadFileByUrl,
 	toNumberArr,

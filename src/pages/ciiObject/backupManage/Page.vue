@@ -30,13 +30,13 @@
           </el-select>
         </el-form-item>
         <el-form-item label="">
-          <el-button type="primary" @click="fetchTableData">查询</el-button>
+          <el-button :disabled="!deviceid" type="primary" @click="fetchTableData">查询</el-button>
         </el-form-item>
         <el-form-item label="" prop="">
           <el-upload
             action="#"
             :before-upload="beforeUpload">
-            <el-button type="primary" 
+            <el-button :disabled="!deviceid" type="primary" 
           >上传备份</el-button>
           </el-upload>
         </el-form-item>
@@ -56,7 +56,7 @@
             <el-button
               size="mini"
               type="danger"
-              @click="handleDelete(scope.$index, scope.row)"
+              @click="handleDelete(scope.row)"
               >删除</el-button
             >
           </template>
@@ -97,6 +97,9 @@ export default {
     }
   },
   methods: {
+    getFilePath() {
+      return `${baseDir}${this.deviceid}/`;
+    },
     beforeUpload(file) {
       this.uploadFile(file);
       return false;
@@ -105,9 +108,11 @@ export default {
       let params = new FormData();
       
       params.append('file', file);
-      params.append('filepath', `${baseDir}${this.deviceid}/`);
+      params.append('deviceid', this.deviceid);
+      params.append('backuptime', this.moment().format('YYYY-MM-DD HH:mm:ss'));
+      params.append('filepath', this.getFilePath());
 
-      const { data } = await axiosClientUpload.post("/uploadFile", params);
+      const { data } = await axiosClientUpload.post("/uploadinsert", params);
 
       if  (data && data.code === 10000) {
 				this.$message.success("上传备份成功");
@@ -179,24 +184,36 @@ export default {
         filter: "isleaf"
       });
     },
-    handleDelete() {
+    handleDelete(row) {
       this.$confirm("确定删除？", "提示", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       })
-        .then(() => {
-          this.$message({
-            type: "success",
-            message: "删除成功!"
-          });
-        })
-        .catch(() => {
-          this.$message({
-            type: "info",
-            message: "已取消删除"
-          });
-        });
+      .then(() => {
+        this.deleteFile(row);
+      })
+      .catch(() => {
+        
+      });
+    },
+    async deleteFile(row) {
+      const data = await this.fetch({
+        url: "/deleteFileName",
+        params: {
+          filePath: this.getFilePath(),
+          fileName: row.filename,
+          id: row.id
+        },
+        vm: this
+      });
+
+      if  (data && data.code === 10000) {
+				this.$message.success("删除备份成功");
+				this.fetchTableData();
+			} else {
+				this.$message.error("删除备份失败，请稍后再试")
+			}
     },
     submit() {
       this.$message({
