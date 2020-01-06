@@ -25,12 +25,8 @@
 
         <el-form-item label="">
           <el-upload
-            :action="uploadAssetsUrl"
-            :before-upload="beforeUpload"
-            :on-success="uploadSuccess"
-            :on-error="uploadError"
-            multiple
-            :limit="1">
+            action="#"
+            :before-upload="beforeUpload">
             <el-button type="primary" 
             :disabled="!getPjId">导入资产</el-button>
           </el-upload>
@@ -178,7 +174,7 @@
 </template>
 
 <script>
-import { checkIp, getCascaderOptions, downloadFileByUrl } from "common/utils";
+import { checkIp, getCascaderOptions, downloadFileByUrl, checkFileType } from "common/utils";
 import { API_URL, FUZZ_URL, axiosUploadFuzz } from "common/axiosClient";
 
 export default {
@@ -277,24 +273,8 @@ export default {
     }
   },
   methods: {
-    checkFileType(file, validTypes) {
-      if (!file || !Array.isArray(validTypes)) {
-        return false;
-      }
-
-      // 获取文件扩展名
-      const fileType = file.name.match(/\.\w+$/g)[0];
-
-      for(let i = 0, len = validTypes.length; i < len; i++)  {
-        if (fileType === validTypes[i]) {
-          return true;
-        }
-      }
-
-      return false;
-    },
     beforeUpload(file) {
-      if (!this.checkFileType(file, ['.xls', '.xlsx'])) {
+      if (!checkFileType(file, ['.xls', '.xlsx'])) {
         this.$message.error('上传文件类型错误，只能上传".xlsx"或".xls"文件！');
         return false;
       }
@@ -304,18 +284,18 @@ export default {
     },
     async uploadFile(file) {
       let params = new FormData();
-      params.append('pjid', this.getPjId)
-      params.append('filename', file)
+      params.append('pjid', this.getPjId);
+      params.append('fn', file.name);
+      params.append('filename', file);
 
-      const data = await axiosUploadFuzz.post("/fuzz/page/view/station/device!addDeviceImport.action", params);
-      console.log(data);
-
-    },
-    uploadSuccess(res, file, fileList) {
-      console.log(res);
-    },
-    uploadError(err, file, fileList) {
-      console.log(err);
+      const {data} = await axiosUploadFuzz.post("/fuzz/page/view/station/device!addDeviceImport.action", params);
+      
+      if  (data && data.state === 1) {
+				this.$message.success("导入资产成功");
+				this.fetchTableData();
+			} else {
+				this.$message.error("导入资产成功失败，请稍后再试")
+			}
     },
     initData() {
       this.fetchAssetsTypeData();

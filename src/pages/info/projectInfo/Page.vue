@@ -50,7 +50,7 @@
 </template>
 
 <script>
-	import { judgeGender, deepCopy, commonExport } from 'common/utils'
+	import { getTreeData } from 'common/utils'
 
 	export default {
 		data() {
@@ -121,7 +121,7 @@
 			},
 			async fetchPjTreeData() {
 				const { data } = await this.fetch({url: '/porject/getProjectList', vm: this});
-				this.pjTreeData = this.traverseArr(data);
+				this.pjTreeData = getTreeData(data);
 			},
 			async handleSaveClick() {
 				const params = {
