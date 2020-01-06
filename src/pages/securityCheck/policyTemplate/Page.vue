@@ -363,6 +363,7 @@
           vm: this
         })
 
+        console.log(data, 'strategyTree')
         let children = []
         data.forEach(item => {
           if (item.pid !== 0) {
