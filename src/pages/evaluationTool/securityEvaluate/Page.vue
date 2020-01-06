@@ -201,7 +201,7 @@ export default {
 					checkListForm[itemArr[0]] = itemArr[1];
 				});
 
-				this.checkListForm = Object.assign({}, this.checkListForm, checkListForm)
+				this.checkListForm = Object.assign({}, checkListForm)
 			} else {
 				this.$message.error('获取检查子项数据失败，请稍后再试')
 			}

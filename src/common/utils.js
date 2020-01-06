@@ -137,6 +137,15 @@ function toNumberArr(arr) {
 	}
 }
 
+function isBase64(str) {
+	if (str ==='' || str.trim() ===''){ return false; }
+	try {
+			return btoa(atob(str)) === str;
+	} catch (err) {
+			return false;
+	}
+}
+
 function getCascaderOptions({ arr, label, value, filter = '' }) {
 	let tmpArr = [];
 	let tmpObj = {};
@@ -186,6 +195,7 @@ function getTreeData(arr) {
 }
 
 export {
+	isBase64,
 	getTreeData,
 	checkFileType,
 	downloadFileByUrl,

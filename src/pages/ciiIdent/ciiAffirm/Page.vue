@@ -30,14 +30,17 @@
         <el-table-column label="操作系统" prop="deviceOs"></el-table-column>
         <el-table-column label="所属关键系统" prop="kbName" width="240px">
         </el-table-column>
-        <el-table-column label="关键性" prop="" width="220px">
+        <el-table-column label="关键性（4方面）" prop="" width="220px">
 					<template slot-scope="scope">
-            <el-input v-model="scope.row.kbValue" placeholder="例：A1 B2 B3 C4">
-               <template slot="append">
-                 <el-button type="default" @click="updateKbValue(scope.row)">保存</el-button>
-               </template>
-            </el-input>
-            
+            <el-autocomplete
+              v-model="scope.row.kbValue"
+              :fetch-suggestions="querySearch"
+              placeholder="例：ABCB"
+            >
+              <template slot="append">
+                <el-button type="default" @click="updateKbValue(scope.row)">保存</el-button>
+              </template>
+            </el-autocomplete>
           </template>
 				</el-table-column>
       </el-table>
@@ -53,6 +56,20 @@ export default {
     return {
       isLoading: false,
       pjValue: [],
+      kbOptions: [
+        {
+          value: 'AAAA',
+          label: 'AAAA'
+        },
+        {
+          value: 'BBBB',
+          label: 'BBBB'
+        },
+        {
+          value: 'CCCC',
+          label: 'CCCC'
+        }
+      ],
       businessOptions: [],
 			pjOptions: [],
       tableData: []
@@ -77,6 +94,17 @@ export default {
     }
   },
   methods: {
+    querySearch(queryString, cb) {
+      var kbOptions = this.kbOptions;
+      var results = queryString ? kbOptions.filter(this.createFilter(queryString)) : kbOptions;
+      // 调用 callback 返回建议列表的数据
+      cb(results);
+    },
+    createFilter(queryString) {
+      return (kbOptions) => {
+        return (kbOptions.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+      };
+    },
     async startAffirm() {
       const data = await this.fetch({
         url: "/device/getSelectByKeyChoise",

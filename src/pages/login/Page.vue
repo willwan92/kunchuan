@@ -42,12 +42,25 @@ export default {
       loginParams: {
         account: "",
         passwd: ""
-      }
+      },
+      userInfo: null
     };
   },
   created() {
   },
   methods: {
+    async getUserInfo() {
+      const userInfo = await this.fetchFuzz({
+        url: '/fuzz/page/login!getUser.action',
+        vm: this
+      });
+      
+      
+      if (userInfo) {
+        sessionStorage.setItem('account', userInfo.user_name);
+        sessionStorage.setItem('roleType', userInfo.role_id);
+      }
+    },
     async login() {
       let loginParams = this.loginParams;
       if (loginParams.account === "" || loginParams.passwd === "") {
@@ -73,8 +86,10 @@ export default {
       if (state === '8' || state === '9') {
         this.$message.success('登录成功！');
         const SESSIONID = uuidv1();
-        sessionStorage.setItem('account', params.userName);
+        const userInfo = this.userInfo;
         sessionStorage.setItem('SESSIONID', SESSIONID);
+        
+        await this.getUserInfo();
         this.$router.push({
           path: "/user/userManage"
         });

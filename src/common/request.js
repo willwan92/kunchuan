@@ -26,7 +26,6 @@ export const fetchFuzz = async({ url, params = {}, type = 'get', vm }) => {
 }
 
 export const postFuzz = async({ url, params = {}, type = 'post', vm }) => {
-    console.log(params)
     const data = await axiosClientFuzz[type](url, params);
     if (Number(data.status) === 200) {
         return data.data

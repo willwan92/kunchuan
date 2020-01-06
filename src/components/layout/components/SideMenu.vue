@@ -36,6 +36,7 @@ export default {
 	data() {
 		return {
 			uniqueOpened: true,
+			roleType: null,
 			menuList: []
 		}
 	},
@@ -48,20 +49,28 @@ export default {
 		SubMenu
 	},
 	created() {
+		this.roleType = sessionStorage.getItem('roleType');
 		this.menuList = this.filterMenuList(routes);
 	},
 	methods: {
-		aaa() {
-			console.log()
-		},
 		filterMenuList(routes) {
-			return routes.filter(item => {
-				if (item.meta && item.meta.title) {
-					return true;
-				} else {
-					return false;
+			let filtedList = [];
+			let tmpMenu = null;
+			routes.forEach(item => {
+				const meta = item.meta;
+				if (meta && meta.title && meta.roleType && meta.roleType.indexOf(this.roleType) !== -1) {
+					tmpMenu = this._.clone(item);
+					tmpMenu.children = null;
+
+					if (Array.isArray(item.children)) {
+						tmpMenu.children = this.filterMenuList(item.children);
+					}
+
+					filtedList.push(tmpMenu); 
 				}
 			});
+
+			return filtedList;
 		}
 	}
 }
