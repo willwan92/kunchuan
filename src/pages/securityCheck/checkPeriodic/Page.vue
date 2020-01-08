@@ -11,23 +11,35 @@
                       border default-expand-all :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
                       @selection-change="handleSelectionChange" v-loading="loading">
               <el-table-column type="selection" width="55"></el-table-column>
-              <el-table-column prop="taskName" label="任务名称" width="250"></el-table-column>
-              <el-table-column prop="name" label="战场名称" width="100"></el-table-column>
-              <el-table-column prop="type" label="类型" width="100"></el-table-column>
-              <el-table-column prop="startTime" label="开始时间"></el-table-column>
-              <el-table-column prop="endTime" label="结束时间"></el-table-column>
+              <el-table-column prop="taskname" label="任务名称" width="250"></el-table-column>
+              <el-table-column prop="pjname" label="项目名称" width="100"></el-table-column>
+              <el-table-column prop="tasktype" label="类型" width="100">
+                <template><span>周期任务</span></template>
+              </el-table-column>
+              <el-table-column prop="starttime" label="开始时间"></el-table-column>
+              <el-table-column prop="endtime" label="结束时间"></el-table-column>
               <el-table-column label="状态/进度">
                 <template slot-scope="scope">
-                  <div v-if="scope.row.level === 1">{{scope.row.status}}</div>
+                  <div v-if="scope.row.level === 1">
+                    <span v-if="scope.row.progress >= 200">已停止</span>
+                    <span v-else-if="scope.row.progress < 100">执行中</span>
+                    <span v-else>等待执行</span>
+                  </div>
                   <div v-else>
-                    <el-progress :text-inside="true" :stroke-width="15" :percentage="scope.row.percentage"></el-progress>
+                    <el-progress v-if="scope.row.progress >= 200" :text-inside="true" :stroke-width="15" :percentage="scope.row.progress - 200"></el-progress>
+                    <el-progress v-else :text-inside="true" :stroke-width="15" :percentage="scope.row.progress"></el-progress>
                   </div>
                 </template>
               </el-table-column>
               <el-table-column fixed="right" label="操作" width="100">
                 <template slot-scope="scope">
-                  <i class="el-icon-video-play" @click="handleClick(scope.row, 'play')" style="color: #009688;font-size: 16px;"></i>
-                  <i class="el-icon-video-pause" @click="handleClick(scope.row, 'stop')" style="color: red;"></i>
+                  <p v-if="scope.row.level === 1">
+                    <i class="el-icon-video-play" v-if="scope.row.progress >= 100" @click="handleClick(scope.row, 'play')" style="color: #009688;"></i>
+                    <i class="el-icon-video-pause" v-else @click="handleClick(scope.row, 'stop')" style="color: red;"></i>
+                  </p>
+                  <P v-else>
+                    <i class="el-icon-document" style="color: #009688;" @click="openDownload(scope.row)"></i>
+                  </P>
                 </template>
               </el-table-column>
             </el-table>
@@ -37,7 +49,8 @@
       <el-dialog title="核查报告" :visible.sync="dialogVisible" width="30%" :before-close="handleClose">
         <div style="padding: 20px;">
           <div>
-            <span style="padding-right: 40px;">报告预览</span><span @click="openHTML">预览（html）</span>
+            <span style="padding-right: 40px;">报告预览</span>
+            <span @click="openHTML" style="cursor: pointer;">预览（html）</span>
           </div>
           <div style="margin-top: 20px;">
             <span style="padding-right: 40px;">报告下载</span>
@@ -52,27 +65,40 @@
           <el-button type="primary" @click="downloadReport">下 载</el-button>
         </span>
       </el-dialog>
-      <el-dialog title="添加实时任务" :visible.sync="addTask" width="60%">
+      <el-dialog title="添加周期任务" :visible.sync="addTask" width="60%">
         <div>
           <el-form :model='addTaskForm' :rules="rules" ref="ruleForm" label-width="120">
             <el-form-item label="任务名称" prop="name">
               <el-input v-model="addTaskForm.name" style="width: 508px;"></el-input>
             </el-form-item>
             <el-form-item label="项目选择">
-              <el-select v-model="addTaskForm.task" placeholder="请选择" @change="queryStation">
-                <el-option v-for="(item, index) in stationList" :label="item.name" :value="item.id" :key="index"></el-option>
-              </el-select>
+              <el-cascader :show-all-levels="false" :options="stationList" :props="{ expandTrigger: 'hover' }"
+                           filterable v-model="addTaskForm.task" @change="queryStation"></el-cascader>
             </el-form-item>
             <el-form-item label="核查方式">
               <el-select v-model="addTaskForm.type" placeholder="请选择" disabled>
                 <el-option label="周期任务" value="1"></el-option>
+                <!--<el-option label="公网" value="2"></el-option>-->
               </el-select>
             </el-form-item>
             <el-form-item label="周期选择">
-              <!--<el-select v-model="addTaskForm.type" placeholder="请选择" disabled>-->
-                <!--<el-option label="周期任务" value="1"></el-option>-->
-              <!--</el-select>-->
+              <el-select v-model="addTaskForm.timeType" placeholder="请选择" style="width: 120px;">
+                <el-option v-for="(item, index) in periodList" :key="index" :label="item.label" :value="item.value"></el-option>
+              </el-select>
+              <el-select v-model="addTaskForm.period" v-if="addTaskForm.timeType === '每周'" placeholder="请选择" style="width: 120px;">
+                <el-option v-for="item in weekList" :key="item.value" :label="item.label" :value="item.value"></el-option>
+              </el-select>
+              <el-select v-model="addTaskForm.day" v-if="addTaskForm.timeType === '每月'" placeholder="请选择" style="width: 120px;">
+                <el-option v-for="item in 31" :key="item" :label="item + '日'" :value="item"></el-option>
+              </el-select>
+              <el-select v-model="addTaskForm.hour" placeholder="请选择" style="width: 120px;">
+                <el-option v-for="item in 23" :key="item" :label="item + '时'" :value="item"></el-option>
+              </el-select>
+              <el-select v-model="addTaskForm.minute" placeholder="请选择" style="width: 120px;">
+                <el-option v-for="item in 59" :key="item" :label="item + '分'" :value="item"></el-option>
+              </el-select>
             </el-form-item>
+
             <el-form-item label="策略模板">
               <el-input v-model="addTaskForm.module" @focus="moduleDialog = true" style="width: 508px;"></el-input>
             </el-form-item>
@@ -173,6 +199,7 @@
 
 <script>
   import { FUZZ_URL } from 'common/axiosClient'
+  import { getCascaderOptions } from "../../../common/utils";
 
   export default {
     data() {
@@ -182,7 +209,7 @@
         } else {
           this.fetchFuzz({url: '/fuzz/page/view/VerificationTasks!findTaskName.action', params: {taskname: value}, vm: this}).then(res => {
             console.log(res, 'validateName')
-            if (res.success === 'null') {
+            if (res.success === 'success') {
               callback()
             } else {
               callback(new Error('任务名称重复'))
@@ -198,7 +225,7 @@
             {required: false, validator: validateName, trigger: ['blur']}
           ]
         }, // 添加任务任务名称重复验证
-        stationList: [], // 添加任务项目下拉选择
+        stationList: null, // 添加任务项目下拉选择
         assetList: [], // 添加任务资产列表
         assetListDialog: false, //添加任务资产列表操作弹框
         assetListItem: {}, // 添加任务资产列表操作数据
@@ -207,37 +234,7 @@
         vendorList: [], // 厂家名称
         productList: [], // 设备型号
         OSList: [], // 操作系统列表
-        tableData: [{
-          id: 1,
-          taskName: '核查windowslinuxmysql',
-          name: '研发',
-          type: '实时任务',
-          startTime: '2019/12/28 11:19:00',
-          endTime: '',
-          status: '已停止',
-          level: 1,
-          children: [{
-            id: 11,
-            taskName: '核查windowslinuxmysq[18]',
-            name: '研发',
-            type: '核查任务',
-            startTime: '2019/12/28 11:19:00',
-            endTime: '',
-            status: '',
-            level: 2,
-            percentage: 39
-          }, {
-            id: 12,
-            taskName: '核查windowslinuxmysq[5]',
-            name: '研发',
-            type: '核查任务',
-            startTime: '2019/12/27 22:26:09',
-            endTime: '2019/12/27 22:27:20',
-            status: '',
-            level: 2,
-            percentage: 100
-          }]
-        }],
+        tableData: [],
         multipleSelection: [],
         addSelected: [],
         loading: false,
@@ -246,7 +243,7 @@
         addTask: false,
         addTaskForm: {
           name: '',
-          task: '',
+          task: [],
           type: '1',
           template: '',
           module: '',
@@ -257,11 +254,37 @@
           children: 'children',
           label: 'name'
         },
+        reportTaskId: null, // 下载和预览报告taskid
+        timer: null, // 定时
+        periodList: [
+          {value: '', label: '请选择'}, {value: '每月', label: '每月'},
+          {value: '每周', label: '每周'}, {value: '每天', label: '每天'},
+        ],
+        weekList: [
+          {value: '星期日', label: '星期日'}, {value: '星期一', label: '星期一'}, {value: '星期二', label: '星期二'},
+          {value: '星期三', label: '星期三'}, {value: '星期四', label: '星期四'}, {value: '星期五', label: '星期五'},
+          {value: '星期六', label: '星期六'},
+        ]
       }
     },
     mounted () {
       this.getTableData()
       this.initData()
+      this.getStationList()
+    },
+    beforeDestroy () {
+      clearInterval(this.timer)
+    },
+    computed: {
+      getPjId() {
+        let id;
+        if (this.addTaskForm.task && this.addTaskForm.task[0]) {
+          id = this.addTaskForm.task.slice(-1)[0];
+        } else {
+          id = null;
+        }
+        return id;
+      }
     },
     methods: {
       /**
@@ -269,7 +292,7 @@
        */
       addTaskFun () {
         this.addTask = true
-        this.getStationList()
+        // this.getStationList()
         // this.initData()
       },
       /**
@@ -299,17 +322,23 @@
        * @returns {Promise<void>}
        */
       async getStationList () {
-        const {data} = await this.fetchFuzz({url: 'fuzz/view/page/station!loaddatas.action', params: {}, vm: this})
-        console.log(data, 'getStationList')
-        this.stationList = data.map(item => {
-          return { name: item[0], label: item[1], id: item[2], type: item[3]}
-        })
+        const { data } = await this.fetch({
+          url: "/porject/getProjectList",
+          vm: this
+        });
+
+        this.stationList = getCascaderOptions({
+          arr: data,
+          label: "pjname",
+          value: "id",
+          filter: 'isleaf'
+        });
       },
       /**
        * 查询资产列表
        */
       queryStation () {
-        let pjid = this.addTaskForm.task
+        let pjid = this.getPjId
         this.fetchFuzz({url: 'fuzz/view/page/VerificationTasks!showAllProList.action', params: {t: Math.random(), pjid}, vm: this}).then(res => {
           let data = res.data
           console.log(data, 'queryStation')
@@ -325,7 +354,7 @@
       assetItem (row) {
         console.log(row, 'row')
         this.assetListDialog = true
-        let pjid = this.addTaskForm.task, ip = row.ip
+        let pjid = this.getPjId, ip = row.ip
         this.fetchFuzz({url: 'fuzz/view/page/VerificationTasks!showOneProList.action', params: {ip, pjid}, vm: this}).then(res => {
           console.log(res, 'assetItem')
           this.assetListItem = res.data
@@ -410,20 +439,27 @@
         this.addSelected.forEach(item => {
           str.push(item.ip)
         })
-        let data = {
-          'day' : day,// 每天
+        let data = { // 待处理
+          'day' : day, // 每天
           'week' : week, // 每周
           'hour' : hour, // 小时
           'minute' : minute, // 分钟
           'timeType' : timeType, // 选择周期类型 每月  每周 每日
-          'taskname' : this.addTaskForm.name,  // 任务名称
-          'template' : this.addTaskForm.moduleId,  // 策略模板
-          'pjid' : this.addTaskForm.task, // 项目名称 id
-          'str' : str.join(',')  // 资产列表中选中列ip地址的值,逗号拼接
-        }
+          'taskname': this.addTaskForm.name,  // 任务名称
+          'template': this.addTaskForm.moduleId,  // 策略模板 id 主机 3
+          // 'autoupload' : 0, // 已取消 autoupload=1 为自动上传界面打钩；界面不打勾autoupload=0(非自动上传)
+          'pjid' : this.getPjId, // 项目名称 id
+          'str' : str.join(',')   //  资产列表中选中列ip地址的值,逗号拼接
+        };
         console.log(data, 'data')
-        this.fetchFuzz({url: 'fuzz/view/page/VerificationTasks!addCircleTask.action', params: {data}, vm:this}).then(res => {
-          this.addTask = false
+        this.fetchFuzz({url: 'fuzz/view/page/VerificationTasks!addCircleTask.action', params: data, vm:this}).then(res => {
+          if (res.success === 'success') {
+            this.$message({
+              message: '任务添加成功!',
+              type: 'success'
+            })
+            this.addTask = false
+          }
         })
       },
       /**
@@ -436,32 +472,61 @@
             type: 'warning'
           });
         } else {
-          let taskids = []
-          this.multipleSelection.forEach(item => {
-            let taskname = '' // 未有具体字段
-            this.fetchFuzz({url: 'fuzz/view/page/VerificationTasks!stopTask.action', params: {taskname}, vm: this}).then(res => {
+          this.$confirm('是否确认删除选中项?', '确认', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            let taskids = []
+            console.log(this.multipleSelection, 'multipleSelectionmultipleSelection')
+            this.multipleSelection.forEach(item => {
+              let taskname = item.taskname
+              this.fetchFuzz({url: 'fuzz/view/page/VerificationTasks!stopTask.action', params: {taskname}, vm: this}).then(res => {
+              })
+              taskids.push(item.taskid)
             })
-            taskids.push(item.id)
-          })
-          this.fetchFuzz({url: 'fuzz/view/page/VerificationTasks!delTasks.action', params: {taskids: taskids.join(',')}, vm: this}).then(res => {
+            this.fetchFuzz({url: 'fuzz/view/page/VerificationTasks!delTasks.action', params: {taskids: taskids.join(',')}, vm: this}).then(res => {
+              if (res.success === 'success') {
+                this.$message({
+                  message: '任务删除成功',
+                  type: 'success'
+                })
+              }
+            })
+          }).catch(() => {
             this.$message({
-              message: '任务删除成功',
-              type: 'success'
+              type: 'info',
+              message: '已取消删除'
             });
-          })
+          });
         }
       },
       /**
        * 核查报告预览
        */
-      openHTML(taskid) {
+      openHTML() {
+        let taskid = this.reportTaskId
         this.fetchFuzz({url: 'fuzz/view/page/VerificationTasks!preview.action', params: {taskid}, vm: this}).then(res => {
           // window.open(`${FUZZ_URL}/html/21_html/main.html`, '_blank');
+          if (res.state !== 'failure') {
+            console.log(res, 'openHTML') // 预览报告
+          } else {
+            this.$message.error('报告预览失败~~~')
+          }
         })
       },
-      downloadReport (taskid) {
+      /**
+       * 核查报告下载
+       * @param taskid
+       */
+      downloadReport () {
+        let taskid = this.reportTaskId
         this.fetchFuzz({url: 'fuzz/view/page/VerificationTasks!judgeJSON.action', params: {taskid}, vm: this}).then(res => {
-          this.dialogVisible = false
+          if (res.state !== 'failure') {
+            this.dialogVisible = false
+          } else {
+            this.$message.error('报告下载失败~~~')
+          }
         })
       },
       /**
@@ -506,24 +571,64 @@
         this.addSelected = val
       },
       /**
-       * 获取首页table数据
+       * 获取默认首页table数据
+       * @param _index tableData 对应的index
        */
-      getTableData () {
+      getTableData (_index) {
         this.fetchFuzz({url: 'fuzz/view/page/VerificationTasks!loaddatas.action', params: {circletask: "1"}, vm: this}).then(res => {
           console.log(res, 'getTableData')
-          this.tableData = res
+          let data = res, arr = []
+          let i = 0
+          data.forEach(item => {
+            if (item.groupid === 0) {
+              let _item = item
+              _item.id = i
+              _item.level = 1
+              arr.push(item)
+              i++
+            }
+          })
+          arr.forEach((item, index) => {
+            for (let i = 0,len = data.length; i < len; i++) {
+              if (item.groupid !== data[i]['groupid'] && data[i]['groupid'] === item.taskid) {
+                arr[index]['children'] = []
+                let _data = data[i]
+                _data.id = 'a' + index
+                _data.level = 2
+                _data.taskname = `${_data['taskname']}[${_data.taskid}]`
+                arr[index]['children'].push(data[i])
+              }
+            }
+          })
+          console.log(_index, arr, 'index 5s')
+          if (_index) {
+            if (arr[_index]['progress'] === 100) {
+              clearInterval(this.timer)
+            }
+          }
+          this.tableData = arr
         })
       },
       handleClick (row, type) {
         console.log(row, 'row')
-        let taskname = ''
-        let url = 'fuzz/view/page/' + type === 'play' ? 'VerificationTasks!reExecution.action' : 'VerificationTasks!stopTask.action'
-        let params = {
-          taskname
-        }
-        type === 'play' ? params.task = 'circleTask' : params
-        this.fetchFuzz({url: url, params, vm: this}).then(res => {
+        let taskname = row.taskname
+        let url = type === 'play' ? 'VerificationTasks!reExecution.action' : 'VerificationTasks!stopTask.action'
+        let data = { taskname }
+        type === 'play' ? data.task = 'circleTask' : data
+        this.fetchFuzz({url: 'fuzz/view/page/' + url, params: data, vm: this}).then(res => {
           console.log(res, 'play or stop')
+          if (res.success === 'success') {
+            if (type === 'stop') {
+              this.$set(this.tableData[row.id], 'progress', row.progress + 200)
+              clearInterval(this.timer)
+            } else {
+              let that = this
+              this.$set(this.tableData[row.id], 'progress', 0)
+              this.timer = setInterval(() => {
+                that.getTableData(row.id)
+              }, 5000)
+            }
+          }
         })
         // let _this = this
         // if (row.level === 1) {
@@ -535,8 +640,20 @@
         //   this.dialogVisible = true
         // }
       },
+      /**
+       * 关闭核查报告弹框
+       */
       handleClose () {
         this.dialogVisible = false
+      },
+      /**
+       * 打开预览下载报告弹框
+       * @param row
+       */
+      openDownload (row) {
+        console.log(row, 'openDownload')
+        this.reportTaskId = row.taskid
+        this.dialogVisible = true
       }
     }
   }
