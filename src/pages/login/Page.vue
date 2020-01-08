@@ -15,10 +15,10 @@
         </el-form-item>
         <el-form-item>
           <el-input 
-		  	type="password" 
-		  	v-model="loginParams.passwd" 
-			  @keydown.enter.native="login"
-		  	placeholder="请输入密码"></el-input>
+            type="password" 
+            v-model="loginParams.passwd" 
+            @keydown.enter.native="login"
+            placeholder="请输入密码"></el-input>
         </el-form-item>
         <el-button class="btn-lg" type="primary" @click="login">登 录</el-button>
       </el-form>
@@ -49,6 +49,17 @@ export default {
   created() {
   },
   methods: {
+    navigateToPage() {
+      const roleType = this.userInfo.role_id;
+
+      if (roleType === 1) {
+        this.$router.push('/user/userManage')
+      } else if (roleType === 2) {
+        this.$router.push('/user/loginManage')
+      } else if (roleType === 3) {
+        this.$router.push('/user/projectManage')
+      }
+    },
     async getUserInfo() {
       const userInfo = await this.fetchFuzz({
         url: '/fuzz/page/login!getUser.action',
@@ -57,9 +68,21 @@ export default {
       
       
       if (userInfo) {
+        this.userInfo = userInfo;
         sessionStorage.setItem('account', userInfo.user_name);
         sessionStorage.setItem('roleType', userInfo.role_id);
       }
+    },
+    async getRoleInfo() {
+      const data = await this.fetch({
+        url: '/role/getRoleListId',
+        params: {
+          roleid: this.userInfo.role_id
+        },
+        vm: this
+      });
+
+
     },
     async login() {
       let loginParams = this.loginParams;
@@ -86,13 +109,11 @@ export default {
       if (state === '8' || state === '9') {
         this.$message.success('登录成功！');
         const SESSIONID = uuidv1();
-        const userInfo = this.userInfo;
         sessionStorage.setItem('SESSIONID', SESSIONID);
         
         await this.getUserInfo();
-        this.$router.push({
-          path: "/user/userManage"
-        });
+        await this.getRoleInfo();
+        this.navigateToPage();
       } else {
         this.$message.error(info);
       }

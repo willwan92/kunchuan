@@ -26,7 +26,7 @@
 			</el-table>
 
 			<el-dialog
-				title="添加"
+				:title="actionName + '项目'"
 				:visible.sync="dialogShow"
 				width="600px"
 				@close="dialogShow = false">
@@ -36,6 +36,8 @@
 					</el-form-item>
 					<el-form-item label="路径">
 						<el-cascader
+							class="auto-width"
+							:disabled="Boolean(this.id)"
 							:options="[pjOptions]" 
 							:props="{ expandTrigger: 'hover', checkStrictly: true }" 
 							filterable
@@ -98,6 +100,9 @@
 				}
 
 				return options;
+			},
+			actionName() {
+				return this.id ? '编辑' : '添加';
 			}
 		},
 		created() {
@@ -143,9 +148,7 @@
 			},
 			async handleComfirmClick() {
 				let url = '/projectInfo/getProjectInfoAdd';
-				let params = this.form;
-				params.isleaf = this.isLeaf;
-				params.pjtype = params.pjtype.join('/');
+				let params = this._.clone(this.form);
 
 				// 编辑
 				if (this.id) {
@@ -155,6 +158,8 @@
 					params.pid = params.pjtype.slice(-1)[0];
 				}
 
+				params.isleaf = this.isLeaf;
+				params.pjtype = params.pjtype.join('/');
 
 				const data = await this.fetch({
 					'url': url, 
@@ -205,8 +210,8 @@
 					description: pjData.description,
 					ip: pjData.ip
 				});
+				this.isLeaf = pjData.isleaf;
 
-				console.log(this.form)
 			},
 			async handleDelClick(id) {
 				const data = await this.fetch({'url': '/projectInfo/getProjectInfoDeleteid', params: {'id': id}, 'vm': this});

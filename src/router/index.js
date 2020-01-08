@@ -33,7 +33,7 @@ export const routes = [
         component: () => import('pages/user/userManage/Page'),
         meta: {
           title: '用户管理',
-          roleType: '12'
+          roleType: '1'
         }
       },
       {
@@ -42,7 +42,7 @@ export const routes = [
         component: () => import('pages/user/roleManage/Page'),
         meta: {
           title: '角色管理',
-          roleType: '12'
+          roleType: '1'
         }
       },
       {
