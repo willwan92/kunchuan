@@ -174,7 +174,7 @@
 </template>
 
 <script>
-import { checkIp, getCascaderOptions, downloadFileByUrl, checkFileType } from "common/utils";
+import { checkIp, getCascaderOptions, downloadFileByUrl, checkFileType, isBase64 } from "common/utils";
 import { API_URL, FUZZ_URL, axiosUploadFuzz } from "common/axiosClient";
 
 export default {
@@ -347,6 +347,11 @@ export default {
         });
       });
     },
+    decode(str) {
+      if (isBase64(str)) {
+        return atob(atob(str));
+      }
+    },
     async fetchVendorsData() {
       const { data } = await this.fetchFuzz({
         url: "/fuzz/page/view/station/device!findVendorByType.action",
@@ -405,12 +410,12 @@ export default {
         description: form.comments,
         devicelogin: form.loginMethod,
         deviceusr: form.userName,
-        devicepass: form.password,
+        devicepass: btoa(btoa(form.password)),
         suUserName: form.suUserName,
-        suPassword: form.suPassword,
+        suPassword: btoa(btoa(form.suPassword)),
         databasePath: form.databasePath,
         databaseAccount: form.databaseAccount,
-        databasePassword: form.databasePassword,
+        databasePassword: btoa(btoa(form.databasePassword)),
         databaseInstance: form.databaseInstance
       };
 
@@ -473,12 +478,12 @@ export default {
         version: assetData[6],
         deviceOs: assetData[7],
         userName: assetData[9],
-        password: assetData[10],
+        password: this.decode(assetData[10]),
         suUserName: assetData[11],
-        suPassword: assetData[12],
+        suPassword: this.decode(assetData[12]),
         databasePath: assetData[13],
         databaseAccount: assetData[14],
-        databasePassword: assetData[15],
+        databasePassword: this.decode(assetData[15]),
         databaseInstance: assetData[16],
       };
 

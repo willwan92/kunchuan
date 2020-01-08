@@ -114,7 +114,7 @@ export default {
 			},
 			sysPermission: {
 				'0': '全部权限',
-				'2': '用户管理/角色管理/登录策略管理/日志管理/网络环境配置/系统升级/时间配置/系统信息',
+				'2': '/登录策略管理/日志管理/网络环境配置/系统升级/时间配置/系统信息',
 				'3': '项目管理/项目信息录入/单IP扫描/多IP扫描/自定义操作/资产清单/关键业务识别/最大可能边界识别/评估模板管理/CII评估/关键业务资产导出/信息维护/备份管理/安全补丁管理/安全评估模板管理/安全评估/漏洞查询/策略模板管理/核查项管理/资产实时核查/资产周期核查'
 			},
 			roleType: {
@@ -193,13 +193,20 @@ export default {
         roleName: roleInfo.roleName,
         desc: roleInfo.desc,
         roleType: roleInfo.roleType,
-        permission: JSON.parse(roleInfo.pjPermission)
+        permission: this.parsePermission(roleInfo.pjPermission)
 			});
 
 			this.$nextTick(() => {
-				this.setCheckedNodes(JSON.parse(roleInfo.pjPermission));
+				this.setCheckedNodes(this.parsePermission(roleInfo.pjPermission));
 			})
-		},
+    },
+    parsePermission(permission) {
+      if (!permission) {
+        return [];
+      } else {
+        return JSON.parse(permission);
+      }
+    },
 		setCheckedNodes(checkedNodes) {
 			if (this.$refs['pjTree']) {
 				this.$refs['pjTree'].setCheckedNodes(checkedNodes)
@@ -217,12 +224,17 @@ export default {
     async save() {
       let dialogForm = this.dialogForm;
 
-      const params = {
+      let params = {
         role_name: dialogForm.roleName,
         role_desc: dialogForm.desc,
-        role_type: dialogForm.roleType,
-        role_auth: dialogForm.pjPermission
+        role_type: dialogForm.roleType
       };
+
+      if (dialogForm.roleType  === 2) {
+        params.role_auth = '';
+      } else if (dialogForm.roleType  === 3) {
+        params.role_auth = dialogForm.pjPermission;
+      }
 
       if (this.id) {
         params.role_id = this.id;

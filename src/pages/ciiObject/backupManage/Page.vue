@@ -101,7 +101,14 @@ export default {
       return `${baseDir}${this.deviceid}/`;
     },
     beforeUpload(file) {
-      this.uploadFile(file);
+      const fileName = file.name;
+      let isRepeat = this.tableData.find(item => item.filename === fileName);
+      if (isRepeat) {
+        this.$message.warning('所选文件重复，请重新选择！');
+      } else {
+        this.uploadFile(file);
+      }
+      
       return false;
     },
     async uploadFile(file) {

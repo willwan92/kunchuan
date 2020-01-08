@@ -20,10 +20,7 @@
 
       <el-table :data="tableData" border>
         <el-table-column label="用户名" prop="userName"></el-table-column>
-        <el-table-column label="所属角色" prop="">
-          <template slot-scope="scope">
-            {{roleTypeName(scope.row.roleType)}}
-          </template>
+        <el-table-column label="所属角色" prop="roleName">
         </el-table-column>
         <!-- <el-table-column
           label="项目权限"
@@ -60,7 +57,7 @@
           <el-input type="password" v-model="dialogForm.password"></el-input>
         </el-form-item>
         <el-form-item label="所属角色" prop="roleType">
-          <el-select v-model="dialogForm.roleType" placeholder="">
+          <el-select v-model="dialogForm.roleType" placeholder="请选择">
             <el-option
               v-for="item in roleTypeOptions"
               :key="item.value"
@@ -100,20 +97,11 @@ export default {
       form: {
         userName: ""
       },
-      roleTypeOptions: [
-        {
-          label: "配置管理员",
-          value: 2
-        },
-        {
-          label: "操作员",
-          value: 3
-        }
-      ],
+      roleTypeOptions: [],
       dialogForm: {
 				userName: "",
 				password: "",
-        roleType: 2,
+        roleType: null,
         mobile: "",
         email: "",
         telephone: ""
@@ -126,8 +114,9 @@ export default {
       tableData: [],
     };
   },
-  created() {
-    this.fetchData();
+  async created() {
+    await this.fetchData();
+    this.fetchRoleTypeOptions();
 	},
 	computed: {
 		actionName() {
@@ -135,12 +124,34 @@ export default {
     }
 	},
   methods: {
-    roleTypeName(roleType) {
-      return roleType === 1 ? '系统管理员' : roleType === 2 ? '配置管理员' : '操作员';
-    },
     handleAddClick() {
       this.dialogShow = true;
+      this.id = '';
       this.resetForm('dialogForm');
+    },
+    async fetchRoleTypeOptions() {
+      const params = {
+        start: 0,
+        t: Math.random(),
+        role_name: ''
+      };
+
+      const { data } = await this.fetchFuzz({
+        url: "/fuzz/page/view/system/user!getAllRole.action",
+        params: params,
+        vm: this
+      });
+
+      let optionsData = data.map((element) => {
+        return {
+          value: element[0],
+          label: element[1]
+        };
+      });
+
+      // 剔除系统管理员
+      optionsData.shift();
+      this.roleTypeOptions = optionsData;
     },
     handleDelClick(id) {
       this.$confirm("确认要删除该用户吗？", "提示", {
@@ -162,7 +173,7 @@ export default {
       this.dialogForm = Object.assign({}, this.dialogForm, {
         userName: userInfo.userName,
         password: userInfo.password,
-        roleType: userInfo.roleType,
+        roleType: userInfo.roleId,
         mobile: userInfo.mobile,
         telephone: userInfo.telephone,
         email: userInfo.email
@@ -253,7 +264,8 @@ export default {
           index: index,
           id: element[6],
           userName: element[0],
-          roleType: element[1],
+          roleId: element[1],
+          roleName: element[8],
           permissionList: element[2],
           mobile: element[3],
           telephone: element[4],
