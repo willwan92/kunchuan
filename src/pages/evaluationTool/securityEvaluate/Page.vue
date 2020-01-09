@@ -90,6 +90,7 @@
 <script>
 import { getCascaderOptions, downloadFileByUrl } from "common/utils";
 import { API_URL } from "common/axiosClient";
+const path = '/cfgtools/usr/local/safetyassessfile/';
 
 export default {
   data() {
@@ -131,6 +132,9 @@ export default {
     async fetchTplOptions() {
       const data = await this.fetch({
         url: "/file/fileNameUrlPath",
+        params: {
+          urlPath: path
+        },
         vm: this
       });
 
@@ -247,10 +251,7 @@ export default {
 			} else {
 				this.$message.error("打分失败，请稍后再试")
 			}
-    },
-    resetForm(formName) {
-			this.$refs[formName] && this.$refs[formName].resetFields();
-		}
+    }
   }
 };
 </script>

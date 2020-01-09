@@ -31,6 +31,7 @@
 import { axiosClientUpload } from "common/axiosClient";
 import { checkFileType } from "common/utils";
 const path = '/cfgtools/usr/local/safetyassessfile/';
+
 export default {
   data() {
     return {
@@ -73,6 +74,9 @@ export default {
     async fetchTableData() {
       const data = await this.fetch({
         url: '/file/fileNameUrlPath',
+        params: {
+          urlPath: path
+        },
         vm: this
       });
 

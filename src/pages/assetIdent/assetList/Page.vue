@@ -42,8 +42,8 @@
         </el-form-item>
       </el-form>
       <el-table :data="tableData" border>
-        <el-table-column label="序号" prop="num"></el-table-column>
-        <el-table-column label="IP地址/资产标识" prop="ip"></el-table-column>
+        <el-table-column label="序号" prop="num"  width="50px"></el-table-column>
+        <el-table-column label="IP地址/资产标识" prop="ip"  width="130px"></el-table-column>
         <el-table-column label="登录方式" prop="loginMethod"></el-table-column>
         <el-table-column label="端口" prop="port"></el-table-column>
         <el-table-column label="资产类型" prop="assetsType"></el-table-column>
@@ -52,7 +52,7 @@
         <el-table-column label="版本号" prop="version"></el-table-column>
         <el-table-column label="操作系统" prop="deviceOs"></el-table-column>
         <el-table-column label="备注" prop="comments"></el-table-column>
-        <el-table-column label="操作">
+        <el-table-column label="操作" width="100px">
           <template slot-scope="scope">
             <el-button type="text" @click="handleEditClick(scope.row.id)"
               >编辑</el-button

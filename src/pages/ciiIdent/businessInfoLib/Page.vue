@@ -1,5 +1,5 @@
 <template>
-  <!-- 评估模板管理 -->
+  <!-- 业务信息库管理 -->
   <div class="page">
     <div class="section list">
       <el-form :inline="true" label-width="75px">
@@ -8,14 +8,14 @@
             action="#"
             :before-upload="beforeUpload">
             <el-button type="primary" 
-          >导入模板</el-button>
+          >导入业务信息库</el-button>
           </el-upload>
         </el-form-item>
       </el-form>
       <div>
         <el-table :data="tableData" border v-loading="isLoading">
           <el-table-column label="序号" width="100" prop="index"></el-table-column>
-          <el-table-column label="模板名称" prop="filename"></el-table-column>
+          <el-table-column label="业务信息库名称" prop="filename"></el-table-column>
           <el-table-column label="操作"  width="100">
             <template slot-scope="scope">
               <el-button size="mini" type="danger" @click="handleDelete(scope.row)">删除</el-button>
@@ -30,7 +30,7 @@
 <script>
 import { axiosClientUpload } from "common/axiosClient";
 import { checkFileType } from "common/utils";
-const path = '/cfgtools/usr/local/keyrulefile/';
+const path = '/cfgtools/usr/local/businessfile/';
 
 export default {
   data() {
@@ -65,10 +65,10 @@ export default {
       const { data } = await axiosClientUpload.post("/uploadFile", params);
 
       if  (data && data.code === 10000) {
-				this.$message.success("模板导入成功");
+				this.$message.success("业务信息库导入成功");
 				this.fetchTableData();
 			} else {
-				this.$message.error("模板导入失败，请稍后再试")
+				this.$message.error("业务信息库导入失败，请稍后再试")
 			}
     },
     async fetchTableData() {
@@ -100,10 +100,10 @@ export default {
       });
 
       if  (data && data.code === 10000) {
-				this.$message.success("模板删除成功");
+				this.$message.success("业务信息库删除成功");
 				this.fetchTableData();
 			} else {
-				this.$message.error("模板删除失败，请稍后再试")
+				this.$message.error("业务信息库删除失败，请稍后再试")
 			}
     },
     handleDelete(row) {

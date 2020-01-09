@@ -329,9 +329,6 @@ export default {
         });
       }
     },
-    resetForm(formName) {
-      this.$refs[formName].resetFields();
-    },
     async delPatchById(id) {
       const data = await this.fetch({
         url: "/back/deleteById",

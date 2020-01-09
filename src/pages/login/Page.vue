@@ -43,23 +43,27 @@ export default {
         account: "",
         passwd: ""
       },
-      userInfo: null
+      userInfo: null,
+      roleType: null
     };
   },
   created() {
   },
   methods: {
     navigateToPage() {
-      const roleType = this.userInfo.role_id;
+      const roleType = this.roleType;
 
-      if (roleType === 1) {
+      if (roleType === "0") {
         this.$router.push('/user/userManage')
-      } else if (roleType === 2) {
+      } else if (roleType === "2") {
         this.$router.push('/user/loginManage')
-      } else if (roleType === 3) {
+      } else if (roleType === "3") {
         this.$router.push('/user/projectManage')
       }
     },
+    /**
+     * 获取当前用户信息
+     */
     async getUserInfo() {
       const userInfo = await this.fetchFuzz({
         url: '/fuzz/page/login!getUser.action',
@@ -70,9 +74,11 @@ export default {
       if (userInfo) {
         this.userInfo = userInfo;
         sessionStorage.setItem('account', userInfo.user_name);
-        sessionStorage.setItem('roleType', userInfo.role_id);
       }
     },
+    /**
+     * 获取当前用户所属角色信息
+     */
     async getRoleInfo() {
       const data = await this.fetch({
         url: '/role/getRoleListId',
@@ -81,6 +87,14 @@ export default {
         },
         vm: this
       });
+
+      if (data && data[0]) {
+        const roleInfo = data[0];
+        // const permissions = [];
+        this.roleType = roleInfo.roletype;
+        sessionStorage.setItem('roleType', roleInfo.roletype);
+        // console.log(JSON.parse(roleInfo.roleauth))
+      }
 
 
     },

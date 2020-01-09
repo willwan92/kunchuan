@@ -23,7 +23,7 @@ export const routes = [
     component: Layout,
     meta: {
       title: '用户管理',
-      roleType: '123'
+      roleType: '023'
     },
     redirect: '/user/userManage',
     children: [
@@ -33,7 +33,7 @@ export const routes = [
         component: () => import('pages/user/userManage/Page'),
         meta: {
           title: '用户管理',
-          roleType: '1'
+          roleType: '0'
         }
       },
       {
@@ -42,7 +42,7 @@ export const routes = [
         component: () => import('pages/user/roleManage/Page'),
         meta: {
           title: '角色管理',
-          roleType: '1'
+          roleType: '0'
         }
       },
       {
@@ -51,7 +51,7 @@ export const routes = [
         component: () => import('pages/user/loginManage/Page'),
         meta: {
           title: '登录策略管理',
-          roleType: '12'
+          roleType: '02'
         }
       },
       {
@@ -60,7 +60,7 @@ export const routes = [
         component: () => import('pages/user/projectManage/Page'),
         meta: {
           title: '项目管理',
-          roleType: '13'
+          roleType: '03'
         }
       },
       {
@@ -69,7 +69,7 @@ export const routes = [
         component: () => import('pages/user/logManage/Page'),
         meta: {
           title: '日志管理',
-          roleType: '12'
+          roleType: '02'
         }
       }
     ]
@@ -82,7 +82,7 @@ export const routes = [
     name: 'info',
     meta: {
       title: '信息调查收集',
-      roleType: '123'
+      roleType: '023'
     },
     component: Layout,
     redirect: '/info/projectInfo',
@@ -93,7 +93,7 @@ export const routes = [
         component: () => import('pages/info/projectInfo/Page'),
         meta: {
           title: '项目信息录入',
-          roleType: '13'
+          roleType: '03'
         }
       },
       {
@@ -102,7 +102,7 @@ export const routes = [
         component: () => import('pages/info/networkConf/Page'),
         meta: {
           title: '网络环境配置',
-          roleType: '12'
+          roleType: '02'
         }
       },
       {
@@ -111,7 +111,7 @@ export const routes = [
         component: () => import('pages/info/systemUpdate/Page'),
         meta: {
           title: '系统升级',
-          roleType: '12'
+          roleType: '02'
         }
       },
       {
@@ -120,7 +120,7 @@ export const routes = [
         component: () => import('pages/info/timeConf/Page'),
         meta: {
           title: '时间配置',
-          roleType: '12'
+          roleType: '02'
         }
       },
       {
@@ -129,7 +129,7 @@ export const routes = [
         component: () => import('pages/info/systemInfo/Page'),
         meta: {
           title: '系统信息',
-          roleType: '12'
+          roleType: '02'
         }
       },
     ]
@@ -142,7 +142,7 @@ export const routes = [
     component: Layout,
     meta: {
       title: '资产识别',
-      roleType: '13'
+      roleType: '03'
     },
     redirect: '/assetIdent/singleIp',
     children: [
@@ -152,7 +152,7 @@ export const routes = [
         component: () => import('pages/assetIdent/singleIp/Page'),
         meta: {
           title: '单IP扫描',
-          roleType: '13'
+          roleType: '03'
         }
       },
       {
@@ -161,7 +161,7 @@ export const routes = [
         component: () => import('pages/assetIdent/multiIp/Page'),
         meta: {
           title: '多IP扫描',
-          roleType: '13'
+          roleType: '03'
         }
       },
       {
@@ -170,7 +170,7 @@ export const routes = [
         component: () => import('pages/assetIdent/customIp/Page'),
         meta: {
           title: '自定义操作',
-          roleType: '13'
+          roleType: '03'
         }
       },
       {
@@ -179,7 +179,7 @@ export const routes = [
         component: () => import('pages/assetIdent/assetList/Page'),
         meta: {
           title: '资产清单',
-          roleType: '13'
+          roleType: '03'
         }
       }
     ]
@@ -192,17 +192,26 @@ export const routes = [
     component: Layout,
     meta: {
       title: 'CII识别认定',
-          roleType: '13'
+          roleType: '03'
     },
     redirect: '/ciiIdent/criticalBusiness',
     children: [
+      {
+        path: 'businessInfoLib',
+        name: 'businessInfoLib',
+        component: () => import('pages/ciiIdent/businessInfoLib/Page'),
+        meta: {
+          title: '业务信息库管理',
+          roleType: '03'
+        }
+      },
       {
         path: 'criticalBusiness',
         name: 'criticalBusiness',
         component: () => import('pages/ciiIdent/criticalBusiness/Page'),
         meta: {
           title: '关键业务识别',
-          roleType: '13'
+          roleType: '03'
         }
       },
       {
@@ -211,7 +220,7 @@ export const routes = [
         component: () => import('pages/ciiIdent/maxBoundary/Page'),
         meta: {
           title: '最大可能边界识别',
-          roleType: '13'
+          roleType: '03'
         }
       },
       {
@@ -220,7 +229,16 @@ export const routes = [
         component: () => import('pages/ciiIdent/templateManage/Page'),
         meta: {
           title: '评估模板管理',
-          roleType: '13'
+          roleType: '03'
+        }
+      },
+      {
+        path: 'criticalRule',
+        name: 'criticalRule',
+        component: () => import('pages/ciiIdent/criticalRule/Page'),
+        meta: {
+          title: '关键性评估规则管理',
+          roleType: '03'
         }
       },
       {
@@ -229,7 +247,7 @@ export const routes = [
         component: () => import('pages/ciiIdent/ciiAffirm/Page'),
         meta: {
           title: 'CII认定',
-          roleType: '13'
+          roleType: '03'
         }
       },
       {
@@ -238,7 +256,7 @@ export const routes = [
         component: () => import('pages/ciiIdent/exportCriticalAsset/Page'),
         meta: {
           title: '关键业务资产导出',
-          roleType: '13'
+          roleType: '03'
         }
       }
     ]
@@ -252,7 +270,7 @@ export const routes = [
     name: 'ciiObject',
     meta: {
       title: 'CII对象管理',
-          roleType: '13'
+          roleType: '03'
     },
     redirect: '/ciiObject/infoMainten',
     component: Layout,
@@ -263,7 +281,7 @@ export const routes = [
         component: () => import('pages/ciiObject/infoMainten/Page'),
         meta: {
           title: '信息维护',
-          roleType: '13'
+          roleType: '03'
         }
       },
       {
@@ -272,7 +290,7 @@ export const routes = [
         component: () => import('pages/ciiObject/backupManage/Page'),
         meta: {
           title: '备份管理',
-          roleType: '13'
+          roleType: '03'
         }
       },
       {
@@ -281,7 +299,7 @@ export const routes = [
         component: () => import('pages/ciiObject/patchManage/Page'),
         meta: {
           title: '安全补丁管理',
-          roleType: '13'
+          roleType: '03'
         }
       }
     ]
@@ -293,7 +311,7 @@ export const routes = [
     name: 'evaluationTool',
     meta: {
       title: '安全评估工具',
-          roleType: '13'
+          roleType: '03'
     },
     component: Layout,
     redirect: '/evaluationTool/templateManage',
@@ -304,7 +322,7 @@ export const routes = [
         component: () => import('pages/evaluationTool/templateManage/Page'),
         meta: {
           title: '安全评估模板管理',
-          roleType: '13'
+          roleType: '03'
         }
       },
       {
@@ -313,7 +331,7 @@ export const routes = [
         component: () => import('pages/evaluationTool/securityEvaluate/Page'),
         meta: {
           title: '安全评估',
-          roleType: '13'
+          roleType: '03'
         }
       }
     ]
@@ -326,7 +344,7 @@ export const routes = [
     component: Layout,
     meta: {
       title: '安全检查工具',
-          roleType: '13'
+          roleType: '03'
     },
     redirect: '/securityCheck/vulnerabilityQuery',
     children: [
@@ -336,7 +354,7 @@ export const routes = [
         component: () => import('pages/securityCheck/vulnerabilityQuery/Page'),
         meta: {
           title: '漏洞查询',
-          roleType: '13'
+          roleType: '03'
         }
       },
       {
@@ -345,7 +363,7 @@ export const routes = [
         component: () => import('pages/securityCheck/policyTemplate/Page'),
         meta: {
           title: '策略模板管理',
-          roleType: '13'
+          roleType: '03'
         }
       },
       {
@@ -354,7 +372,7 @@ export const routes = [
         component: () => import('pages/securityCheck/checkItem/Page'),
         meta: {
           title: '核查项管理',
-          roleType: '13'
+          roleType: '03'
         }
       },
       {
@@ -363,7 +381,7 @@ export const routes = [
         component: () => import('pages/securityCheck/chckRealTime/Page'),
         meta: {
           title: '资产实时核查',
-          roleType: '13'
+          roleType: '03'
         }
       },
       {
@@ -372,7 +390,7 @@ export const routes = [
         component: () => import('pages/securityCheck/checkPeriodic/Page'),
         meta: {
           title: '资产周期核查',
-          roleType: '13'
+          roleType: '03'
         }
       },
     ]

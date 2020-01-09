@@ -135,17 +135,20 @@ export default {
   },
   methods: {
 		handleAddClick() {
-			this.dialogShow = true;
-			this.resetForm('dialogForm');
+      this.dialogShow = true;
+      this.id = null;
+      this.resetForm('dialogForm');
+      this.dialogForm.roleType = 2;
 			this.$nextTick(() => {
 				this.setCheckedNodes([]);
 			})
 		},
 		resetForm(formName) {
+      console.log('aaaaa')
       this.$refs[formName] && this.$refs[formName].resetFields();
     },
 		getCheckedNodes() {
-      let treeNodes = this.$refs['pjTree'].getCheckedNodes(true);
+      let treeNodes = this.$refs['pjTree'].getCheckedNodes(false, true);
       this.dialogForm.pjPermission = JSON.stringify(treeNodes);
     },
     async fetchPjTreeData() {
