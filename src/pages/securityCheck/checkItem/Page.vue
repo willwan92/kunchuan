@@ -132,9 +132,7 @@
           name: '检查项分组',
           level: 0,
           children: [
-            {name: '资产类型分组', id: 10004, pid: -1, status: 0, level: 1, children: []
-            },
-            {name: '自定义分组', id: 10001, pId: -1, status: 0, level: 1}
+            {name: '资产类型分组', id: 10004, pid: -1, status: 0, level: 1, children: []}
           ]
         }], // 树形结构数据
         defaultProps: {
