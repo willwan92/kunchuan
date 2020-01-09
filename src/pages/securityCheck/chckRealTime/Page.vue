@@ -106,8 +106,8 @@
           <el-button type="primary" @click="addTask = false">关 闭</el-button>
         </span>
       </el-dialog>
-      <el-dialog title="详情" :visible.sync="assetListDialog" width="40%">
-        <el-form label-position="left" label-width="80px" :model="assetListItem">
+      <el-dialog title="详情" :visible.sync="assetListDialog" width="45%">
+        <el-form label-position="left" label-width="100px" :model="assetListItem">
           <el-form-item label="IP地址">
             <el-input v-model="assetListItem.ip"></el-input>
           </el-form-item>
@@ -143,25 +143,25 @@
             </el-select>
           </el-form-item>
           <el-form-item label="用户名">
-            <el-input v-model="assetListItem.username"></el-input>
+            <el-input v-model="assetListItem.username" autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="登录密码">
-            <el-input v-model="assetListItem.password" type="password"></el-input>
+            <el-input v-model="assetListItem.password" type="password" autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="su用户名">
-            <el-input v-model="assetListItem.su_user"></el-input>
+            <el-input v-model="assetListItem.su_user" autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="su密码">
-            <el-input v-model="assetListItem.su_passwd" type="password"></el-input>
+            <el-input v-model="assetListItem.su_passwd" type="password" autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="数据库路径">
             <el-input v-model="assetListItem.dbpath"></el-input>
           </el-form-item>
           <el-form-item label="数据库账号">
-            <el-input v-model="assetListItem.dbuser"></el-input>
+            <el-input v-model="assetListItem.dbuser" autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="数据库口令">
-            <el-input v-model="assetListItem.dbpassword" type="password"></el-input>
+            <el-input v-model="assetListItem.dbpassword" type="password" autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="数据库实例">
             <el-input v-model="assetListItem.dbinstance"></el-input>
@@ -329,8 +329,8 @@ import { getCascaderOptions } from "../../../common/utils";
         this.assetListDialog = true
         let pjid = this.getPjId, ip = row.ip
         this.fetchFuzz({url: 'fuzz/view/page/VerificationTasks!showOneProList.action', params: {ip, pjid}, vm: this}).then(res => {
-          console.log(res, 'assetItem')
-          this.assetListItem = res.data
+          console.log(res.data, 'assetItem')
+          this.assetListItem = res.data[0]
         })
         this.getLoginType()
         this.getDevTypeList()
@@ -382,7 +382,7 @@ import { getCascaderOptions } from "../../../common/utils";
        */
       submitAssetItem () { // assetListItem
         let data = {
-          "stationname": this.addTaskForm.name, // 添加实时任务页面传过来的
+          "pjid": this.getPjId, // 添加实时任务页面传过来的
           "deviceip": this.assetListItem.ip, // ip地址
           "devicelogin": this.assetListItem.authtype, // 登录方式
           "deviceport": this.assetListItem.authport, // 端口
@@ -400,7 +400,14 @@ import { getCascaderOptions } from "../../../common/utils";
           "databasePassword": this.assetListItem.dbpassword, // 数据库口令
           "databaseInstance": this.assetListItem.dbinstance    // 数据库实例
         }
-        this.fetchFuzz({url: 'fuzz/view/page/device!editdevice.action', params: {data}, vm: this}).then(res => {
+        this.fetchFuzz({url: 'fuzz/view/page/device!editdevice.action', params: data, vm: this}).then(res => {
+          if (res.state === 1) {
+            this.queryStation()
+            this.$message({
+              message: '操作成功!',
+              type: 'success'
+            })
+          }
           this.assetListDialog = false
         })
       },

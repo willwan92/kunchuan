@@ -85,10 +85,10 @@
               <el-select v-model="addTaskForm.timeType" placeholder="请选择" style="width: 120px;">
                 <el-option v-for="(item, index) in periodList" :key="index" :label="item.label" :value="item.value"></el-option>
               </el-select>
-              <el-select v-model="addTaskForm.period" v-if="addTaskForm.timeType === '每周'" placeholder="请选择" style="width: 120px;">
+              <el-select v-model="addTaskForm.period" v-if="addTaskForm.timeType === 3" placeholder="请选择" style="width: 120px;">
                 <el-option v-for="item in weekList" :key="item.value" :label="item.label" :value="item.value"></el-option>
               </el-select>
-              <el-select v-model="addTaskForm.day" v-if="addTaskForm.timeType === '每月'" placeholder="请选择" style="width: 120px;">
+              <el-select v-model="addTaskForm.day" v-if="addTaskForm.timeType === 2" placeholder="请选择" style="width: 120px;">
                 <el-option v-for="item in 31" :key="item" :label="item + '日'" :value="item"></el-option>
               </el-select>
               <el-select v-model="addTaskForm.hour" placeholder="请选择" style="width: 120px;">
@@ -161,25 +161,25 @@
             </el-select>
           </el-form-item>
           <el-form-item label="用户名">
-            <el-input v-model="assetListItem.username"></el-input>
+            <el-input v-model="assetListItem.username" autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="登录密码">
-            <el-input v-model="assetListItem.password" type="password"></el-input>
+            <el-input v-model="assetListItem.password" type="password" autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="su用户名">
-            <el-input v-model="assetListItem.su_user"></el-input>
+            <el-input v-model="assetListItem.su_user" autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="su密码">
-            <el-input v-model="assetListItem.su_passwd" type="password"></el-input>
+            <el-input v-model="assetListItem.su_passwd" type="password" autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="数据库路径">
             <el-input v-model="assetListItem.dbpath"></el-input>
           </el-form-item>
           <el-form-item label="数据库账号">
-            <el-input v-model="assetListItem.dbuser"></el-input>
+            <el-input v-model="assetListItem.dbuser" autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="数据库口令">
-            <el-input v-model="assetListItem.dbpassword" type="password"></el-input>
+            <el-input v-model="assetListItem.dbpassword" type="password" autocomplete="off"></el-input>
           </el-form-item>
           <el-form-item label="数据库实例">
             <el-input v-model="assetListItem.dbinstance"></el-input>
@@ -257,13 +257,13 @@
         reportTaskId: null, // 下载和预览报告taskid
         timer: null, // 定时
         periodList: [
-          {value: '', label: '请选择'}, {value: '每月', label: '每月'},
-          {value: '每周', label: '每周'}, {value: '每天', label: '每天'},
+          {value: '', label: '请选择'}, {value: 2, label: '每月'},
+          {value: 3, label: '每周'}, {value: 1, label: '每天'}, // 每月 2 每周 3  每日1
         ],
         weekList: [
-          {value: '星期日', label: '星期日'}, {value: '星期一', label: '星期一'}, {value: '星期二', label: '星期二'},
-          {value: '星期三', label: '星期三'}, {value: '星期四', label: '星期四'}, {value: '星期五', label: '星期五'},
-          {value: '星期六', label: '星期六'},
+          {value: 7, label: '星期日'}, {value: 1, label: '星期一'}, {value: 2, label: '星期二'},
+          {value: 3, label: '星期三'}, {value: 4, label: '星期四'}, {value: 5, label: '星期五'},
+          {value: 6, label: '星期六'},
         ]
       }
     },
@@ -357,7 +357,7 @@
         let pjid = this.getPjId, ip = row.ip
         this.fetchFuzz({url: 'fuzz/view/page/VerificationTasks!showOneProList.action', params: {ip, pjid}, vm: this}).then(res => {
           console.log(res, 'assetItem')
-          this.assetListItem = res.data
+          this.assetListItem = res.data[0]
         })
         this.getLoginType()
         this.getDevTypeList()
@@ -409,7 +409,7 @@
        */
       submitAssetItem () { // assetListItem
         let data = {
-          "stationname": this.addTaskForm.name, // 添加实时任务页面传过来的
+          "pjid": this.getPjId, // 添加实时任务页面传过来的
           "deviceip": this.assetListItem.ip, // ip地址
           "devicelogin": this.assetListItem.authtype, // 登录方式
           "deviceport": this.assetListItem.authport, // 端口
@@ -427,7 +427,14 @@
           "databasePassword": this.assetListItem.dbpassword, // 数据库口令
           "databaseInstance": this.assetListItem.dbinstance    // 数据库实例
         }
-        this.fetchFuzz({url: 'fuzz/view/page/device!editdevice.action', params: {data}, vm: this}).then(res => {
+        this.fetchFuzz({url: 'fuzz/view/page/device!editdevice.action', params: data, vm: this}).then(res => {
+          if (res.state === 1) {
+            this.queryStation()
+            this.$message({
+              message: '操作成功!',
+              type: 'success'
+            })
+          }
           this.assetListDialog = false
         })
       },
@@ -440,17 +447,25 @@
           str.push(item.ip)
         })
         let data = { // 待处理
-          'day' : day, // 每天
-          'week' : week, // 每周
-          'hour' : hour, // 小时
-          'minute' : minute, // 分钟
-          'timeType' : timeType, // 选择周期类型 每月  每周 每日
+          'day' : this.addTaskForm.day ? (this.addTaskForm.day >= 10 ? this.addTaskForm.day : '0' + this.addTaskForm.day) : null, // 每天 this.addTaskForm.period
+          'week' : this.addTaskForm.period ? this.addTaskForm.period : null, // 每周 6
+          'hour' : this.addTaskForm.hour ? (this.addTaskForm.hour >= 10 ? this.addTaskForm.hour : '0' + this.addTaskForm.hour) : null, // 小时
+          'minute' : this.addTaskForm.minute ? (this.addTaskForm.minute >= 10 ? this.addTaskForm.minute : '0' + this.addTaskForm.minute) : null, // 分钟
+          'timeType' : this.addTaskForm.timeType === '' ? 1 : this.addTaskForm.timeType, // 选择周期类型 每月 2 每周 3  每日1
           'taskname': this.addTaskForm.name,  // 任务名称
           'template': this.addTaskForm.moduleId,  // 策略模板 id 主机 3
           // 'autoupload' : 0, // 已取消 autoupload=1 为自动上传界面打钩；界面不打勾autoupload=0(非自动上传)
           'pjid' : this.getPjId, // 项目名称 id
           'str' : str.join(',')   //  资产列表中选中列ip地址的值,逗号拼接
         };
+        if (this.addTaskForm.timeType === 1 || this.addTaskForm.timeType === '') { // 每天
+          data.week = null
+          data.day = null
+        } else if (this.addTaskForm.timeType === 2) { // 每月
+          data.week = null
+        } else if (this.addTaskForm.timeType === 3) { // 每周
+          data.day = null
+        }
         console.log(data, 'data')
         this.fetchFuzz({url: 'fuzz/view/page/VerificationTasks!addCircleTask.action', params: data, vm:this}).then(res => {
           if (res.success === 'success') {
@@ -458,6 +473,7 @@
               message: '任务添加成功!',
               type: 'success'
             })
+            this.getTableData()
             this.addTask = false
           }
         })
