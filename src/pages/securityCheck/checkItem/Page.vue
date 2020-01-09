@@ -10,12 +10,12 @@
             <template v-if="!itemDetail">
               <el-table ref="multipleTable" :data="tableData" tooltip-effect="dark" style="width: 100%;margin-top: 20px;">
                 <el-table-column type="selection" width="55"></el-table-column>
-                <el-table-column prop="num" label="核查项编号"></el-table-column>
+                <el-table-column prop="num" label="核查项编号" width="125"></el-table-column>
                 <el-table-column prop="name" label="检查项名称"></el-table-column>
                 <el-table-column prop="desc" label="内容"></el-table-column>
-                <el-table-column prop="attr" label="核查项属性"></el-table-column>
-                <el-table-column prop="type" label="核查方式"></el-table-column>
-                <el-table-column fixed="right" label="详情" width="100">
+                <el-table-column prop="attr" label="核查项属性" width="90"></el-table-column>
+                <el-table-column prop="type" label="核查方式" width="80"></el-table-column>
+                <el-table-column fixed="right" label="详情" width="60">
                   <template slot-scope="scope">
                     <el-button @click="handleClick(scope.row)" type="text" size="small">操作</el-button>
                   </template>
@@ -29,8 +29,8 @@
             </template>
             <template v-else>
               <span class="el-icon-refresh-left re-back" @click="itemDetail = false">返回</span>
-              <el-tabs v-model="activeName" type="card">
-                <el-tab-pane label="基本信息" name="first">
+              <el-tabs v-model="checkItemDetailName" type="card" @tab-click="handleClickTab">
+                <el-tab-pane label="基本信息" name="basicInfo">
                   <template>
                     <el-form label-position="left" label-width="120px" :model="checkBasicInfo">
                       <el-form-item label="检查项名称">
@@ -65,7 +65,7 @@
                     </el-form>
                   </template>
                 </el-tab-pane>
-                <el-tab-pane label="核查信息" name="second">
+                <el-tab-pane label="核查信息" name="checkInfo">
                   <template>
                     <el-form label-position="left" label-width="120px" :model="checkBasicInfo">
                       <el-form-item label="检查方式">
@@ -127,14 +127,14 @@
           size: 10,
         },
         label: '',
-        activeName: 'first',
         tableData: [],
         data: [{
           name: '检查项分组',
+          level: 0,
           children: [
-            {name: '资产类型分组', id: 10004, pid: -1, status: 0, children: []
+            {name: '资产类型分组', id: 10004, pid: -1, status: 0, level: 1, children: []
             },
-            {name: '自定义分组', id: 10001, pId: -1, status: 0}
+            {name: '自定义分组', id: 10001, pId: -1, status: 0, level: 1}
           ]
         }], // 树形结构数据
         defaultProps: {
@@ -143,7 +143,10 @@
         }, // 树形props
         itemDetail: false, // 详情
         checkItemDetailName: 'basicInfo',
-        checkBasicInfo: {}
+        checkBasicInfo: {},
+        scriptId: '',
+        checkid: '',
+        talbeDataId: ''
       }
     },
     computed: {
@@ -173,30 +176,54 @@
        * val 分页数据
        */
       handleCurrentChange (val) {
-
+        this.resData.page = val
+        this.getTableData(this.talbeDataId)
       },
+      /**
+       * 点击属性结构函数
+       */
       handleNodeClick (data) {
-        // let id = data.id
-        this.treeId = data.id
-        let id = 3, pid = 1,alias= '/server/Window'
+        if (data.level === 3) {
+          this.treeId = data.id
+          this.talbeDataId = data.id
+          this.getTableData(data.id)
+        }
+      },
+      getTableData (id) {
         this.postFuzz({url: '/fuzz/page/view/checkItem!findAliasByid.action', params: {id}, vm: this}).then(res => {
-          console.log(res, 'list')
+          let alias = res.alias,stype = res.name, _id = res.id
           this.fetchFuzz({url: '/fuzz/page/view/checkItem!check_itemDetail.action', params: {
-              start: (parseInt(this.resData.page - 1) * 10), t: Math.random(),alias: alias, stype: res.name, id: id
+              start: (parseInt(this.resData.page - 1) * 10), t: Math.random(),alias, stype, id: _id
             }, vm: this}).then(res => {
-            console.log(res, 'data table')
+            // console.log(res.datas, 'data table')
+            this.tableData = res.datas.map(item => {
+              return {
+                num: item[1],
+                name: item[2], desc: item[3], attr: item[4],type: item[5], id: item[0]
+              }
+            })
             this.tableTotals = res.total
           })
         })
-        console.log(this.data, 'this.data.tree')
       },
       /**
        * 点击操作查看基本信息和核查信息
        * @param type
        */
-      handleClick (row) {
+      handleClick (row) { // checkmanage/checkItem!checkIteminfo.action?checkid=201
         this.itemDetail = !this.itemDetail
-        this.fetchFuzz({url: '/fuzz/page/view/checkItem!checkItemDetailinfo.action', params: {checkid}, vm: this}).then(res => {
+        this.checkItemDetailName = 'basicInfo'
+        this.checkid = row.id
+        this.getItemView(this.checkid, 'checkItemDetailinfo')
+      },
+      getItemView (checkid, type, scriptId) {
+        let params = {checkid}
+        scriptId ? params.script_id = scriptId : params
+        this.fetchFuzz({url: `/fuzz/page/view/checkmanage/checkItem!${type}.action`, params: params, vm: this}).then(res => {
+          if (type === 'checkItemDetailinfo') {
+            this.scriptId = res.script_id
+          }
+          // console.log(res, 'res')
           for (let i in res) {
             this.$set(this.checkBasicInfo, i, res[i] + '')
           }
@@ -204,20 +231,44 @@
         })
       },
       /**
+       * 弹窗tab点击
+       * @param tab
+       */
+      handleClickTab (tab) {
+        this.checkItemDetailName = tab.name
+        if (tab.name === 'checkInfo') { // 核查项
+          this.getItemView(this.checkid, 'checkIteminfo', this.scriptId)
+        } else { // 基本信息
+          this.getItemView(this.checkid, 'checkItemDetailinfo')
+        }
+      },
+      /**
        * 获取树形结构数据
        * @returns {Promise<void>}
        */
       initData () {
         this.fetchFuzz({url: '/fuzz/page/view/checkItem!checkItemTree.action', vm: this}).then(res => {
-          console.log(res.data, 'data list')
+          // console.log(res.data, 'data list')
           let data = res.data
-          let children = []
+          let arr = []
           data.forEach(item => {
             if (item.pId === 0) {
-              children.push(item)
+              let _item = item
+              _item.children = []
+              _item.level = 2
+              arr.push(_item)
             }
           })
-          this.$set(this.data[0]['children'][0], 'children', children)
+          arr.forEach((item, index) => {
+            data.forEach((_item, _index) => {
+              if (item.pId !== _item.pId && item.id === _item.pId) {
+                let __item = _item
+                __item.level = 3
+                arr[index]['children'].push(_item)
+              }
+            })
+          })
+          this.$set(this.data[0]['children'][0], 'children', arr)
         })
         let _this = this
         _this.showTree = false
