@@ -54,7 +54,7 @@
           </div>
           <div style="margin-top: 20px;">
             <span style="padding-right: 40px;">报告下载</span>
-            <el-select v-model="value" placeholder="请选择">
+            <el-select v-model="fileType" placeholder="请选择">
               <el-option label="HTML" value="HTML"></el-option>
               <el-option label="WORD" value="WORD"></el-option>
               <el-option label="PDF" value="PDF"></el-option>
@@ -181,7 +181,7 @@
 
 <script>
 import { FUZZ_URL } from 'common/axiosClient'
-import { getCascaderOptions, commonExport } from "../../../common/utils";
+import { getCascaderOptions, downloadFileByUrl } from "common/utils";
 
 	export default {
 		data() {
@@ -221,7 +221,6 @@ import { getCascaderOptions, commonExport } from "../../../common/utils";
         addSelected: [],
         loading: false,
         dialogVisible: false, // 下载报告
-        value: 'HTML',
         addTask: false,
         addTaskForm: {
           name: '',
@@ -237,6 +236,7 @@ import { getCascaderOptions, commonExport } from "../../../common/utils";
           label: 'name'
         },
         reportTaskId: null, // 下载和预览报告taskid
+        fileType: "HTML",
         timer: null // 定时
 			}
 		},
@@ -482,10 +482,10 @@ import { getCascaderOptions, commonExport } from "../../../common/utils";
       openHTML() {
         let taskid = this.reportTaskId
         this.fetchFuzz({url: 'fuzz/view/page/VerificationTasks!preview.action', params: {taskid}, vm: this}).then(res => {
-          if (res.state !== 'failure') {
+          if (res === null) {
             // console.log(res, 'openHTML') // 预览报告
-            window.open(`/fuzz/html/${taskid}_html/main.html`, '_blank');
-          } else {
+            window.open(`${FUZZ_URL}/fuzz/html/${taskid}_html/main.html`, '_blank');
+          } else if (res && res.state === "failure") {
             this.$message.error('html文件不存在，报告预览失败~~~')
           }
         })
@@ -496,13 +496,13 @@ import { getCascaderOptions, commonExport } from "../../../common/utils";
        */
       downloadReport () {
         let taskid = this.reportTaskId
-        let fileType = ''
+        let fileType = this.fileType
         this.fetchFuzz({url: 'fuzz/view/page/VerificationTasks!judgeJSON.action', params: {taskid}, vm: this}).then(res => {
-          if (res.state === 'failure') {
-            let params = {fileType, taskid}, name = `${taskid}_html`
-            commonExport(params, name, 'fuzz/view/page/VerificationTasks!judgeJSON.action', 'zip')
-          } else {
-            this.$message.error('报告下载失败~~~')
+          if (res === null) {
+            let url = `${FUZZ_URL}/fuzz/view/page/VerificationTasks!checkFile.action?fileType=${fileType}&taskid=${taskid}`
+            downloadFileByUrl(url);
+          } else if (res.state === 'failure') {
+            this.$message.error('数据文件不存在，无法下载')
           }
         })
         this.dialogVisible = false
