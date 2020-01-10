@@ -593,7 +593,7 @@
        */
       getTableData (_index) {
         this.fetchFuzz({url: 'fuzz/view/page/VerificationTasks!loaddatas.action', params: {circletask: "1"}, vm: this}).then(res => {
-          console.log(res, 'getTableData')
+          // console.log(res, 'getTableData')
           let data = res, arr = []
           let i = 0
           data.forEach(item => {
@@ -606,18 +606,18 @@
             }
           })
           arr.forEach((item, index) => {
+            arr[index]['children'] = []
             for (let i = 0,len = data.length; i < len; i++) {
               if (item.groupid !== data[i]['groupid'] && data[i]['groupid'] === item.taskid) {
-                arr[index]['children'] = []
                 let _data = data[i]
-                _data.id = 'a' + index
+                _data.id = 'a' + index + i
                 _data.level = 2
                 _data.taskname = `${_data['taskname']}[${_data.taskid}]`
                 arr[index]['children'].push(data[i])
               }
             }
           })
-          console.log(_index, arr, 'index 5s')
+          // console.log(_index, arr, 'index 5s')
           if (_index) {
             if (arr[_index]['progress'] === 100) {
               clearInterval(this.timer)

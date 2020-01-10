@@ -563,24 +563,25 @@ import { getCascaderOptions, downloadFileByUrl } from "common/utils";
             }
           })
           arr.forEach((item, index) => {
+            arr[index]['children'] = []
             for (let i = 0,len = data.length; i < len; i++) {
-              if (item.groupid !== data[i]['groupid'] && data[i]['groupid'] === item.taskid) {
-                arr[index]['children'] = []
+              if (data[i]['groupid'] === item.taskid) {
                 let _data = data[i]
-                _data.id = 'a' + index
+                _data.id = 'a' + index + i
                 _data.level = 2
                 _data.taskname = `${_data['taskname']}[${_data.taskid}]`
                 arr[index]['children'].push(data[i])
               }
             }
           })
-          console.log(_index, arr, 'index 5s')
+          // console.log(_index, arr, 'index 5s')
           if (_index) {
             if (arr[_index]['progress'] === 100) {
               clearInterval(this.timer)
             }
           }
           this.tableData = arr
+          // console.log(this.tableData, 'tableData')
         })
       },
       handleClick (row, type) {
