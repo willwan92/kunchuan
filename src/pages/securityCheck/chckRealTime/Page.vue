@@ -181,7 +181,7 @@
 
 <script>
 import { FUZZ_URL } from 'common/axiosClient'
-import { getCascaderOptions } from "../../../common/utils";
+import { getCascaderOptions, commonExport } from "../../../common/utils";
 
 	export default {
 		data() {
@@ -482,11 +482,11 @@ import { getCascaderOptions } from "../../../common/utils";
       openHTML() {
         let taskid = this.reportTaskId
         this.fetchFuzz({url: 'fuzz/view/page/VerificationTasks!preview.action', params: {taskid}, vm: this}).then(res => {
-          // window.open(`${FUZZ_URL}/html/21_html/main.html`, '_blank');
           if (res.state !== 'failure') {
-            console.log(res, 'openHTML') // 预览报告
+            // console.log(res, 'openHTML') // 预览报告
+            window.open(`/fuzz/html/${taskid}_html/main.html`, '_blank');
           } else {
-            this.$message.error('报告预览失败~~~')
+            this.$message.error('html文件不存在，报告预览失败~~~')
           }
         })
       },
@@ -496,24 +496,25 @@ import { getCascaderOptions } from "../../../common/utils";
        */
       downloadReport () {
         let taskid = this.reportTaskId
+        let fileType = ''
         this.fetchFuzz({url: 'fuzz/view/page/VerificationTasks!judgeJSON.action', params: {taskid}, vm: this}).then(res => {
-          if (res.state !== 'failure') {
-            this.dialogVisible = false
+          if (res.state === 'failure') {
+            let params = {fileType, taskid}, name = `${taskid}_html`
+            commonExport(params, name, 'fuzz/view/page/VerificationTasks!judgeJSON.action', 'zip')
           } else {
             this.$message.error('报告下载失败~~~')
           }
         })
+        this.dialogVisible = false
       },
       /**
        * 树形结构点击事件
        */
       handleNodeClick (data) {
-        // console.log(data, 'data tree')
         if (data.level && data.level === 1) {
           this.postFuzz({url: 'fuzz/page/view/checkmanage/strategy!searchTypeBygroupid.action',
             params: {group_id: data.id, start: 0}, vm: this}).then(res => {
             // console.log(res.reu, 'tree request data')
-            // console.log(this.data, 'tree data llolll')
             res.reu.forEach((item, index) => {
               this.data[0]['children'][data.index - 1].children.push({
                 index: index,
@@ -534,7 +535,6 @@ import { getCascaderOptions } from "../../../common/utils";
        * @param val
        */
       handleSelectionChange (val) {
-        console.log(val, 'multipleSelection')
         this.multipleSelection = val
       },
       /**
@@ -542,7 +542,6 @@ import { getCascaderOptions } from "../../../common/utils";
        * @param val
        */
       handleSelectionAsset (val) {
-        console.log(val, 'addSelected')
         this.addSelected = val
       },
       /**
@@ -551,7 +550,7 @@ import { getCascaderOptions } from "../../../common/utils";
        */
       getTableData (_index) {
         this.fetchFuzz({url: 'fuzz/view/page/VerificationTasks!loaddatas.action', params: {actask: "1"}, vm: this}).then(res => {
-          console.log(res, 'getTableData')
+          // console.log(res, 'getTableData')
           let data = res, arr = []
           let i = 0
           data.forEach(item => {
@@ -585,7 +584,7 @@ import { getCascaderOptions } from "../../../common/utils";
         })
       },
       handleClick (row, type) {
-        console.log(row, 'row')
+        // console.log(row, 'row')
         let taskname = row.taskname
         let url = type === 'play' ? 'VerificationTasks!reExecution.action' : 'VerificationTasks!stopTask.action'
         this.fetchFuzz({url: 'fuzz/view/page/' + url, params: {taskname}, vm: this}).then(res => {
@@ -624,7 +623,6 @@ import { getCascaderOptions } from "../../../common/utils";
        * @param row
        */
       openDownload (row) {
-        console.log(row, 'openDownload')
         this.reportTaskId = row.taskid
         this.dialogVisible = true
       }
