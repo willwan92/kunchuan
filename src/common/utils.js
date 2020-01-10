@@ -195,7 +195,30 @@ function getTreeData(arr) {
 	return tmpArr;
 }
 
+function formatTreeData(treeData, pid) {
+	if (!Array.isArray(treeData) || !treeData.length ) return;
+
+	let formatedTreeData = [];
+	let tmpObj = {};
+
+	treeData.forEach((item, index) => {
+		if (item.pid === pid) {
+			tmpObj = treeData.slice(index, index + 1)[0];
+			formatedTreeData.push(tmpObj);
+		}
+	});
+
+	formatedTreeData.forEach((element, idx) => {
+		if (!element.isleaf) {
+			formatedTreeData[idx].children = formatTreeData(treeData, element.id);
+		}
+	})
+
+	return formatedTreeData;
+}
+
 export {
+	formatTreeData,
 	isBase64,
 	getTreeData,
 	checkFileType,

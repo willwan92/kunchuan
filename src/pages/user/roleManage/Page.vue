@@ -18,7 +18,7 @@
         </el-form-item>
       </el-form>
 
-      <el-table :data="tableData" border>
+      <el-table :data="tableData" border v-loading="isLoading">
         <el-table-column label="角色名称" prop="roleName"></el-table-column>
         <el-table-column label="角色类型" prop="roleType">
 					<template slot-scope="scope">
@@ -48,6 +48,7 @@
       @close="dialogShow = false"
     >
       <el-form
+        v-loading="isUpdate"
         :model="dialogForm"
         :rules="dialogFormRules"
         ref="dialogForm"
@@ -93,6 +94,8 @@ export default {
   data() {
     return {
       id: null,
+      isLoading: false,
+      isUpdate: false,
       dialogShow: false,
       searchParams: {
         roleName: ""
@@ -256,15 +259,18 @@ export default {
         params.role_id = this.id;
       }
 
+      this.isUpdate = true;
       const data = await this.postFuzz({
         url: "/fuzz/page/view/user/user!saveRole.action",
         params: params,
         vm: this
       });
 
-      this.dialogShow = false;
+      
+      this.isUpdate = false;
 
       if (data.state === 1) {
+        this.dialogShow = false;
         this.$message.success(`${this.actionName}成功`);
         this.fetchData();
       } else {
@@ -273,11 +279,14 @@ export default {
     },
     // 请求列表数据
     async fetchData() {
+
       const params = {
         start: 0,
         t: Math.random(),
         role_name: this.searchParams.roleName
       };
+
+      this.isLoading = true;
 
       const { data } = await this.fetchFuzz({
         url: "/fuzz/page/view/system/user!getAllRole.action",
@@ -285,6 +294,7 @@ export default {
         vm: this
       });
 
+      this.isLoading = false;
       this.tableData = data.map((element, index) => {
         return {
           index: index,

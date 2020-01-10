@@ -74,6 +74,7 @@ export default {
       if (userInfo) {
         this.userInfo = userInfo;
         sessionStorage.setItem('account', userInfo.user_name);
+        sessionStorage.setItem('roleId', userInfo.role_id);
       }
     },
     /**
@@ -90,10 +91,8 @@ export default {
 
       if (data && data[0]) {
         const roleInfo = data[0];
-        // const permissions = [];
         this.roleType = roleInfo.roletype;
         sessionStorage.setItem('roleType', roleInfo.roletype);
-        // console.log(JSON.parse(roleInfo.roleauth))
       }
 
 

@@ -159,10 +159,10 @@ export default {
         cancelButtonText: "取消",
         type: "warning"
       })
-        .then(() => {
-          this.delUserById(id);
-        })
-        .catch(() => {});
+      .then(() => {
+        this.delUserById(id);
+      })
+      .catch(() => {});
 		},
 		handleEditClick({id, index}) {
 			this.id = id;
