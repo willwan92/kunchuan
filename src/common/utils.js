@@ -92,7 +92,8 @@ function checkIp(value) {
 	return true;
 }
 
-function commonExport(params, name, url) {
+function commonExport(params, name, url, type) {
+  let _type = type ? type : '.xls'
 	axios({
 		method: 'get',
 		url: url,
@@ -100,7 +101,7 @@ function commonExport(params, name, url) {
 		responseType: 'blob',
 		headers: { "Authorization": 'Bearer ' + sessionStorage.getItem('Admin-Token') }
 	}).then(response => {
-		download(response, name + '.xls')
+		download(response, name + _type)
 	}).catch()
 }
 

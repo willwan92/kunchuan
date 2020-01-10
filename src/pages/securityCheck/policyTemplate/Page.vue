@@ -144,7 +144,7 @@
           </el-main>
         </el-container>
       </el-container>
-      <el-dialog title="核查项列表" :visible.sync="checkList">
+      <el-dialog title="核查项列表" :visible.sync="checkList" width="65%">
         <el-table :data="checkData" border style="width: 100%" :span-method="objectSpanMethod" align="center">
           <el-table-column prop="check_num" label="检查项编号" width="180">
             <template slot-scope="scope"><p v-html="scope.row.check_num"></p></template>
@@ -155,21 +155,23 @@
           </el-table-column>
           <el-table-column prop="check_val" label="基线值">
             <template slot-scope="scope">
-              <p v-html="scope.row.check_val" @dblclick="modifyBaseVal(scope.row)" v-if="!checkData[scope.row.index]['show']"></p>
-              <el-input v-if="checkData[scope.row.index]['show']"
-                        v-model="checkData[scope.row.index]['check_val']"></el-input>
+              <p v-html="scope.row.check_val"></p>
+              <!-- @dblclick="modifyBaseVal(scope.row)" v-if="!checkData[scope.row._index]['show']"-->
+<!--              <el-input v-if="checkData[scope.row._index]['show']" v-on:blur="cancelBlur(scope.row)"-->
+<!--                        v-model="checkData[scope.row._index]['check_val']"></el-input>-->
+              <!--隐藏自定义参数-->
             </template>
           </el-table-column>
         </el-table>
         <div style="text-align: center;margin-top: 30px;" v-if="checkTotals !== 0">
-          <el-pagination background :current-page.sync="resData.page" :total="checkTotals"
-                         @current-change="(val) => handleCurrentChange(val, 'check')" :page-size="resData.size" layout="prev, pager, next">
+          <el-pagination background :current-page.sync="customData.page" :total="checkTotals"
+                         @current-change="(val) => handleCurrentChange(val, 'check')" :page-size="customData.size" layout="prev, pager, next">
           </el-pagination>
         </div>
-        <div slot="footer" class="dialog-footer" style="text-align: center;">
-          <el-button @click="setArguments('close')">取 消</el-button>
-          <el-button type="primary" @click="setArguments('ok')">确 定</el-button>
-        </div>
+<!--        <div slot="footer" class="dialog-footer" style="text-align: center;">-->
+<!--          <el-button @click="setArguments('close')">取 消</el-button>-->
+<!--          <el-button type="primary" @click="setArguments('ok')">确 定</el-button>-->
+<!--        </div>-->
       </el-dialog>
     </div>
 	</div>
@@ -179,6 +181,7 @@
 	export default {
     data() {
       return {
+        customData: {page: 1, size: 10},
         resData: {
           page: 1,
           size: 10
@@ -252,12 +255,18 @@
       },
       /**
        * 自定义设置参数
-       * @param type
+       * @param type 被注释
        */
       setArguments(type) {
         this.checkList = false
         this.resData.page = 1
         let _messages = type === 'ok' ? '自定义参数设置成功' : '已取消自定义参数设置'
+        if (type === 'ok') {
+          let cs_id = '', data = {}
+          this.fetch({url: '/fuzz/page/view/strategy!insertSelfDefined.action', params: {cs_id, data}, vm: this}).then(res => {
+            // console.log(res, 'post data')
+          })
+        }
         this.$message({
           message: _messages,
           type: 'info'
@@ -268,31 +277,36 @@
        * @param type
        */
       getArguments (row) {
-        console.log(row, 'zidingyi')
         this.resData.page = 1
         this.checkList = true
         this.lastId = row.id
+        this.customData.page = 1
         this.getArgumentsList(this.lastId)
         this.getTotalNumber(row.id, 'cs_id').then(response => {
           this.checkTotals = response.totalNum
         })
       },
+      /**
+       * 获取自定义参数列表函数
+       * @param cs_id
+       */
       async getArgumentsList (cs_id) {
+        this.checkData = []
         await this.fetchFuzz({url: '/fuzz/page/view/strategy!findSelfDefinedById.action',
-          params: {cs_id, start: (parseInt(this.resData.page - 1) * 10)}, vm: this}).then(res => {
-          console.log(res, 'get custom')
-          let data = res.reu
+          params: {cs_id, start: (parseInt(this.customData.page - 1) * 10)}, vm: this}).then(res => {
+          // console.log(res, 'get custom')
+          let data = res.reu, m = 0
           data.forEach((item, index) => {
             let _data = item[3].split('</a>')
-            console.log(_data, 'item 333')
             for (let i = 0, _len = _data.length; i < _len - 1; i++) {
               let _startIdx = _data[i].indexOf('>') + 1
               let val = _data[i].slice(_startIdx)
               let obj = {
                 check_num: item[0], check_name: item[1], check_desc: item[2],
-                check_val: val, index: index, show: false // 双击判断输入框显示
+                check_val: val, index: index, _index: m, show: false // 双击判断输入框显示
               }
               this.checkData.push(obj)
+              m++
             }
           })
           let spanArr = [] // 设定一个数组来存放要连续合并的格数，同时还要设定一个变量来记录，当时间段不同时数据的索引
@@ -313,17 +327,6 @@
           })
           this.spanArr = spanArr
         })
-        console.log(this.checkData, 'checkDatacheckDatacheckDatacheckData')
-      },
-      objectSpanMethod ({ row, column, rowIndex, columnIndex }) {
-        if (columnIndex === 0) {
-          const _row = this.spanArr[rowIndex]
-          const _col = _row > 0 ? 1 : 0
-          return {
-            rowspan: _row,
-            colspan: _col
-          }
-        }
       },
       /**
        * 点击table详情
@@ -331,7 +334,6 @@
        */
       handleClick(row) {
         this.itemDetail = !this.itemDetail
-        // console.log(row, 'row')
         this.itemDetailTitle = `${row.name}的检查项列表`
         this.resData.page = 1
         this.getDetailItem(row.id)
@@ -363,7 +365,6 @@
           vm: this
         })
 
-        console.log(data, 'strategyTree')
         let children = []
         data.forEach(item => {
           if (item.pid !== 0) {
@@ -424,25 +425,16 @@
         })
       },
       /**
-       * 获取列表总数
-       */
-      async getTotalNumber (id, type) {
-        let params = {}
-        params[`${type}`] = id
-        const res = this.postFuzz({
-          url: '/fuzz/page/view/checkmanage/strategy!findTotals.action', params, vm: this
-        })
-        return new Promise((resolve => {
-          resolve (res)
-        }))
-      },
-      /**
        * 分页点击
        * @param val 当前页码
        * @param type 判断是默认列表or详情列表
        */
       handleCurrentChange(val, type) {
-        this.resData.page = val
+        if (type === 'check') {
+          this.customData.page = val
+        } else {
+          this.resData.page = val
+        }
         if (type === 'table') {
           this.getTableList(this.activeLabel.id)
         } else if (type === 'check') {
@@ -463,10 +455,53 @@
           this.getItemView(this.checkid, 'checkItemDetailinfo')
         }
       },
+      /**
+       * 双击修改自定义参数基线值 被注释
+       * @param row
+       */
       modifyBaseVal (row) {
-        console.log(row, 'modify')
-        console.log(this.checkData[row.index])
-        this.$set(this.checkData[row.index], 'show', true)
+        this.$set(this.checkData[row._index], 'show', true)
+      },
+      /**
+       * 自定义参数时失去焦点 被注释
+       * @param row
+       */
+      cancelBlur (row) {
+        this.$set(this.checkData[row._index], 'show', false)
+      },
+      /**
+       * 合并自定义列表table
+       * @param row
+       * @param column
+       * @param rowIndex
+       * @param columnIndex
+       * @returns {{colspan: number, rowspan}}
+       */
+      objectSpanMethod ({ row, column, rowIndex, columnIndex }) {
+        if (columnIndex === 0) {
+          const _row = this.spanArr[rowIndex]
+          const _col = _row > 0 ? 1 : 0
+          return {
+            rowspan: _row,
+            colspan: _col
+          }
+        }
+      },
+      /**
+       * 获取各列表总数
+       * @param id
+       * @param type
+       * @returns {Promise<unknown>}
+       */
+      async getTotalNumber (id, type) {
+        let params = {}
+        params[`${type}`] = id
+        const res = this.postFuzz({
+          url: '/fuzz/page/view/checkmanage/strategy!findTotals.action', params, vm: this
+        })
+        return new Promise((resolve => {
+          resolve (res)
+        }))
       }
     }
   }
