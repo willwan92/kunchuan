@@ -60,16 +60,17 @@
           <el-input v-model="dialogForm.desc" placeholder=""></el-input>
         </el-form-item>
         <el-form-item label="角色类型" prop="roleType">
-          <el-radio-group v-model="dialogForm.roleType">
+          <el-radio-group v-model="dialogForm.roleType" :disabled="Boolean(id)">
             <el-radio :label="2">配置管理员</el-radio>
             <el-radio :label="3">操作员</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item v-show="dialogForm.roleType === 3" label="项目权限" prop="pjPermission">
+        <el-form-item v-show="dialogForm.roleType === 3" label="项目权限" prop="">
           <el-tree
             show-checkbox
 						ref="pjTree"
 						node-key="id"
+            :default-expand-all="true"
             :data="pjTreeData"
             :props="defaultProps"
 						:default-checked-keys="dialogForm.permission"
@@ -108,6 +109,7 @@ export default {
         roleType: 2,
         pjPermission: []
       },
+      checkedPjIds: '',
       tableData: [],
       dialogFormRules: {
         roleName: [{ required: true, message: "请输入角色名", trigger: "blur" }]
@@ -144,12 +146,22 @@ export default {
 			})
 		},
 		resetForm(formName) {
-      console.log('aaaaa')
       this.$refs[formName] && this.$refs[formName].resetFields();
     },
 		getCheckedNodes() {
-      let treeNodes = this.$refs['pjTree'].getCheckedNodes(false, true);
-      this.dialogForm.pjPermission = JSON.stringify(treeNodes);
+      const checkedTreeNodes = this.$refs['pjTree'].getCheckedNodes(false);
+      // 包含半选中状态的节点
+      const checkedTreeNodesAll = this.$refs['pjTree'].getCheckedNodes(false, true);
+      this.checkedPjIds = this.getIds(checkedTreeNodesAll);
+      this.dialogForm.pjPermission = JSON.stringify(checkedTreeNodes);
+    },
+     getIds(treeNodes) {
+      let ids = [];
+      treeNodes.forEach(item => {
+        ids.push(item.id);
+      })
+
+      return ids.toString();
     },
     async fetchPjTreeData() {
       const { data } = await this.fetch({
@@ -237,6 +249,7 @@ export default {
         params.role_auth = '';
       } else if (dialogForm.roleType  === 3) {
         params.role_auth = dialogForm.pjPermission;
+        params.id = this.checkedPjIds;
       }
 
       if (this.id) {
