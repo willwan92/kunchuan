@@ -279,7 +279,7 @@ import { getCascaderOptions, downloadFileByUrl } from "common/utils";
 
         let children = []
         data.forEach((item, index) => {
-          if (item.pid !== 0) {
+          if (item.pid !== 0 && item.name !== '自定义1') {
             let _item = item
             _item.level = 1
             _item.index = index
@@ -415,27 +415,32 @@ import { getCascaderOptions, downloadFileByUrl } from "common/utils";
        * 保存实时任务
        */
       submitAddTask () {
-        let str = []
-        this.addSelected.forEach(item => {
-          str.push(item.ip)
-        })
-        let data = {
-          'taskname': this.addTaskForm.name,  // 任务名称
-          'template': this.addTaskForm.moduleId,  // 策略模板 id 主机 3
-          // 'autoupload' : 0, // 已取消 autoupload=1 为自动上传界面打钩；界面不打勾autoupload=0(非自动上传)
-          'pjid' : this.getPjId, // 项目名称 id
-          'str' : str.join(',')   //  资产列表中选中列ip地址的值,逗号拼接
-        };
-        console.log(data, 'data')
-        this.fetchFuzz({url: 'fuzz/view/page/VerificationTasks!addAcTask.action', params: data, vm:this}).then(res => {
-          if (res.success === 'success') {
-            this.$message({
-              message: '任务添加成功!',
-              type: 'success'
-            })
-            this.addTask = false
-          }
-        })
+        if (this.addTaskForm.moduleId !== '') {
+          let str = []
+          this.addSelected.forEach(item => {
+            str.push(item.ip)
+          })
+          let data = {
+            'taskname': this.addTaskForm.name,  // 任务名称
+            'template': this.addTaskForm.moduleId,  // 策略模板 id 主机 3
+            // 'autoupload' : 0, // 已取消 autoupload=1 为自动上传界面打钩；界面不打勾autoupload=0(非自动上传)
+            'pjid' : this.getPjId, // 项目名称 id
+            'str' : str.join(',')   //  资产列表中选中列ip地址的值,逗号拼接
+          };
+          console.log(data, 'data')
+          this.fetchFuzz({url: 'fuzz/view/page/VerificationTasks!addAcTask.action', params: data, vm:this}).then(res => {
+            if (res.success === 'success') {
+              this.$message({
+                message: '任务添加成功!',
+                type: 'success'
+              })
+              this.getTableData()
+              this.addTask = false
+            }
+          })
+        } else {
+          this.$message.error('请选择策略模板~~')
+        }
       },
       /**
        * 删除实时任务
@@ -466,6 +471,7 @@ import { getCascaderOptions, downloadFileByUrl } from "common/utils";
                   message: '任务删除成功',
                   type: 'success'
                 })
+                this.getTableData()
               }
             })
           }).catch(() => {

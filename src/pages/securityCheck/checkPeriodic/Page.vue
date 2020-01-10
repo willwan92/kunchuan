@@ -306,7 +306,7 @@
 
         let children = []
         data.forEach((item, index) => {
-          if (item.pid !== 0) {
+          if (item.pid !== 0 && item.name !== '自定义1') {
             let _item = item
             _item.level = 1
             _item.index = index
@@ -439,44 +439,48 @@
         })
       },
       /**
-       * 保存实时任务
+       * 保存周期任务
        */
       submitAddTask () {
-        let str = []
-        this.addSelected.forEach(item => {
-          str.push(item.ip)
-        })
-        let data = { // 待处理
-          'day' : this.addTaskForm.day ? (this.addTaskForm.day >= 10 ? this.addTaskForm.day : '0' + this.addTaskForm.day) : null, // 每天 this.addTaskForm.period
-          'week' : this.addTaskForm.period ? this.addTaskForm.period : null, // 每周 6
-          'hour' : this.addTaskForm.hour ? (this.addTaskForm.hour >= 10 ? this.addTaskForm.hour : '0' + this.addTaskForm.hour) : null, // 小时
-          'minute' : this.addTaskForm.minute ? (this.addTaskForm.minute >= 10 ? this.addTaskForm.minute : '0' + this.addTaskForm.minute) : null, // 分钟
-          'timeType' : this.addTaskForm.timeType === '' ? 1 : this.addTaskForm.timeType, // 选择周期类型 每月 2 每周 3  每日1
-          'taskname': this.addTaskForm.name,  // 任务名称
-          'template': this.addTaskForm.moduleId,  // 策略模板 id 主机 3
-          // 'autoupload' : 0, // 已取消 autoupload=1 为自动上传界面打钩；界面不打勾autoupload=0(非自动上传)
-          'pjid' : this.getPjId, // 项目名称 id
-          'str' : str.join(',')   //  资产列表中选中列ip地址的值,逗号拼接
-        };
-        if (this.addTaskForm.timeType === 1 || this.addTaskForm.timeType === '') { // 每天
-          data.week = null
-          data.day = null
-        } else if (this.addTaskForm.timeType === 2) { // 每月
-          data.week = null
-        } else if (this.addTaskForm.timeType === 3) { // 每周
-          data.day = null
-        }
-        console.log(data, 'data')
-        this.fetchFuzz({url: 'fuzz/view/page/VerificationTasks!addCircleTask.action', params: data, vm:this}).then(res => {
-          if (res.success === 'success') {
-            this.$message({
-              message: '任务添加成功!',
-              type: 'success'
-            })
-            this.getTableData()
-            this.addTask = false
+        if (this.addTaskForm.moduleId !== '') {
+          let str = []
+          this.addSelected.forEach(item => {
+            str.push(item.ip)
+          })
+          let data = { // 待处理
+            'day' : this.addTaskForm.day ? (this.addTaskForm.day >= 10 ? this.addTaskForm.day : '0' + this.addTaskForm.day) : null, // 每天 this.addTaskForm.period
+            'week' : this.addTaskForm.period ? this.addTaskForm.period : null, // 每周 6
+            'hour' : this.addTaskForm.hour ? (this.addTaskForm.hour >= 10 ? this.addTaskForm.hour : '0' + this.addTaskForm.hour) : null, // 小时
+            'minute' : this.addTaskForm.minute ? (this.addTaskForm.minute >= 10 ? this.addTaskForm.minute : '0' + this.addTaskForm.minute) : null, // 分钟
+            'timeType' : this.addTaskForm.timeType === '' ? 1 : this.addTaskForm.timeType, // 选择周期类型 每月 2 每周 3  每日1
+            'taskname': this.addTaskForm.name,  // 任务名称
+            'template': this.addTaskForm.moduleId,  // 策略模板 id 主机 3
+            // 'autoupload' : 0, // 已取消 autoupload=1 为自动上传界面打钩；界面不打勾autoupload=0(非自动上传)
+            'pjid' : this.getPjId, // 项目名称 id
+            'str' : str.join(',')   //  资产列表中选中列ip地址的值,逗号拼接
+          };
+          if (this.addTaskForm.timeType === 1 || this.addTaskForm.timeType === '') { // 每天
+            data.week = null
+            data.day = null
+          } else if (this.addTaskForm.timeType === 2) { // 每月
+            data.week = null
+          } else if (this.addTaskForm.timeType === 3) { // 每周
+            data.day = null
           }
-        })
+          console.log(data, 'data')
+          this.fetchFuzz({url: 'fuzz/view/page/VerificationTasks!addCircleTask.action', params: data, vm:this}).then(res => {
+            if (res.success === 'success') {
+              this.$message({
+                message: '任务添加成功!',
+                type: 'success'
+              })
+              this.getTableData()
+              this.addTask = false
+            }
+          })
+        } else {
+          this.$message.error('请选择策略模板~~')
+        }
       },
       /**
        * 删除实时任务
@@ -507,6 +511,7 @@
                   message: '任务删除成功',
                   type: 'success'
                 })
+                this.getTableData()
               }
             })
           }).catch(() => {
@@ -523,10 +528,10 @@
       openHTML() {
         let taskid = this.reportTaskId
         this.fetchFuzz({url: 'fuzz/view/page/VerificationTasks!preview.action', params: {taskid}, vm: this}).then(res => {
-          if (res.state !== 'failure') {
+          if (res === null) {
             // console.log(res, 'openHTML') // 预览报告
-            window.open(`/fuzz/html/${taskid}_html/main.html`, '_blank');
-          } else {
+            window.open(`${FUZZ_URL}/fuzz/html/${taskid}_html/main.html`, '_blank');
+          } else if (res && res.state === "failure") {
             this.$message.error('html文件不存在，报告预览失败~~~')
           }
         })
@@ -539,11 +544,11 @@
         let taskid = this.reportTaskId
         let fileType = this.value
         this.fetchFuzz({url: 'fuzz/view/page/VerificationTasks!judgeJSON.action', params: {taskid}, vm: this}).then(res => {
-          if (res.state === 'failure') {
-            let params = {fileType, taskid}, name = `${taskid}_html`
-            commonExport(params, name, 'fuzz/view/page/VerificationTasks!judgeJSON.action', 'zip')
-          } else {
-            this.$message.error('报告下载失败~~~')
+          if (res === null) {
+            let url = `${FUZZ_URL}/fuzz/view/page/VerificationTasks!checkFile.action?fileType=${fileType}&taskid=${taskid}`
+            downloadFileByUrl(url);
+          } else if (res.state === 'failure') {
+            this.$message.error('数据文件不存在，无法下载')
           }
         })
         this.dialogVisible = false
