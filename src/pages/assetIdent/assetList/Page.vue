@@ -174,7 +174,7 @@
 </template>
 
 <script>
-import { checkIp, getCascaderOptions, downloadFileByUrl, checkFileType, isBase64 } from "common/utils";
+import { checkIp, getCascaderOptions, downloadFileByUrl, checkFileType, isBase64, formatTreeData } from "common/utils";
 import { API_URL, FUZZ_URL, axiosUploadFuzz } from "common/axiosClient";
 
 export default {
@@ -302,6 +302,26 @@ export default {
       this.fetchVendorsData();
       this.fetchOsData();
     },
+    async fetchPjTreeData() {
+			const roleId = sessionStorage.getItem('roleId');
+
+      const data = await this.fetch({
+				url: "/projectInfo/getEnableRole",
+				params: {
+					enablerole: `(${roleId})`
+				},
+        vm: this
+      });
+
+			const treeData = formatTreeData(data, 0);
+
+      this.pjOptions = getCascaderOptions({
+        arr: treeData,
+        label: "pjname",
+        value: "id",
+        filter: "isleaf"
+      });
+    },
     async fetchTableData() {
       const pjId = this.getPjId;
 
@@ -380,19 +400,6 @@ export default {
           value: item
         });
       });
-    },
-    async fetchPjTreeData() {
-      const { data } = await this.fetch({
-        url: "/porject/getProjectList",
-        vm: this
-      });
-
-      this.pjOptions = getCascaderOptions({
-				arr: data,
-				label: "pjname",
-				value: "id",
-				filter: 'isleaf'
-			});
     },
     async saveAsset() {
       let form = this.dialogForm;

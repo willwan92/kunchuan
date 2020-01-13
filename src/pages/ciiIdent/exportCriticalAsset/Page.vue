@@ -54,7 +54,7 @@
 </template>
 
 <script>
-import { getCascaderOptions, downloadFileByUrl } from "common/utils";
+import { getCascaderOptions, downloadFileByUrl, formatTreeData } from "common/utils";
 import { API_URL } from "common/axiosClient";
 import qs from 'qs';
 
@@ -111,18 +111,25 @@ export default {
       });
     },
     async fetchPjTreeData() {
-      const { data } = await this.fetch({
-        url: "/porject/getProjectList",
+			const roleId = sessionStorage.getItem('roleId');
+
+      const data = await this.fetch({
+				url: "/projectInfo/getEnableRole",
+				params: {
+					enablerole: `(${roleId})`
+				},
         vm: this
       });
 
+			const treeData = formatTreeData(data, 0);
+
       this.pjOptions = getCascaderOptions({
-        arr: data,
+        arr: treeData,
         label: "pjname",
         value: "id",
         filter: "isleaf"
       });
-		},
+    },
 		getIds() {
 			let ids = [];
       this.multipleSelection.forEach(item => {

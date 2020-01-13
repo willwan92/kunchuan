@@ -133,7 +133,7 @@
 </template>
 
 <script>
-import { getCascaderOptions } from "common/utils";
+import { getCascaderOptions, formatTreeData } from "common/utils";
 
 export default {
   data() {
@@ -434,39 +434,25 @@ export default {
       this.fetchScanResult(0);
     },
     async fetchPjTreeData() {
-      const { data } = await this.fetch({
-        url: "/porject/getProjectList",
+			const roleId = sessionStorage.getItem('roleId');
+
+      const data = await this.fetch({
+				url: "/projectInfo/getEnableRole",
+				params: {
+					enablerole: `(${roleId})`
+				},
         vm: this
       });
+
+			const treeData = formatTreeData(data, 0);
+
       this.pjOptions = getCascaderOptions({
-        arr: data,
+        arr: treeData,
         label: "pjname",
         value: "id",
         filter: "isleaf"
       });
-    },
-    // 请求列表数据
-    fetchData() {},
-    viewDetail(row) {
-      this.$router.push({
-        path: "/user/userDetail",
-        query: {
-          id: row.userId
-        }
-      });
     }
-  },
-  beforeRouteEnter(to, from, next) {
-    next(vm => {
-      vm.$nextTick(() => {
-        vm.fetchData();
-      });
-    });
-  },
-  mounted() {
-    this.$nextTick(() => {
-      this.fetchData();
-    });
   }
 };
 </script>

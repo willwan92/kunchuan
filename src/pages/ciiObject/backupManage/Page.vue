@@ -68,7 +68,7 @@
 
 <script>
 import { API_URL, axiosClientUpload } from "common/axiosClient";
-import { getCascaderOptions, downloadFileByUrl, checkFileType } from "common/utils";
+import { getCascaderOptions, downloadFileByUrl, formatTreeData } from "common/utils";
 const baseDir = '/cfgtools/usr/local/backfile/';
 export default {
   data() {
@@ -179,13 +179,20 @@ export default {
       }
     },
     async fetchPjTreeData() {
-      const { data } = await this.fetch({
-        url: "/porject/getProjectList",
+			const roleId = sessionStorage.getItem('roleId');
+
+      const data = await this.fetch({
+				url: "/projectInfo/getEnableRole",
+				params: {
+					enablerole: `(${roleId})`
+				},
         vm: this
       });
 
+			const treeData = formatTreeData(data, 0);
+
       this.pjOptions = getCascaderOptions({
-        arr: data,
+        arr: treeData,
         label: "pjname",
         value: "id",
         filter: "isleaf"

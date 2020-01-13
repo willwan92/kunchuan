@@ -8,7 +8,7 @@
         <el-container>
           <el-main style="position: relative;">
             <template v-if="!itemDetail">
-              <el-table ref="multipleTable" :data="tableData" tooltip-effect="dark" style="width: 100%;margin-top: 20px;">
+              <el-table ref="multipleTable" :data="tableData" border tooltip-effect="dark" style="width: 100%;margin-top: 20px;">
                 <el-table-column type="selection" width="55"></el-table-column>
                 <el-table-column prop="num" label="核查项编号" width="125"></el-table-column>
                 <el-table-column prop="name" label="检查项名称"></el-table-column>
@@ -17,7 +17,7 @@
                 <el-table-column prop="type" label="核查方式" width="80"></el-table-column>
                 <el-table-column fixed="right" label="详情" width="60">
                   <template slot-scope="scope">
-                    <el-button @click="handleClick(scope.row)" type="text" size="small">操作</el-button>
+                    <el-button @click="handleClick(scope.row)" type="text">操作</el-button>
                   </template>
                 </el-table-column>
               </el-table>

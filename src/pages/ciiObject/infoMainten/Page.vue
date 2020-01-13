@@ -181,7 +181,7 @@
 </template>
 
 <script>
-import { getCascaderOptions } from "common/utils";
+import { getCascaderOptions, formatTreeData } from "common/utils";
 
 export default {
   data() {
@@ -447,18 +447,25 @@ export default {
       this.$refs[formName].resetFields();
     },
     async fetchPjTreeData() {
-      const { data } = await this.fetch({
-        url: "/porject/getProjectList",
+			const roleId = sessionStorage.getItem('roleId');
+
+      const data = await this.fetch({
+				url: "/projectInfo/getEnableRole",
+				params: {
+					enablerole: `(${roleId})`
+				},
         vm: this
       });
 
+			const treeData = formatTreeData(data, 0);
+
       this.pjOptions = getCascaderOptions({
-        arr: data,
+        arr: treeData,
         label: "pjname",
         value: "id",
         filter: "isleaf"
       });
-    }
+    },
   }
 };
 </script>

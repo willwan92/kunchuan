@@ -1,6 +1,6 @@
 <template>
-	<div class="goodsPage">
-		<div class="goodsTop">
+	<div class="page">
+		<div class="section">
       <el-container style="min-height: 500px; height: 100%;border: 1px solid #eee">
         <el-aside width="300px" style="padding: 20px;">
           <el-tree :data="data" :props="defaultProps" @node-click="handleNodeClick" style="margin-top: 20px;"></el-tree>
@@ -8,7 +8,7 @@
         <el-container>
           <el-main style="position: relative;">
             <template v-if="!itemDetail">
-              <el-table ref="multipleTable" :data="tableData" tooltip-effect="dark" style="width: 100%;margin-top: 20px;">
+              <el-table ref="multipleTable" :data="tableData" border tooltip-effect="dark" style="width: 100%;margin-top: 20px;">
                 <el-table-column type="selection":selectable='selectable' width="55"></el-table-column>
                 <el-table-column prop="name" label="策略模板名称"></el-table-column>
                 <el-table-column prop="type" label="检查项/设备类型"></el-table-column>
@@ -23,7 +23,7 @@
                 </el-table-column>
                 <el-table-column fixed="right" label="详情" width="100">
                   <template slot-scope="scope">
-                    <el-button @click="handleClick(scope.row)" type="text" size="small">[详细]</el-button>
+                    <el-button @click="handleClick(scope.row)" type="text">[详细]</el-button>
                   </template>
                 </el-table-column>
               </el-table>
@@ -52,7 +52,7 @@
                         </template>
                       </el-table-column>
                     </el-table>
-                    <div style="text-align: center;margin-top: 30px;"v-if="detailTotal !== 0" >
+                    <div style="text-align: center;margin-top: 30px;" v-if="detailTotal !== 0" >
                       <el-pagination background :current-page.sync="resData.page" layout="prev, pager, next" :total="detailTotal"
                                      @current-change="(val) => handleCurrentChange(val, 'detail')" :page-size="resData.size">
                       </el-pagination>
@@ -507,7 +507,8 @@
   }
 </script>
 <style lang="less">
-  .goodsPage {
+.page {
+  .section {
     padding: 20px;
     border: 1px solid #ccc;
     border-radius: 5px;
@@ -519,15 +520,6 @@
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
       -webkit-box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
     }
-    .goodsTop{
-      .re-back {
-        display: inline-block;
-        position: absolute;
-        cursor: pointer;
-        right: 20px;
-        top: 30px;
-        z-index: 99999;
-      }
-    }
   }
+}
 </style>

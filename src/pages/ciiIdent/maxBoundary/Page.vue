@@ -40,7 +40,7 @@
 </template>
 
 <script>
-import { getCascaderOptions, toNumberArr } from "common/utils";
+import { getCascaderOptions, formatTreeData } from "common/utils";
 
 export default {
   data() {
@@ -108,17 +108,24 @@ export default {
 			});
 		},
 		async fetchPjTreeData() {
-      const { data } = await this.fetch({
-        url: "/porject/getProjectList",
+			const roleId = sessionStorage.getItem('roleId');
+
+      const data = await this.fetch({
+				url: "/projectInfo/getEnableRole",
+				params: {
+					enablerole: `(${roleId})`
+				},
         vm: this
       });
 
-			this.pjOptions = getCascaderOptions({
-				arr: data,
-				label: "pjname",
-				value: "id",
-				filter: 'isleaf'
-			});
+			const treeData = formatTreeData(data, 0);
+
+      this.pjOptions = getCascaderOptions({
+        arr: treeData,
+        label: "pjname",
+        value: "id",
+        filter: "isleaf"
+      });
     },
     async fetchTableData() {
       const pjId = this.getPjId;

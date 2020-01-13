@@ -88,7 +88,7 @@
 </template>
 
 <script>
-import { getCascaderOptions, downloadFileByUrl } from "common/utils";
+import { getCascaderOptions, downloadFileByUrl, formatTreeData } from "common/utils";
 import { API_URL } from "common/axiosClient";
 const path = '/cfgtools/usr/local/safetyassessfile/';
 
@@ -214,18 +214,25 @@ export default {
 			downloadFileByUrl(`${API_URL}/safe/getSelectSafetyById?projectName=${this.pjname}`);
 		},
     async fetchPjTreeData() {
-      const { data } = await this.fetch({
-        url: "/porject/getProjectList",
+			const roleId = sessionStorage.getItem('roleId');
+
+      const data = await this.fetch({
+				url: "/projectInfo/getEnableRole",
+				params: {
+					enablerole: `(${roleId})`
+				},
         vm: this
       });
 
+			const treeData = formatTreeData(data, 0);
+
       this.pjOptions = getCascaderOptions({
-        arr: data,
+        arr: treeData,
         label: "pjname",
-        value: "pjname",
+        value: "id",
         filter: "isleaf"
       });
-		},
+    },
 		formatCheckListForm(checkListForm) {
 			let checkList = '';
 			Object.keys(checkListForm).forEach(key => {
