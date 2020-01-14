@@ -70,7 +70,7 @@
           <el-button type="primary" @click="add">添加</el-button>
         </el-form-item>
       </el-form>
-      <el-table :data="tableData" border>
+      <el-table :data="tableData" border v-loading="isLoading">
         <el-table-column label="序号" prop="idx"></el-table-column>
         <el-table-column label="漏洞名称" prop="bugName"></el-table-column>
         <el-table-column label="解决方案" prop="solution"></el-table-column>
@@ -172,6 +172,7 @@
 export default {
   data() {
     return {
+      isLoading:false,
       tableData: [],
       form: {
         bugname: "",
@@ -248,12 +249,13 @@ export default {
         return Boolean(value);
       })
 
+      this.isLoading = true;
       const data = await this.fetch({
         url: "/back/getSelect",
         params: params,
         vm: this
       });
-
+      this.isLoading = false;
       if (data && data[0]) {
         this.tableData = data.map((item, index) => {
           return {

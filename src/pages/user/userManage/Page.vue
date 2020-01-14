@@ -18,7 +18,7 @@
         </el-form-item>
       </el-form>
 
-      <el-table :data="tableData" border>
+      <el-table :data="tableData" border v-loading="isLoading">
         <el-table-column label="用户名" prop="userName"></el-table-column>
         <el-table-column label="所属角色" prop="roleName">
         </el-table-column>
@@ -49,7 +49,7 @@
 			:close-on-click-modal="false"
       @close="dialogShow = false"
     >
-      <el-form :model="dialogForm" :rules="userRules" ref="dialogForm" label-width="80px">
+      <el-form v-loading="isUpdate" :model="dialogForm" :rules="userRules" ref="dialogForm" label-width="80px">
         <el-form-item label="用户名称" prop="userName">
           <el-input v-model="dialogForm.userName" :readonly="Boolean(this.id)" autocomplete="off"></el-input>
         </el-form-item>
@@ -79,8 +79,8 @@
       </el-form>
 
       <span slot="footer">
-        <el-button @click="dialogShow = false">取 消</el-button>
-        <el-button type="primary" @click="handleComfirmClick">确 定</el-button>
+        <el-button :disabled="isUpdate" @click="dialogShow = false">取 消</el-button>
+        <el-button :disabled="isUpdate" type="primary" @click="handleComfirmClick">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -92,7 +92,9 @@ import { judgeGender, deepCopy, commonExport } from "common/utils";
 export default {
   data() {
     return {
-			id: null,
+      id: null,
+      isLoading: false,
+      isUpdate: false,
       dialogShow: false,
       form: {
         userName: ""
@@ -209,19 +211,20 @@ export default {
 				params.executeType = 2;
 			} else {
 				params.executeType = 1;
-			}
-
+      }
+      
+      this.isUpdate = true;
       const data = await this.postFuzz({
         url: "/fuzz/page/view/user/user!saveUser.action",
         params: params,
         vm: this
       });
 			
-			this.dialogShow = false;
+      this.dialogShow = false;
+      this.isUpdate = false;
       if (data.state === 1) {
 				this.$message({
 					showClose: true,
-					duration: 0,
           message: data.msg
         });
         this.fetchData();
@@ -252,13 +255,16 @@ export default {
         t: Math.random(),
         user_name: this.form.userName
       };
-      
+
+      this.isLoading = true;
+
       const { data } = await this.fetchFuzz({
         url: "/fuzz/page/view/system/user!getAllUser.action",
         params: params,
         vm: this
       });
 
+      this.isLoading = false;
       this.tableData = data.map((element, index) => {
         return {
           index: index,

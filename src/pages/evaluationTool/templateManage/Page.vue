@@ -72,6 +72,7 @@ export default {
 			}
     },
     async fetchTableData() {
+      this.isLoading = true;
       const data = await this.fetch({
         url: '/file/fileNameUrlPath',
         params: {
@@ -79,7 +80,7 @@ export default {
         },
         vm: this
       });
-
+      this.isLoading = false;
       if (data || data[0]) {
 				this.tableData = data.map((item, index) => { 
 					return {

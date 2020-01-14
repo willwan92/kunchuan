@@ -32,6 +32,7 @@
             @selection-change="handleTablebSelectionChange"
             ref="table"
             border
+            v-loading="isLoading"
           >
             <el-table-column type="selection" width="55"> </el-table-column>
             <el-table-column label="行业业务名称" prop="name"></el-table-column>
@@ -53,6 +54,7 @@
             :data="KbTableData"
             border
             @selection-change="handleKbTablebSelectionChange"
+            v-loading="isLoading"
           >
             <el-table-column type="selection" width="55"> </el-table-column>
             <el-table-column label="关键业务名称" prop="name"></el-table-column>
@@ -70,6 +72,7 @@ export default {
     return {
       excel: "",
       excelOptions: [],
+      isLoading:false,
       tableData: [],
       tableSelection: [],
       KbTableSelection: []
@@ -161,11 +164,12 @@ export default {
         });
     },
     async fetchFileList() {
+      this.isLoading = true;
       const data = await this.fetch({
         url: "/file/fileName",
         vm: this
       });
-
+     this.isLoading = false;
       data[0] &&
         data.forEach(element => {
           this.excelOptions.push({
@@ -173,6 +177,7 @@ export default {
             value: element
           });
         });
+         
 
       this.excel = data[0];
     }

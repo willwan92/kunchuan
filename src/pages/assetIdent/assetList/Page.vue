@@ -41,7 +41,7 @@
           >
         </el-form-item>
       </el-form>
-      <el-table :data="tableData" border>
+      <el-table :data="tableData" border v-loading="isLoading">
         <el-table-column label="序号" prop="num"  width="50px"></el-table-column>
         <el-table-column label="IP地址/资产标识" prop="ip"  width="130px"></el-table-column>
         <el-table-column label="登录方式" prop="loginMethod"></el-table-column>
@@ -71,6 +71,7 @@
         @close="dialogShow = false"
       >
         <el-form
+          v-loading="isUpdate"
           :model="dialogForm"
           :rules="rules"
           class="dialog-form"
@@ -163,8 +164,8 @@
         </el-form>
 
         <span slot="footer">
-          <el-button @click="dialogShow = false">取 消</el-button>
-          <el-button type="primary" @click="handleConfirmClick"
+          <el-button :disabled="isUpdate" @click="dialogShow = false">取 消</el-button>
+          <el-button :disabled="isUpdate" type="primary" @click="handleConfirmClick"
             >确 定</el-button
           >
         </span>
@@ -190,6 +191,8 @@ export default {
     };
     return {
       assetsId: "",
+      isLoading:false,
+      isUpdate: false,
       dialogShow: false,
       pjValue: [],
       loginMethodOptions: [
@@ -329,7 +332,7 @@ export default {
         this.$message.info("请选择项目");
         return;
       }
-
+      this.isLoading = true;
       const { data } = await this.fetchFuzz({
         url: "/fuzz/page/view/station/device!getAssetsListByPjID.action",
         params: {
@@ -337,7 +340,7 @@ export default {
         },
         vm: this
       });
-
+      this.isLoading = false;
       this.tableData = data.map(item => {
         return {
           num: item[0],
@@ -433,12 +436,14 @@ export default {
         action = "adddevice.action";
       }
 
+      this.isUpdate = true;
       const data = await this.fetchFuzz({
         url: `/fuzz/page/view/station/device!${action}`,
         params: params,
         vm: this
       });
 
+      this.isUpdate = false;
       if (data.state === 1) {
         this.$message.success(`${this.actionName}成功！`);
         this.dialogShow = false;

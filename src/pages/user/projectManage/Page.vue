@@ -16,7 +16,7 @@
         >
       </div>
 
-      <el-table :data="tableData" border>
+      <el-table :data="tableData" border v-loading="isLoading">
         <el-table-column label="名称" prop="pjname"></el-table-column>
         <el-table-column label="类型" prop="">{{
           tabName === "2" ? "单系统用户项目" : "集团用户项目"
@@ -45,7 +45,7 @@
         width="600px"
         @close="dialogShow = false"
       >
-        <el-form :model="form" ref="form" label-width="100px">
+        <el-form  v-loading="isUpdate" :model="form" ref="form" label-width="100px">
           <el-form-item label="名称">
             <el-input v-model="form.pjname"></el-input>
           </el-form-item>
@@ -81,8 +81,8 @@
         </el-form>
 
         <span slot="footer">
-          <el-button @click="dialogShow = false">取 消</el-button>
-          <el-button type="primary" @click="handleComfirmClick"
+          <el-button :disabled="isUpdate" @click="dialogShow = false">取 消</el-button>
+          <el-button :disabled="isUpdate" type="primary" @click="handleComfirmClick"
             >确 定</el-button
           >
         </span>
@@ -97,7 +97,9 @@ import { toNumberArr } from "common/utils";
 export default {
   data() {
     return {
-			id: null,
+      id: null,
+      isLoading: false,
+      isUpdate:false,
 			roleId: null,
       tabName: "2",
       isLeaf: 0,
@@ -142,13 +144,18 @@ export default {
         this.tabName === "1"
           ? "/projectInfo/getProjectInfoList"
           : "/projectInfo/getProjectInfosList";
+
+      
+      this.isLoading = true;
       const data = await this.fetch({ 
 				url: url, 
 				params: {
 					enablerole: `(${this.roleId})`
 				},
 				vm: this 
-			});
+      });
+       
+      this.isLoading = false;
       this.tableData = this._.clone(data);
     },
 
@@ -195,13 +202,14 @@ export default {
 
       params.isleaf = this.isLeaf;
       params.pjtype = params.pjtype.join("/");
-
+       
+       this.isUpdate = true;
       const data = await this.fetch({
         url: url,
         params: params,
         vm: this
       });
-
+      this.isUpdate = false;
       if (data.code === 10000) {
         this.$message.success("添加成功！");
         this.dialogShow = false;

@@ -4,6 +4,7 @@
       <el-col :span="4" class="scrollbar-wrapper">
         <el-scrollbar>
           <el-tree
+             v-loading="isLoading"
             :data="pjTreeData"
             :props="defaultProps"
             @node-click="handleNodeClick"
@@ -114,6 +115,7 @@ export default {
           title: "邮箱地址"
         }
       ],
+      isLoading:false,
       tableData: []
     };
   },
@@ -154,13 +156,14 @@ export default {
         phone: this.form.phone,
         description: this.form.description
       };
-
+     
+     this.isLoading = true;
       const data = await this.fetch({
         url: "/projectInfo/getProjectInfoUpAdd",
         params: params,
         vm: this
       });
-
+      this.isLoading = false;
       if (data === 1) {
         this.$message.success("保存成功！");
       } else {

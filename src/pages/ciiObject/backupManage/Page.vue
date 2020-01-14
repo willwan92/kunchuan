@@ -41,7 +41,7 @@
           </el-upload>
         </el-form-item>
       </el-form>
-      <el-table :data="tableData" border>
+      <el-table :data="tableData" border v-loading="isLoading">
         <el-table-column label="备份文件名" prop="filename"></el-table-column>
         <el-table-column label="备份时间" prop="backuptime"></el-table-column>
         <el-table-column label="备份位置" prop="filepath"></el-table-column>
@@ -78,6 +78,7 @@ export default {
       pjValue: [],
       deviceid: '',
       fileList1: [],
+      isLoading:false,
       tableData: []
     };
   },
@@ -137,7 +138,8 @@ export default {
 
         return;
       }
-
+    
+      this.isLoading = true;
       const data = await this.fetch({
         url: "/back/getSelectByDeviceid",
         params: {
@@ -145,7 +147,7 @@ export default {
         },
         vm: this
       });
-
+      this.isLoading = false;
       if (data && data[0]) {
         this.tableData = data.map(item => {
           return {

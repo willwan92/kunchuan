@@ -1,7 +1,7 @@
 <template>
   <div class="page">
     <div class="section list rule-lib">
-      <el-form :inline="true" label-position="left" label-width="90px">
+      <el-form :inline="true" label-position="left" label-width="90px" v-loading="isUpdate">
         <el-form-item label="评估模板">
           <el-select v-model="excel" placeholder="">
             <el-option
@@ -46,7 +46,7 @@
 				:visible.sync="dialogShow"
 				width="600px"
 				@close="dialogShow = false">
-				<el-form :model="dialogForm" ref="dialogForm" label-width="140px">
+				<el-form v-loading="isUpdate" :model="dialogForm" ref="dialogForm" label-width="140px">
 					<el-form-item label="规则名称">
 						<el-input v-model="dialogForm.name"></el-input>
 					</el-form-item>
@@ -65,8 +65,8 @@
 				</el-form>
 				
 				<span slot="footer">
-					<el-button @click="dialogShow = false">取 消</el-button>
-					<el-button type="primary" @click="handleComfirmClick">确 定</el-button>
+					<el-button :disabled="isUpdate" @click="dialogShow = false">取 消</el-button>
+					<el-button :disabled="isUpdate" type="primary" @click="handleComfirmClick">确 定</el-button>
 				</span>
 			</el-dialog>
   </div>
@@ -103,6 +103,7 @@ export default {
 				}
 			],
 			isLoading: false,
+			isUpdate:false,
 			dialogForm: {
 				name: "",
 				info: "",
@@ -125,7 +126,10 @@ export default {
 			this.loadExcel();
 			this.fetchRules();
 		},
+
+		
 		async handleComfirmClick() {
+			this.isUpdate = true;
 			const dialogForm = this.dialogForm;
 			const data = await this.fetch({
 				url: "/keyrules/getUpdateId",
@@ -137,6 +141,7 @@ export default {
 				},
         vm: this
 			});
+			this.isUpdate = false;
 
 			if (data.code === 10000) {
 				this.$message.success("编辑成功！");
@@ -149,10 +154,12 @@ export default {
 			this.fetchRules();
 		},
 		async fetchRules() {
-      const data = await this.fetch({
+			this.isLoading = true;
+        const data = await this.fetch({
         url: "/keyrules/getSelect",
         vm: this
-      });
+	  });
+	  this.isLoading = false;
 
 			if (data && data[0]) {
 				this.ruleTableData = data.map(element => {
@@ -169,7 +176,6 @@ export default {
 		},
 		async handleEditClick(id) {
 			this.dialogShow = true;
-
 			const data = await this.fetch({
 				url: "/keyrules/getSelectById",
 				params: {
@@ -177,7 +183,6 @@ export default {
 				},
         vm: this
 			});
-
 			const detail = data[0];
 			
 			this.dialogForm = {
