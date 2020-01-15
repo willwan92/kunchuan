@@ -187,7 +187,7 @@ export default {
       });
 
       this.isLoading=false;
-      if (data && data[0]) {
+      if (Array.isArray(data)) {
          this.tableData = data.map((item, index) => {
           return {
             index: index,

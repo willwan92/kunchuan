@@ -148,7 +148,7 @@ export default {
         vm: this
       });
       this.isLoading = false;
-      if (data && data[0]) {
+      if (Array.isArray(data)) {
         this.tableData = data.map(item => {
           return {
             id: item.id,
