@@ -14,7 +14,7 @@
 			<div class="tabs-wrapper">
 				<el-tabs v-model="tabName" type="card" @tab-click="0">
 					<el-tab-pane label="主机类资产" name="1">
-						<el-table :data="tableData1" border>
+						<el-table :data="tableData1" border v-loading="isLoading">
 							<el-table-column label="序号" prop="index"></el-table-column>
 							<el-table-column label="IP/资产标识" prop="iPAddress"></el-table-column>
 							<el-table-column label="资产类型" prop="assetType"></el-table-column>
@@ -30,7 +30,7 @@
 						</el-table>
 					</el-tab-pane>
 					<el-tab-pane label="网络类资产" name="2">
-						<el-table :data="tableData2" border>
+						<el-table :data="tableData2" border v-loading="isLoading">
 							<el-table-column label="序号" prop="index"></el-table-column>
 							<el-table-column label="IP/资产标识" prop="iPAddress"></el-table-column>
 							<el-table-column label="资产类型" prop="assetType"></el-table-column>
@@ -46,7 +46,7 @@
 						</el-table>
 					</el-tab-pane>
 					<el-tab-pane label="数据类资产" name="3">
-						<el-table :data="tableData3" border>
+						<el-table :data="tableData3" border v-loading="isLoading">
 							<el-table-column label="序号" prop="index"></el-table-column>
 							<el-table-column label="IP/资产标识" prop="iPAddress"></el-table-column>
 							<el-table-column label="设备型号" prop="equipmentModel"></el-table-column>
@@ -66,7 +66,7 @@
 
 		<!-- 主机类资产和网络类资产 -->
 		<el-dialog :title="operateName" :visible.sync="dialogVisible1" width="800px">
-			<el-form width="600px" label-width="100px" ref="form1" :model="form1">
+			<el-form v-loading="isUpdate" width="600px" label-width="100px" ref="form1" :model="form1">
 				<el-row :gutter="20">
 					<el-col :span="12">
 						<el-form-item label="IP地址2:" prop="ip2">
@@ -121,8 +121,8 @@
 				<el-row v-show="operate === 'edit'" :gutter="20">
 					<el-col :span="12">
 						<el-form-item>
-								<el-button type="primary" @click="updateAssetsInfo">提交</el-button>
-								<el-button type="primary" @click="resetForm('form1')">重置</el-button>
+								<el-button :disabled="isUpdate" type="primary" @click="updateAssetsInfo">提交</el-button>
+								<el-button :disabled="isUpdate" type="primary" @click="resetForm('form1')">重置</el-button>
 						</el-form-item>
 					</el-col>
 				</el-row>
@@ -130,7 +130,7 @@
 		</el-dialog>
 		<!-- 数据类资产 -->
 		<el-dialog :title="operateName" :visible.sync="dialogVisible2" width="800px">
-			<el-form width="600px" label-width="100px" ref="form2" :model="form2">
+			<el-form v-loading="isUpdate" width="600px" label-width="100px" ref="form2" :model="form2">
 				<el-row :gutter="20">
 					<el-col :span="12">
 						<el-form-item label="存储位置:" prop="storagepath">
@@ -170,8 +170,8 @@
 				<el-row :gutter="20">
 					<el-col :span="12">
 						<el-form-item>
-								<el-button type="primary" @click="updateDataAssetsInfo">保存</el-button>
-								<el-button type="primary" @click="resetForm('form2')">重置</el-button>
+								<el-button :disabled="isUpdate" type="primary" @click="updateDataAssetsInfo">保存</el-button>
+								<el-button :disabled="isUpdate" type="primary" @click="resetForm('form2')">重置</el-button>
 						</el-form-item>
 					</el-col>
 				</el-row>
@@ -189,7 +189,9 @@ export default {
 			operate: 'edit',
       pjOptions: [],
       pjValue: [],
-      tabName: "1",
+	  tabName: "1",
+	  isLoading:false,
+	  isUpdate:false,
       tableData1: [],
       tableData2: [],
       tableData3: [],
@@ -257,6 +259,7 @@ export default {
 				url = "/device/sortDevclassThree";
 			}
 
+            this.isLoading = true;
 			const data = await this.fetch({
 				url: url,
 				params: {
@@ -264,7 +267,7 @@ export default {
 				},
 				vm: this
 			});
-
+            this.isLoading = false;
 			this.mapTableData(table, data);
 		},
 		mapTableData(table, data) {
@@ -425,11 +428,13 @@ export default {
 				params.softwareversion = this.softwareversion;
 			}
 			
+			this.isUpdate = true;
 			const data = await this.fetch({
 				url: url,
 				params: params,
         vm: this
 			});
+			this.isUpdate = false;
 
 			if  (data && data.code === 10000) {
 				this.$message.success(`${this.operateName}成功`)

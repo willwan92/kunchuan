@@ -49,6 +49,7 @@
         :data="tableData"
         @selection-change="handleSelectionChange"
         border
+        v-loading="isLoading"
       >
         <el-table-column type="selection" width="55"></el-table-column>
         <el-table-column label="操作人" prop="operator"></el-table-column>
@@ -102,6 +103,7 @@ export default {
           title: "日志描述"
         }
       ],
+      isLoading:false,
       tableData: [],
       pageData: {
         page: 1,
@@ -193,11 +195,13 @@ export default {
     async fetchData() {
       this.isFetchingData = true;
 
+      this.isLoading = true;
       const data = await this.fetchFuzz({
         url: "/fuzz/page/view/system/syslog!findAllLogs.action",
         params: this.createParams(),
         vm: this
       });
+       this.isLoading = false;
 
       if (data.state === 1 && data.data) {
         this.tableData =
@@ -211,7 +215,6 @@ export default {
               desc: item[3]
             };
           });
-
         this.pageData.total = data.total;
       }
     }

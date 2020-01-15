@@ -11,7 +11,7 @@
         >
       </div>
       <div class="list-table" v-loading="isFetchingData">
-        <el-table :data="tableData" border>
+        <el-table :data="tableData" border v-loading="isLoading">
           <el-table-column label="接口名称" prop="interface">
           </el-table-column>
           <el-table-column label="IP地址" prop="">
@@ -220,6 +220,7 @@ export default {
 					{ required: true, message: '请输入下一跳地址', trigger: 'blur' }
 				],
 			},
+		    isLoading:false,
 			tableData: [],
 			isFetchingData:false,
 		}
@@ -246,22 +247,24 @@ export default {
 			let content = '';
 			let tmpStr = '';
 
+            
 			this.tableData.forEach(item => {
 				tmpStr = item.interface + ',' + item.ip + ',' + item.mask + ';';
 				content += tmpStr;
 			})
-
+         
 			const params = {
 				isge: 1,
 				content: content
 			};
-
+             this.isLoading = true;
 			const data = await this.postFuzz({
 				url: "/fuzz/page/view/sysconfig/sysconfig!configInterface.action",
 				params: params,
 				vm: this
 			});
-
+			  this.isLoading = false;
+               
 			if (data.state === 1) {
 				this.$message.success('设置成功，请使用新IP重新登录');
 			} else {

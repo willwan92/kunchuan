@@ -68,7 +68,7 @@
       </el-table>
     </div>
     <el-dialog title="打分" :visible.sync="dialogVisible" width="800px">
-      <el-form label-width="150px" ref="dialogForm" :model="dialogForm">
+      <el-form v-loading="isUpdate" label-width="150px" ref="dialogForm" :model="dialogForm">
 				<el-form-item v-for="(value, name) in checkListForm" :label="name" :key="name">
           <el-input v-model="checkListForm[name]"></el-input>
         </el-form-item>
@@ -79,8 +79,8 @@
           <el-input v-model="dialogForm.scorer"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="submit">保存</el-button>
-          <el-button type="primary" @click="dialogVisible = false">取消</el-button>
+          <el-button :disabled="isUpdate" type="primary" @click="submit">保存</el-button>
+          <el-button :disabled="isUpdate" type="primary" @click="dialogVisible = false">取消</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -101,6 +101,7 @@ export default {
       pjValue: [],
       tableData: [],
       isLoading: false,
+      isUpdate:false,
 			dialogVisible: false,
 			checkListForm: {},
       dialogForm: {
@@ -156,13 +157,14 @@ export default {
           excelType: 3,
           fileName: this.selectedTpl
         };
-			}
+      }
+      this.isLoading = true;
       const { data } = await this.fetchFuzz({
         url: url,
         params: params,
         vm: this
       });
-
+      this.isLoading = false;
       if (data && data[0]) {
         this.tableData = data.map((item, index) => {
           return {
@@ -244,13 +246,13 @@ export default {
     async submit() {
 			let params = this.dialogForm;
 			params.checklist = this.formatCheckListForm(this.checkListForm);
-
+      this.isUpdate = true;
 			const data = await this.fetch({
 				url: "/back/updateSafetypojoId",
 				params: params,
         vm: this
 			});
-
+      this.isUpdate = false;
 			if (data && data.code === 10000) {
 				this.$message.success("打分成功");
 				this.dialogVisible = false;

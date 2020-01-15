@@ -113,6 +113,7 @@ export default {
     async fetchPjTreeData() {
 			const roleId = sessionStorage.getItem('roleId');
 
+     this.isLoading = true;
       const data = await this.fetch({
 				url: "/projectInfo/getEnableRole",
 				params: {
@@ -120,7 +121,7 @@ export default {
 				},
         vm: this
       });
-
+      this.isLoading = false;
 			const treeData = formatTreeData(data, 0);
 
       this.pjOptions = getCascaderOptions({

@@ -29,10 +29,10 @@
         <el-table-column label="权限" width="500px" prop="sysPermission"></el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
-            <el-button type="text" @click="handleEditClick(scope.row)"
+            <el-button v-if="scope.row.id !== 1" type="text" @click="handleEditClick(scope.row)"
               >编辑</el-button
             >
-            <el-button type="text" @click="handleDelClick(scope.row.id)"
+            <el-button v-if="scope.row.id !== 1" type="text" @click="handleDelClick(scope.row.id)"
               >删除</el-button
             >
           </template>
@@ -80,8 +80,8 @@
         </el-form-item>
       </el-form>
       <span slot="footer">
-        <el-button @click="dialogShow = false">取 消</el-button>
-        <el-button type="primary" @click="handleComfirmClick">确 定</el-button>
+        <el-button :disabled="isUpdate" @click="dialogShow = false">取 消</el-button>
+        <el-button :disabled="isUpdate" type="primary" @click="handleComfirmClick">确 定</el-button>
       </span>
     </el-dialog>
   </div>
