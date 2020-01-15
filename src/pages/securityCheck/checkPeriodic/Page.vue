@@ -383,7 +383,7 @@
 
 <script>
 import { FUZZ_URL } from "common/axiosClient";
-import { getCascaderOptions, formatTreeData } from "../../../common/utils";
+import { getCascaderOptions, formatTreeData, downloadFileByUrl } from "../../../common/utils";
 
 export default {
   data() {
@@ -509,7 +509,6 @@ export default {
         }
       });
       this.data[0]["children"] = children;
-      console.log(this.data, "data");
     },
     /**
      * 添加任务项目下拉选择
@@ -572,7 +571,6 @@ export default {
         params: { ip, pjid },
         vm: this
       }).then(res => {
-        console.log(res, "assetItem");
         this.assetListItem = res.data[0];
       });
       this.getLoginType();
@@ -815,7 +813,7 @@ export default {
             "_blank"
           );
         } else if (res && res.state === "failure") {
-          this.$message.error("html文件不存在，报告预览失败~~~");
+          this.$message.error("文件不存在，报告预览失败~~~");
         }
       });
     },
@@ -850,16 +848,17 @@ export default {
           url: "fuzz/page/view/checkmanage/strategy!searchTypeBygroupid.action",
           params: { group_id: data.id, start: 0 },
           vm: this
-        }).then(res => {
-          // console.log(res.reu, 'tree request data')
-          res.reu.forEach((item, index) => {
-            this.data[0]["children"][data.index - 1].children.push({
-              index: index,
-              name: item[1],
-              id: item[4],
-              level: 2
+        }).then(({ reu }) => {
+          if (Array.isArray(reu)) {
+            reu.forEach((item, index) => {
+              this.data[0]["children"][data.index - 1].children.push({
+                index: index,
+                name: item[1],
+                id: item[4],
+                level: 2
+              });
             });
-          });
+          }
         });
       }
       if (data.level && data.level === 2) {

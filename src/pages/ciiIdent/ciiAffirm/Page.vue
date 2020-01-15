@@ -176,8 +176,9 @@ export default {
     },
     async fetchTableData() {
       const pjId = this.getPjId;
-
+      this.tableData = [];
       this.isLoading = true;
+      
       const data = await this.fetch({
         url: "/device/getDeviceinfoFindAll",
         params: {
@@ -187,7 +188,7 @@ export default {
       });
 
       this.isLoading=false;
-      if (data && data[0]) {
+      if (Array.isArray(data)) {
          this.tableData = data.map((item, index) => {
           return {
             index: index,

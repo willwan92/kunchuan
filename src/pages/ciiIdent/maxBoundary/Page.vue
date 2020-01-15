@@ -131,6 +131,7 @@ export default {
       const pjId = this.getPjId;
 
       this.isLoading = true;
+      this.tableData = [];
       const data = await this.fetch({
         url: "/device/getDeviceinfoBypjname",
         params: {
@@ -139,7 +140,7 @@ export default {
         vm: this
       });
         this.isLoading = false;
-      if (data && data[0]) {
+      if (Array.isArray(data)) {
          this.tableData = data.map((item, index) => {
           return {
             index: index + 1,

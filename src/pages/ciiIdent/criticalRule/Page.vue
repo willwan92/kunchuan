@@ -153,15 +153,17 @@ export default {
 			this.dialogShow = false;
 			this.fetchRules();
 		},
+      
 		async fetchRules() {
 			this.isLoading = true;
-        const data = await this.fetch({
-        url: "/keyrules/getSelect",
-        vm: this
-	  });
-	  this.isLoading = false;
+			this.ruleTableData = [];
+			const data = await this.fetch({
+				url: "/keyrules/getSelect",
+				vm: this
+			});
+	  	this.isLoading = false;
 
-			if (data && data[0]) {
+			if (Array.isArray(data)) {
 				this.ruleTableData = data.map(element => {
 					return {
 						id: element.id,
@@ -196,18 +198,21 @@ export default {
       const data = await this.fetch({
         url: "/file/fileNameUrl",
         vm: this
-      });
-
-      data[0] && data.forEach(element => {
-        this.excelOptions.push({
-          label: element,
-          value: element
-        })
-      });
+			});
+			
+			if (Array.isArray(data)) {
+				this.excelOptions = data.map(element => {
+					return {
+						label: element,
+						value: element
+					}
+				})
+			}
 
       this.excel = data[0];
 		},
 		async loadExcel() {
+			this.tableData = [];
       const { data } = await this.fetchFuzz({
         url: "/fuzz/page/view/CIIidentification!getInfoByReadFile.action",
         params: {
@@ -217,16 +222,17 @@ export default {
         vm: this
 			});
 
-      data[0] &&
-        data.forEach((item, index) => {
-          this.tableData.push({
+			if (Array.isArray(data)) {
+				this.tableData = data.map((item, index) => {
+          return {
 						business: item[0],
 						KbValue: item[1],
 						class: item[2],
 						info: item[3],
 						standard: item[5]
-					})
+					}
         });
+			}
     },
   }
 };

@@ -259,7 +259,7 @@ export default {
 				url = "/device/sortDevclassThree";
 			}
 
-            this.isLoading = true;
+			this.isLoading = true;
 			const data = await this.fetch({
 				url: url,
 				params: {
@@ -267,11 +267,11 @@ export default {
 				},
 				vm: this
 			});
-            this.isLoading = false;
+			this.isLoading = false;
 			this.mapTableData(table, data);
 		},
 		mapTableData(table, data) {
-			if (!data || !data[0]) {
+			if (!Array.isArray(data)) {
 				return;
 			}
 			

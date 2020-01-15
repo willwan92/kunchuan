@@ -142,6 +142,7 @@ export default {
       });
     },
     async loadExcel() {
+      this.tableData = [];
       const { data } = await this.fetchFuzz({
         url: "/fuzz/page/view/CIIidentification!getInfoByReadFile.action",
         params: {
@@ -151,17 +152,18 @@ export default {
         vm: this
       });
 
-      data[0] &&
-        data.forEach((item, index) => {
-          this.tableData.push({
+      if (Array.isArray(data)) {
+        this.tableData = data.map((item, index) => {
+          return {
             index: index,
             id: item[3],
             name: item[0],
             desc: item[1],
             critical: item[2],
             isVisiable: true
-          });
+          }
         });
+      }
     },
     async fetchFileList() {
       this.isLoading = true;
@@ -169,15 +171,15 @@ export default {
         url: "/file/fileName",
         vm: this
       });
-     this.isLoading = false;
-      data[0] &&
-        data.forEach(element => {
-          this.excelOptions.push({
+      this.isLoading = false;
+      if (Array.isArray(data)) {
+        this.excelOptions = data.map(element => {
+          return {
             label: element,
             value: element
-          });
+          }
         });
-         
+      }
 
       this.excel = data[0];
     }

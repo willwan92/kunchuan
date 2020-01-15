@@ -250,13 +250,14 @@ export default {
       })
 
       this.isLoading = true;
+      this.tableData = [];
       const data = await this.fetch({
         url: "/back/getSelect",
         params: params,
         vm: this
       });
       this.isLoading = false;
-      if (data && data[0]) {
+      if (Array.isArray(data)) {
         this.tableData = data.map((item, index) => {
           return {
             idx: index + 1,
@@ -274,7 +275,7 @@ export default {
         vm: this
       });
 
-      if (data && data[0]) {
+      if (Array.isArray(data)) {
         this.assetsTypeOptions = data.map((item, index) => {
           return {
             label: item.devtype,
@@ -289,7 +290,7 @@ export default {
         vm: this
       });
 
-      if (data && data[0]) {
+      if (Array.isArray(data)) {
         this.equipmentOptions = data.map(item => {
           return {
             value: item.name,
@@ -307,7 +308,7 @@ export default {
         vm: this
       });
 
-      if (data && data[0]) {
+      if (Array.isArray(data)) {
         this.factoryOptions = data.map(item => {
           return {
             value: item.vendor,

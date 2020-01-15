@@ -196,16 +196,17 @@ export default {
       this.isFetchingData = true;
 
       this.isLoading = true;
+      this.tableData = [];
       const data = await this.fetchFuzz({
         url: "/fuzz/page/view/system/syslog!findAllLogs.action",
         params: this.createParams(),
         vm: this
       });
-       this.isLoading = false;
+      
+      this.isLoading = false;
 
-      if (data.state === 1 && data.data) {
+      if (data.state === 1 && Array.isArray(data.data)) {
         this.tableData =
-          data.data[0] &&
           data.data.map(item => {
             return {
 							id: item[4],

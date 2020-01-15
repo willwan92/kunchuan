@@ -140,6 +140,7 @@ export default {
       }
     
       this.isLoading = true;
+      this.tableData = [];
       const data = await this.fetch({
         url: "/back/getSelectByDeviceid",
         params: {
@@ -148,7 +149,7 @@ export default {
         vm: this
       });
       this.isLoading = false;
-      if (data && data[0]) {
+      if (Array.isArray(data)) {
         this.tableData = data.map(item => {
           return {
             id: item.id,
@@ -171,7 +172,7 @@ export default {
         vm: this
       });
 
-      if (data && data[0]) {
+      if (Array.isArray(data)) {
         this.assetSignOptions = data.map(item => {
           return {
             value: item.deviceid,
