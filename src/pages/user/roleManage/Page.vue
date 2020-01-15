@@ -143,14 +143,10 @@ export default {
       this.dialogShow = true;
       this.id = null;
       this.resetForm('dialogForm');
-      this.dialogForm.roleType = 2;
 			this.$nextTick(() => {
 				this.setCheckedNodes([]);
 			})
 		},
-		resetForm(formName) {
-      this.$refs[formName] && this.$refs[formName].resetFields();
-    },
 		getCheckedNodes() {
       const checkedTreeNodes = this.$refs['pjTree'].getCheckedNodes(false);
       // 包含半选中状态的节点
@@ -231,7 +227,12 @@ export default {
 			}
 		},
     resetForm(formName) {
-      this.$refs[formName] && this.$refs[formName].resetFields();
+      // this.$refs[formName] && this.$refs[formName].resetFields();
+      
+      this.dialogForm.roleName = "";
+      this.dialogForm.desc = "";
+      this.dialogForm.roleType = 2;
+      this.dialogForm.pjPermission = [];
     },
     handleComfirmClick() {
       this.$refs["dialogForm"].validate(valid => {
