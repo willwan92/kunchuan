@@ -56,7 +56,7 @@ export default {
 		position: fixed;
 		width: 100%;
 		height: 85px;
-		z-index: 1000;
+		z-index: 10000;
 	}
 	
 	#main-container {
