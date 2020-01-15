@@ -47,10 +47,17 @@
         </el-form-item>
         <br />
         <el-form-item label="禁止访问用户">
-          <el-input v-model="form.mobile"></el-input>
+          <el-select v-model="disUser" multiple placeholder="请选择">
+            <el-option
+              v-for="item in userOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value">
+            </el-option>
+          </el-select>
         </el-form-item>
         <el-form-item label>
-          <el-button type="primary" @click="0">确定</el-button>
+          <el-button type="primary" @click="setUserRange">确定</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -86,7 +93,9 @@ export default {
   data() {
     return {
 	  timeRange: null,
-	  ipMethod: 'sigIp',
+    ipMethod: 'sigIp',
+    userOptions: null,
+    disUser: [],
 	  ip: '',
 	  startIp: '',
 	  endIp: '',
@@ -125,17 +134,46 @@ export default {
           operate: "修改"
         }
       ],
-      data: [{"dkey":"mulIp","dtype":3,"dvalue":"10.60.4.250-10.60.4.251"}],
       tableData: []
     };
   },
+  created() {
+    this.getUserOptions();
+  },
   methods: {
-	//查询
+    // Number('29')
+    async getUserOptions() {
+      const params = {
+        start: 0,
+        t: Math.random(),
+        user_name: ''
+      };
+
+      const { data } = await this.fetchFuzz({
+        url: "/fuzz/page/view/system/user!getAllUser.action",
+        params: params,
+        vm: this
+      });
+
+      let userArr = [];
+
+      data.map(item => {
+        if (item[1] !== 1) {
+          userArr.push({
+            label: item[0],
+            value: item[6]
+          })
+        }
+      })
+
+      this.userOptions = userArr;
+    },
+	//保存IP
 	async setIp() {
 		const paramsData = [
 				{
 					dkey: this.ipMethod,
-					dtype: 3,
+					dtype: dtype,
 					dvalue: `${this.startIp}-${this.endIp}`
 				}
 			];
@@ -156,10 +194,43 @@ export default {
 		} else {
 			this.$message.error('保存失败！')
 		}
-	},
-	async seTimeRange() {
+  },
+  
 
-	},
+
+  async setUserRangeById(){
+      
+  },
+
+	async setUserRange() {
+    let paramsData = [];
+    this.disUser.forEach(item => {
+      paramsData.push({
+        dkey: 'disUser',
+        dtype: 4,
+        dvalue: item
+      })
+    })
+    
+    const data = await this.postFuzz({
+			url: "/fuzz/page/view/system/dictionary!updateForUser.action",
+			params: {
+        dtype: 4,
+        data: JSON.stringify(paramsData)
+      },
+			vm: this
+    });
+    
+		if (data.state === 1) {
+			this.$message.success('保存成功！')
+		} else {
+			this.$message.error('保存失败，请稍后再试！')
+		}
+  },
+  
+async seTimeRange() {
+
+},
     async fetchData() {
       const params = {
         keyvalue: "",
@@ -201,18 +272,6 @@ export default {
         }
       });
     }
-  },
-  beforeRouteEnter(to, from, next) {
-    next(vm => {
-      vm.$nextTick(() => {
-        vm.fetchData();
-      });
-    });
-  },
-  mounted() {
-    this.$nextTick(() => {
-      this.fetchData();
-    });
   }
 };
 </script>
