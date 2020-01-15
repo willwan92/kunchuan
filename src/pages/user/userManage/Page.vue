@@ -129,7 +129,7 @@ export default {
     handleAddClick() {
       this.dialogShow = true;
       this.id = '';
-      this.resetForm('dialogForm');
+      this.resetForm();
     },
     async fetchRoleTypeOptions() {
       const params = {
@@ -181,8 +181,14 @@ export default {
         email: userInfo.email
       });
     },
-    resetForm(formName) {
-      this.$refs[formName] && this.$refs[formName].resetFields();
+    resetForm() {
+      this.dialogForm.userName = "";
+      this.dialogForm.password = "";
+      this.dialogForm.roleType = null;
+      this.dialogForm.mobile = "";
+      this.dialogForm.email = "";
+      this.dialogForm.telephone = "";
+      // this.$refs[formName] && this.$refs[formName].resetFields();
     },
 		handleComfirmClick() {
 			this.$refs['dialogForm'].validate(valid => {
