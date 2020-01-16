@@ -31,7 +31,11 @@
           label="项目名称"
         ></el-table-column>
         <el-table-column prop="tasktype" label="类型" width="100">
-          <template><span>周期任务</span></template>
+          <template slot-scope="scope">
+            <span>
+              {{ taskTypeList['task'+scope.row.tasktype] }}
+            </span>
+          </template>
         </el-table-column>
         <el-table-column prop="starttime" label="开始时间"></el-table-column>
         <el-table-column prop="endtime" label="结束时间"></el-table-column>
@@ -279,6 +283,11 @@ export default {
       }
     };
     return {
+      taskTypeList: {
+        "task3": '每月任务', 
+        "task4": '每周任务',
+        "task5": '每天任务'
+      },
       isAdding: false,
       isLoadingAssets: false,
       isFinished: true,

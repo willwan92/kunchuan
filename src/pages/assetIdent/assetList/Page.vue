@@ -76,12 +76,11 @@
         <el-form
           v-loading="isUpdate"
           :model="dialogForm"
-          :rules="rules"
           class="dialog-form"
           ref="dialogForm"
           label-width="100px"
         >
-          <el-form-item label="IP地址" prop="ip">
+          <el-form-item label="IP/资产标识" prop="ip">
             <el-input v-model="dialogForm.ip" :readonly="Boolean(assetsId)"></el-input>
           </el-form-item>
           <el-form-item label="登录方式" prop="loginMethod">
@@ -183,15 +182,15 @@ import { API_URL, FUZZ_URL, axiosUploadFuzz } from "common/axiosClient";
 
 export default {
   data() {
-    var validateIp = (rule, value, callback) => {
-      if (value === "") {
-        callback();
-      } else if (!checkIp(value)) {
-        callback(new Error("请输入合法的IP地址"));
-      } else {
-        callback();
-      }
-    };
+    // var validateIp = (rule, value, callback) => {
+    //   if (value === "") {
+    //     callback();
+    //   } else if (!checkIp(value)) {
+    //     callback(new Error("请输入合法的IP地址"));
+    //   } else {
+    //     callback();
+    //   }
+    // };
     return {
       isUploadLoading:false,
       assetsId: "",
@@ -249,9 +248,6 @@ export default {
         databasePassword: "",
         databaseInstance: "",
         comments: ""
-      },
-      rules: {
-        ip: [{ validator: validateIp, trigger: "blur" }]
       },
       pjOptions: null,
       tableData: []
@@ -459,11 +455,16 @@ export default {
       }
     },
     handleConfirmClick() {
-      this.$refs["dialogForm"].validate(valid => {
-        if (valid) {
+      if (this.assetsId) {
+        // 编辑时不再验证ip
+        this.saveAsset();
+      } else {
+        if (this.dialogForm.ip !== '' && !checkIp(this.dialogForm.ip)) {
+          this.$message.warning('请输入合法的IP')
+        } else {
           this.saveAsset();
         }
-      });
+      }
     },
     handleAddClick() {
       this.resetForm("dialogForm");
