@@ -17,7 +17,6 @@
         default-expand-all
         :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
         @selection-change="handleSelectionChange"
-        v-loading="isLoadingTask"
       >
         <el-table-column type="selection" width="55"></el-table-column>
         <el-table-column
@@ -28,7 +27,6 @@
         <el-table-column
           prop="pjname"
           label="项目名称"
-          width="100"
         ></el-table-column>
         <el-table-column prop="tasktype" label="类型" width="100">
           <template><span>实时任务</span></template>
@@ -39,6 +37,7 @@
           <template slot-scope="scope">
             <div v-if="scope.row.level === 1">
               <span v-if="scope.row.progress >= 200">已停止</span>
+              <span v-else-if="scope.row.progress >= 100">已完成</span>
               <span v-else-if="scope.row.progress < 100">执行中</span>
               <span v-else>等待执行</span>
             </div>
@@ -64,7 +63,7 @@
               <i
                 v-if="scope.row.progress >= 100"
                 class="el-icon-video-play icon"
-                title="执行核查任务"
+                title="再次执行"
                 @click="handleClick(scope.row, 'play')"
                 style="color: #009688;"
               ></i>
@@ -74,14 +73,17 @@
                 @click="handleClick(scope.row, 'stop')"
                 style="color: red;"
               ></i>
+              <!-- <el-button type="text" @click="">任务详情</el-button> -->
             </p>
             <P v-else>
-              <i
-                title="核查报告"
-                class="el-icon-document icon"
-                style="color: #009688;"
-                @click="openDownload(scope.row)"
-              ></i>
+              <el-button type="text" 
+                :disabled="scope.row.progress < 100" 
+                @click="openDownload(scope.row)" 
+                title="核查报告">
+                <i
+                  class="el-icon-document icon"
+                ></i>
+              </el-button>
             </P>
           </template>
         </el-table-column>
@@ -96,18 +98,18 @@
       :before-close="handleClose"
     >
       <div style="padding: 20px;">
-        <div>
-          <span style="padding-right: 40px;">报告预览</span>
-          <span @click="openHTML" style="cursor: pointer;">预览（html）</span>
-        </div>
-        <div style="margin-top: 20px;">
-          <span style="padding-right: 40px;">报告下载</span>
-          <el-select v-model="fileType" placeholder="请选择">
-            <el-option label="HTML" value="HTML"></el-option>
-            <el-option label="WORD" value="WORD"></el-option>
-            <el-option label="PDF" value="PDF"></el-option>
-          </el-select>
-        </div>
+        <el-form ref="form" label-width="80px">
+          <el-form-item label="报告预览">
+            <el-button type="primary" plain="" @click="openHTML">预览（html）</el-button>
+          </el-form-item>
+          <el-form-item label="报告下载">
+            <el-select v-model="fileType" placeholder="请选择">
+              <el-option label="HTML" value="HTML"></el-option>
+              <el-option label="WORD" value="WORD"></el-option>
+              <el-option label="PDF" value="PDF"></el-option>
+            </el-select>
+          </el-form-item>
+        </el-form>
       </div>
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="downloadReport">下 载</el-button>
@@ -121,7 +123,7 @@
           v-loading="isAdding"
           :model="addTaskForm"
           :rules="rules"
-          ref="ruleForm"
+          ref="addTaskForm"
           label-width="120"
         >
           <el-form-item label="任务名称" prop="name">
@@ -195,6 +197,7 @@ import {
   downloadFileByUrl,
   formatTreeData
 } from "common/utils";
+import { isBase64 } from '../../../common/utils';
 
 export default {
   data() {
@@ -207,11 +210,10 @@ export default {
           params: { taskname: value },
           vm: this
         }).then(res => {
-          console.log(res, "validateName");
-          if (res.success === "success") {
-            callback();
-          } else {
+          if (res.success === "failure") {
             callback(new Error("任务名称重复"));
+          } else {
+            callback();
           }
         });
       }
@@ -219,6 +221,7 @@ export default {
     return {
       isAdding: false,
       isLoadingAssets: false,
+      isFinished: true,
       policyOptions: [],
       selectedPolicy: [],
       rules: {
@@ -236,7 +239,6 @@ export default {
       tableData: [],
       multipleSelection: [],
       addSelected: [],
-      isLoadingTask: false,
       dialogVisible: false, // 下载报告
       addTask: false,
       addTaskForm: {
@@ -445,14 +447,15 @@ export default {
      * 保存实时任务
      */
     submitAddTask() {
-      if (!this.addTaskForm.name) {
-        this.$message.warning('请填写任务名称');
-        return;
-      }
+      this.$refs['addTaskForm'].validate(valid => {
+        if (!valid) return;
+      })
+
       if (!this.getPjId) {
         this.$message.warning('请选择项目');
         return;
       }
+
       if (!this.selectedPolicy.length) {
         this.$message.warning('请选择策略模板');
         return;
@@ -506,10 +509,7 @@ export default {
         })
           .then(() => {
             let taskids = [];
-            console.log(
-              this.multipleSelection,
-              "multipleSelectionmultipleSelection"
-            );
+            
             this.multipleSelection.forEach(item => {
               let taskname = item.taskname;
               this.fetchFuzz({
@@ -599,52 +599,57 @@ export default {
     },
     /**
      * 获取默认首页table数据
-     * @param _index tableData 对应的index
      */
-    getTableData(_index) {
-      this.isLoadingTask = true;
+    getTableData() {
+      this.isFinished = true;
+
       this.fetchFuzz({
         url: "fuzz/view/page/VerificationTasks!loaddatas.action",
         params: { actask: "1" },
         vm: this
-      }).then(res => {
-        this.isLoadingTask = false;
-        let data = res,
-          arr = [];
-        let i = 0;
-        data.forEach(item => {
+      }).then(data => {
+        // 任务
+        let taskArr = [];
+
+        data.forEach((item, i) => {
           if (item.groupid === 0) {
-            let _item = item;
-            _item.id = i;
-            _item.level = 1;
-            arr.push(item);
-            i++;
+            item.id = i;
+            item.level = 1;
+            item.children = [];
+            taskArr.push(item);
           }
+
         });
-        arr.forEach((item, index) => {
-          arr[index]["children"] = [];
+
+        taskArr.forEach((item, index) => {
+          if (item.progress < 100) {
+            this.isFinished = false;
+          }
+
           for (let i = 0, len = data.length; i < len; i++) {
             if (data[i]["groupid"] === item.taskid) {
               let _data = data[i];
               _data.id = "a" + index + i;
               _data.level = 2;
               _data.taskname = `${_data["taskname"]}[${_data.taskid}]`;
-              arr[index]["children"].push(data[i]);
+              item["children"].push(_data);
             }
           }
         });
-        // console.log(_index, arr, 'index 5s')
-        if (_index) {
-          if (arr[_index]["progress"] === 100) {
-            clearInterval(this.timer);
-          }
+
+        if (this.isFinished) {
+          this.timer && clearInterval(this.timer);
+        } else {
+          !this.timer && (this.timer = setInterval(this.getTableData, 2000));
         }
-        this.tableData = arr;
-        // console.log(this.tableData, 'tableData')
+
+        this.tableData = taskArr;
       });
     },
+    /**
+     * 执行或者停止任务
+     */
     handleClick(row, type) {
-      // console.log(row, 'row')
       let taskname = row.taskname;
       let url =
         type === "play"
@@ -657,14 +662,9 @@ export default {
       }).then(res => {
         if (res.success === "success") {
           if (type === "stop") {
-            this.$set(this.tableData[row.id], "progress", row.progress + 200);
-            clearInterval(this.timer);
+            this.timer && clearInterval(this.timer);
           } else {
-            let that = this;
-            this.$set(this.tableData[row.id], "progress", 0);
-            // this.timer = setInterval(() => {
-            //   that.getTableData(row.id);
-            // }, 5000);
+            this.getTableData();
           }
         }
       });
@@ -712,7 +712,6 @@ export default {
   }
 
   .icon {
-    cursor: pointer;
     font-size: 20px;
   }
 
