@@ -35,9 +35,10 @@
         <el-form-item label="" prop="">
           <el-upload
             action="#"
+            :disabled="!deviceid || isUploading"
             :before-upload="beforeUpload">
-            <el-button :disabled="!deviceid" type="primary" 
-          >上传备份</el-button>
+            <el-button :disabled="!deviceid || isUploading" :loading="isUploading" type="primary" 
+          >{{ isUploading ? '正在上传' : '上传备份' }}</el-button>
           </el-upload>
         </el-form-item>
       </el-form>
@@ -73,6 +74,7 @@ const baseDir = '/cfgtools/usr/local/backfile/';
 export default {
   data() {
     return {
+      isUploading: false,
       pjOptions: [],
       assetSignOptions: [],
       pjValue: [],
@@ -120,8 +122,10 @@ export default {
       params.append('backuptime', this.moment().format('YYYY-MM-DD HH:mm:ss'));
       params.append('filepath', this.getFilePath());
 
+      this.isUploading = true;
       const { data } = await axiosClientUpload.post("/uploadinsert", params);
-
+      
+      this.isUploading = false;
       if  (data && data.code === 10000) {
 				this.$message.success("上传备份成功");
 				this.fetchTableData();
