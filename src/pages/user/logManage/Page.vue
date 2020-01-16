@@ -118,8 +118,8 @@ export default {
   },
   methods: {
 		handleExportClick() {
-			const params = qs.stringify(this.createParams());
-			const url = `${FUZZ_URL}/fuzz/page/view/system/syslog!exportLog.action?${params}`;
+      const params = qs.stringify(this.createParams());
+      const url = `${FUZZ_URL}/fuzz/page/view/system/syslog!exportLog.action?${params}`;
       downloadFileByUrl(url);
     },
 		handleDelClick() {

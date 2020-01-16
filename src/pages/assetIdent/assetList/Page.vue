@@ -26,9 +26,12 @@
         <el-form-item label="">
           <el-upload
             action="#"
+            :disabled="!getPjId || isUploadLoading"
             :before-upload="beforeUpload">
-            <el-button type="primary" 
-            :disabled="!getPjId">导入资产</el-button>
+            <el-button :loading="isUploadLoading" type="primary" 
+              :disabled="!getPjId || isUploadLoading">
+              {{ isUploadLoading ? '正在导入':'导入资产'}}
+            </el-button>
           </el-upload>
         </el-form-item>
 
@@ -190,6 +193,7 @@ export default {
       }
     };
     return {
+      isUploadLoading:false,
       assetsId: "",
       isLoading:false,
       isUpdate: false,
@@ -290,9 +294,11 @@ export default {
       params.append('pjid', this.getPjId);
       params.append('fn', file.name);
       params.append('filename', file);
-
+       
+      this.isUploadLoading = true;
       const {data} = await axiosUploadFuzz.post("/fuzz/page/view/station/device!addDeviceImport.action", params);
-      
+      this.isUploadLoading = false;
+
       if  (data && data.state === 1) {
 				this.$message.success("导入资产成功");
 				this.fetchTableData();

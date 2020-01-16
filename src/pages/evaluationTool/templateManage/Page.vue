@@ -6,9 +6,10 @@
         <el-form-item label="" prop="">
           <el-upload
             action="#"
+            :disabled="isUploading"
             :before-upload="beforeUpload">
-            <el-button type="primary" 
-          >导入模板</el-button>
+            <el-button :disabled="isUploading" :loading="isUploading" type="primary" 
+          >{{ isUploading ? '正在导入':'导入模板'}}</el-button>
           </el-upload>
         </el-form-item>
       </el-form>
@@ -35,6 +36,7 @@ const path = '/cfgtools/usr/local/safetyassessfile/';
 export default {
   data() {
     return {
+      isUploading:false,
       tableData: [],
       form: {
         id: "",
@@ -61,9 +63,9 @@ export default {
       let params = new FormData();
       params.append('file', file);
       params.append('filepath', path);
-
+       this.isUploading = true;
       const { data } = await axiosClientUpload.post("/uploadFile", params);
-
+       this.isUploading = false;
       if  (data && data.code === 10000) {
 				this.$message.success("模板导入成功");
 				this.fetchTableData();
