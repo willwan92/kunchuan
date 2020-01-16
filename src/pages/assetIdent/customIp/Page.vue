@@ -323,8 +323,6 @@ export default {
 
       if (data.success === "success") {
         this.tableData[index].result = data.data[0].confirm;
-      } else {
-        
       }
 
       this.isLoading = false;

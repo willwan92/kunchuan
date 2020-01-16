@@ -175,7 +175,7 @@ export default {
       });
 
       this.isLoading = false;
-      if (res.data && res.data[0]) {
+      if (Array.isArray(res.data)) {
         this.tableData = res.data.map(item => {
           return {
             id: item[0],

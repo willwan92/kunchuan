@@ -272,13 +272,13 @@ export default {
 			}
 		},
 		async getInterfaceConfig() {
+			this.tableData = [];
 			const data = await this.fetchFuzz({
 				url: "/fuzz/page/view/sysconfig/sysconfig!loadConfigInterface.action",
 				vm: this
 			});
 
-			if (data && data[0]) {
-				this.tableData = [];
+			if (Array.isArray(data)) {
 				data.forEach(item => {
 					if (item.length > 2) {
 						this.tableData.push({

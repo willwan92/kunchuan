@@ -394,18 +394,20 @@ export default {
         url: "/fuzz/page/view/checkmanage/strategy!searchTypeBygroupid.action",
         params: { start: parseInt(this.tablePageData.page - 1) * 10, group_id: id },
         vm: this
-      }).then(res => {
+      }).then(({reu}) => {
         this.isLoading = false;
         let _this = this;
-        this.tableData = res.reu.map((item, index) => {
-          return {
-            name: item[1],
-            type: item[2],
-            attr: item[3] === 1 ? '预定义' : '',
-            is_buildin: _this.data[0]["children"][index]["is_buildin"],
-            id: item[4]
-          };
-        });
+        if (Array.isArray(reu)) {
+          this.tableData = reu.map((item, index) => {
+            return {
+              name: item[1],
+              type: item[2],
+              attr: item[3] === 1 ? '预定义' : '',
+              is_buildin: _this.data[0]["children"][index]["is_buildin"],
+              id: item[4]
+            };
+          });
+        }
       });
     },
     /**
@@ -523,13 +525,17 @@ export default {
 
       let builtInChildren = [];
       let customChildren = [];
-      data.forEach(item => {
-        if (item.pid === 1) {
-          builtInChildren.push(item);
-        } else if (item.pid === 100) {
-          customChildren.push(item);
-        }
-      });
+
+      if (Array.isArray(data)) {
+         data.forEach(item => {
+          if (item.pid === 1) {
+            builtInChildren.push(item);
+          } else if (item.pid === 100) {
+            customChildren.push(item);
+          }
+        });
+      }
+     
       this.data[0]["children"] = builtInChildren;
 
       // 自定义策略组

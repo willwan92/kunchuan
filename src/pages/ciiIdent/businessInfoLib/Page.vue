@@ -73,6 +73,7 @@ export default {
     },
     async fetchTableData() {
       this.isLoading = true;
+      this.tableData = [];
       const data = await this.fetch({
         url: '/file/fileNameUrlPath',
         params: {

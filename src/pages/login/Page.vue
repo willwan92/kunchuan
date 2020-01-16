@@ -94,8 +94,6 @@ export default {
         this.roleType = roleInfo.roletype;
         sessionStorage.setItem('roleType', roleInfo.roletype);
       }
-
-
     },
     async login() {
       let loginParams = this.loginParams;
