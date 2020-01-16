@@ -9,6 +9,8 @@
           >删除</el-button
         >
       </p>
+
+      <!-- 任务列表 -->
       <el-table
         :data="tableData"
         style="width: 100%;margin-bottom: 20px;"
@@ -62,14 +64,14 @@
             <p v-if="scope.row.level === 1">
               <i
                 v-if="scope.row.progress >= 100"
-                class="el-icon-video-play icon"
+                class="el-icon-video-play icon cursor-point"
                 title="再次执行"
                 @click="handleClick(scope.row, 'play')"
                 style="color: #009688;"
               ></i>
               <i 
                 v-else
-                class="el-icon-video-pause icon"
+                class="el-icon-video-pause icon cursor-point"
                 @click="handleClick(scope.row, 'stop')"
                 style="color: red;"
               ></i>
@@ -129,7 +131,7 @@
           <el-form-item label="任务名称" prop="name">
             <el-input
               v-model="addTaskForm.name"
-              style="width: 508px;"
+               class="width-508"
             ></el-input>
           </el-form-item>
           <el-form-item label="项目选择">
@@ -197,7 +199,6 @@ import {
   downloadFileByUrl,
   formatTreeData
 } from "common/utils";
-import { isBase64 } from '../../../common/utils';
 
 export default {
   data() {
@@ -230,12 +231,6 @@ export default {
       pjOptions: null, // 添加任务项目下拉选择
       pjValue: [],
       assetList: [], // 添加任务资产列表
-      assetListItem: {}, // 添加任务资产列表操作数据
-      loginTypeList: [], // 登录方式
-      devTypeList: [], // 资产类型列表
-      vendorList: [], // 厂家名称
-      productList: [], // 设备型号
-      OSList: [], // 操作系统列表
       tableData: [],
       multipleSelection: [],
       addSelected: [],
@@ -270,7 +265,7 @@ export default {
     }
   },
   methods: {
-    /**
+  /**
      * 策略模板展开事件
      */
     handlePolicyExpend(nodeArr) {
@@ -297,13 +292,13 @@ export default {
         })
       }
 
-    },
+    },    
     /**
      * 点击添加按钮
      */
     addTaskFun() {
-      this.addTask = true;
       this.resetTaskForm();
+      this.addTask = true;
     },
 
     resetTaskForm() {
@@ -312,7 +307,10 @@ export default {
       this.addTaskForm.name = '';
       this.assetList = [];
     },
-
+    
+    /**
+     * 树形结构数据初始化数据
+     */
     async getPolicyOptionsData() {
       const { data } = await this.fetchFuzz({
         url: "/fuzz/page/view/strategy!strategyTree.action",
@@ -381,66 +379,6 @@ export default {
             pjid: item.pjid
           };
         });
-      });
-    },
-    /**
-     * 获取登录方式
-     */
-    getLoginType() {
-      this.fetchFuzz({
-        url: "fuzz/view/page/device!loadLoginType.action",
-        params: {},
-        vm: this
-      }).then(res => {
-        this.loginTypeList = res.list;
-      });
-    },
-    /**
-     * 获取资产类型列表
-     */
-    getDevTypeList() {
-      this.fetchFuzz({
-        url: "fuzz/view/page/device!findAllDevtype.action",
-        params: {},
-        vm: this
-      }).then(res => {
-        this.devTypeList = res.data;
-      });
-    },
-    /**
-     * 获取厂家列表
-     */
-    getVendorList(devtype) {
-      this.fetchFuzz({
-        url: "fuzz/view/page/device!findVendorByType.action",
-        params: { devtype },
-        vm: this
-      }).then(res => {
-        this.vendorList = res.data;
-      });
-    },
-    /**
-     * 获取设备名称列表
-     */
-    getProductList(devtype, vendor) {
-      this.fetchFuzz({
-        url: "fuzz/view/page/device!findProduct.action",
-        params: { devtype, vendor },
-        vm: this
-      }).then(res => {
-        this.productList = res.data;
-      });
-    },
-    /**
-     * 获取操作系统列表
-     */
-    getOsList() {
-      this.fetchFuzz({
-        url: "fuzz/view/page/device!loadOsDatas.action",
-        vm: this
-      }).then(res => {
-        console.log(res, "getOsList");
-        this.OSList = res.list;
       });
     },
     /**
@@ -552,7 +490,6 @@ export default {
         vm: this
       }).then(res => {
         if (res === null) {
-          // console.log(res, 'openHTML') // 预览报告
           window.open(
             `${FUZZ_URL}/fuzz/html/${taskid}_html/main.html`,
             "_blank"
@@ -668,15 +605,6 @@ export default {
           }
         }
       });
-      // let _this = this
-      // if (row.level === 1) {
-      //   _this.loading = true
-      //   setTimeout(() => {
-      //     _this.loading = false
-      //   }, 3000)
-      // } else {
-      //   this.dialogVisible = true
-      // }
     },
     /**
      * 关闭核查报告弹框
@@ -713,6 +641,10 @@ export default {
 
   .icon {
     font-size: 20px;
+  }
+
+  .cursor-point {
+    cursor: pointer;
   }
 
   .width-508 {
