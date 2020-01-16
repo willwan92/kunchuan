@@ -87,6 +87,8 @@
 </template>
 
 <script>
+import sha1 from 'js-sha1';
+import md5 from 'md5';
 import { judgeGender, deepCopy, commonExport } from "common/utils";
 
 export default {
@@ -212,7 +214,7 @@ export default {
       };
       
 			if (this.id) {
-				params.user_pwd = dialogForm.password;
+				params.user_pwd = md5(sha1(dialogForm.password));
 				params.user_id = this.id;
 				params.executeType = 2;
 			} else {
