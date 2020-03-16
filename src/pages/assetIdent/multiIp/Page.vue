@@ -4,33 +4,36 @@
 			<el-form 
 				:inline="true"
 				label-width="75px">
-				<el-form-item label="起始IP">
-					<el-input v-model="searchParams.startIp" placeholder=""></el-input>
-				</el-form-item>
-				<el-form-item label="结束IP">
-					<el-input v-model="searchParams.endIp" placeholder=""></el-input>
-				</el-form-item>
-				<el-form-item label="端口范围">
-					<el-input v-model="searchParams.startPort" placeholder=""></el-input>
-				</el-form-item>
-				<span style="display: inline-block; width: 24px; line-height: 36px;">— </span>
-				<el-form-item label="">
-					<el-input v-model="searchParams.endPort" placeholder=""></el-input>
-				</el-form-item>
-				<el-form-item label="扫描方式">
-					<el-select v-model="searchParams.scannerType" placeholder="">
-						<el-option v-for="item in scanTypes"
-							:key="item.value"
-							:label="item.label"
-							:value="item.value">
-						</el-option>
-					</el-select>
-					
-				</el-form-item>
-				<el-form-item label="">
-					<el-button type="primary" @click="startScan">网络端口分析</el-button>
-					<el-button @click="stopScan">停止扫描</el-button>
-				</el-form-item>
+				<el-row>
+					<el-form-item label="起始IP">
+						<el-input v-model="searchParams.startIp" placeholder=""></el-input>
+					</el-form-item>
+					<el-form-item label="结束IP">
+						<el-input v-model="searchParams.endIp" placeholder=""></el-input>
+					</el-form-item>
+					<el-form-item label="扫描方式">
+						<el-select v-model="searchParams.scannerType" placeholder="">
+							<el-option v-for="item in scanTypes"
+								:key="item.value"
+								:label="item.label"
+								:value="item.value">
+							</el-option>
+						</el-select>
+					</el-form-item>
+				</el-row>
+				<el-row>
+					<el-form-item label="端口范围">
+						<el-input v-model="searchParams.startPort" placeholder=""></el-input>
+					</el-form-item>
+					<span style="display: inline-block; width: 24px; line-height: 36px;">— </span>
+					<el-form-item label="">
+						<el-input v-model="searchParams.endPort" placeholder=""></el-input>
+					</el-form-item>
+					<el-form-item label="">
+						<el-button type="primary" @click="startScan">网络端口分析</el-button>
+						<el-button @click="stopScan">停止扫描</el-button>
+					</el-form-item>
+				</el-row>
 			</el-form>
 		
 			<!-- <app-table :table-data="tableData" :table-titles="tableTitles" @operate="handleOperate"></app-table> -->
