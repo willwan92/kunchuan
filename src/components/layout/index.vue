@@ -66,6 +66,7 @@ export default {
 		padding-top: 84px;
 		#sidebar {
 			position: fixed;
+			z-index: 2001;
 			padding-bottom: 100px;
 			width: @leftWidth;
 			height: 100%;

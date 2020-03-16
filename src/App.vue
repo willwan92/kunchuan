@@ -13,7 +13,6 @@ export default {
 <style>
 #app {
   height: 100%;
-  min-width: 1000px;
 }
 
 /* 侧边栏样式，写在此才有效 */
