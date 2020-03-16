@@ -1,4 +1,4 @@
-# taste-wine
+# kunchuan-admin
 
 > A Vue.js project
 
