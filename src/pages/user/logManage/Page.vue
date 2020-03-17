@@ -46,12 +46,19 @@
 				<el-button type="primary" size="small" @click="handleExportClick">导 出</el-button>
 			</p>
       <el-table
+        border
+        row-key="id"
+        ref="log-table"
         :data="tableData"
         @selection-change="handleSelectionChange"
-        border
         v-loading="isLoading"
       >
-        <el-table-column type="selection" width="55"></el-table-column>
+        <el-table-column 
+          type="selection" 
+          :reserve-selection="true" 
+          width="55"
+        >
+        </el-table-column>
         <el-table-column label="操作人" prop="operator"></el-table-column>
         <el-table-column label="操作IP" prop="operatorIp"></el-table-column>
         <el-table-column label="操作时间" prop="operatorTime"></el-table-column>
@@ -146,6 +153,7 @@ export default {
       if (data.state === 1) {
         this.$message.success("删除成功！");
         this.fetchData();
+        this.$refs['log-table'].clearSelection();
       } else {
         this.$message.error("删除失败，请稍后再试！");
       }
@@ -216,6 +224,7 @@ export default {
               desc: item[3]
             };
           });
+
         this.pageData.total = data.total;
       }
     }

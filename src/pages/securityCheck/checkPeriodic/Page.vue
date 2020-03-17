@@ -2,29 +2,44 @@
   <div class="page">
     <div class="section">
       <p>
-        <el-button type="primary" size="medium" @click="addTaskFun"
+        <el-button type="primary" size="small" @click="addTaskFun"
           >添加</el-button
         >
-        <el-button type="primary" size="medium" @click="deleteRealTime"
-          >删除</el-button
-        >
+        <!-- <el-button 
+					type="danger"
+					size="small"
+          @click="deleteTask"
+          >删除</el-button> -->
       </p>
 
       <!-- 任务列表 -->
-      <el-table
+      <!-- <el-table
+        border
+        row-key="id"
+        ref="task-table"
+        default-expand-all
         :data="tableData"
         style="width: 100%;margin-bottom: 20px;"
-        row-key="id"
-        border
-        default-expand-all
         :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
         @selection-change="handleSelectionChange"
+      > -->
+      <el-table
+        border
+        row-key="id"
+        default-expand-all
+        :data="tableData"
+        style="width: 100%;margin-bottom: 20px;"
+        :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
       >
-        <el-table-column type="selection" width="55"></el-table-column>
+        <!-- <el-table-column 
+          type="selection" 
+          :reserve-selection="true"
+          width="55"
+        ></el-table-column> -->
         <el-table-column
           prop="taskname"
           label="任务名称"
-          width="250"
+          width="270"
         ></el-table-column>
         <el-table-column
           prop="pjname"
@@ -64,21 +79,23 @@
         </el-table-column>
         <el-table-column fixed="right" label="操作" width="100">
           <template slot-scope="scope">
-            <p v-if="scope.row.level === 1">
+            <span v-if="scope.row.level === 1">
               <i
                 class="icon el-icon-video-play cursor-point"
                 v-if="scope.row.progress >= 100"
                 @click="handleClick(scope.row, 'play')"
                 style="color: #009688;"
+                title="开始任务"
               ></i>
               <i
                 class="icon el-icon-video-pause cursor-point"
                 v-else
                 @click="handleClick(scope.row, 'stop')"
                 style="color: red;"
+                title="停止任务"
               ></i>
-            </p>
-            <P v-else>
+            </span>
+            <span v-else>
               <el-button type="text" 
                 :disabled="scope.row.progress < 100" 
                 @click="openDownload(scope.row)" 
@@ -87,7 +104,13 @@
                   class="el-icon-document icon"
                 ></i>
               </el-button>
-            </P>
+            </span>
+            <i
+              class="icon el-icon-delete cursor-point"
+              @click="deleteTask(scope.row)"
+              style="color: red;"
+              title="删除"
+            ></i>
           </template>
         </el-table-column>
       </el-table>
@@ -555,56 +578,57 @@ export default {
       });
     },
     /**
-     * 删除实时任务
+     * 删除任务
      */
-    deleteRealTime() {
-      if (this.multipleSelection.length === 0) {
-        this.$message({
-          message: "您还没有选中任务",
-          type: "warning"
-        });
-      } else {
-        this.$confirm("是否确认删除选中项?", "确认", {
+    deleteTask(item) {
+      // if (this.multipleSelection.length === 0) {
+      //   this.$message({
+      //     message: "您还没有选中任务",
+      //     type: "warning"
+      //   });
+      // } else {
+        this.$confirm("您确认删除吗?", "确认", {
           confirmButtonText: "确定",
           cancelButtonText: "取消",
           type: "warning"
         })
-          .then(() => {
-            let taskids = [];
-            console.log(
-              this.multipleSelection,
-              "multipleSelectionmultipleSelection"
-            );
-            this.multipleSelection.forEach(item => {
-              let taskname = item.taskname;
-              this.fetchFuzz({
-                url: "fuzz/view/page/VerificationTasks!stopTask.action",
-                params: { taskname },
-                vm: this
-              }).then(res => {});
-              taskids.push(item.taskid);
-            });
+        .then(() => {
+          let taskids = [];
+
+          // 先停止任务
+          // this.multipleSelection.forEach(item => {
+            let taskname = item.taskname;
             this.fetchFuzz({
-              url: "fuzz/view/page/VerificationTasks!delTasks.action",
-              params: { taskids: taskids.join(",") },
+              url: "fuzz/view/page/VerificationTasks!stopTask.action",
+              params: { taskname },
               vm: this
-            }).then(res => {
-              if (res.success === "success") {
-                this.$message({
-                  message: "任务删除成功",
-                  type: "success"
-                });
-                this.getTableData();
-              }
-            });
-          })
-          .catch(() => {
-            this.$message({
-              type: "info",
-              message: "已取消删除"
-            });
+            }).then(res => {});
+            taskids.push(item.taskid);
+          // });
+
+          // 然后删除任务
+          this.fetchFuzz({
+            url: "fuzz/view/page/VerificationTasks!delTasks.action",
+            params: { taskids: taskids.join(",") },
+            vm: this
+          }).then(res => {
+            if (res.success === "success") {
+              this.$message({
+                message: "已成功删除！",
+                type: "success"
+              });
+              this.getTableData();
+              // this.$refs['task-table'].clearSelection();
+            }
           });
-      }
+        })
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除"
+          });
+        });
+      // }
     },
     /**
      * 核查报告预览
@@ -652,7 +676,7 @@ export default {
      * @param val
      */
     handleSelectionChange(val) {
-      // console.log(val, 'multipleSelection')
+      console.log(val, 'multipleSelection')
       this.multipleSelection = val;
     },
     /**
