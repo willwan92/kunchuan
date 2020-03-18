@@ -114,9 +114,9 @@ export default {
       tableData: [],
       pageData: {
         page: 1,
+        pageSize: 10,
         total: 0
-      },
-      pageNum: 0
+      }
     };
   },
   created() {
@@ -166,9 +166,9 @@ export default {
 
 			return ids.toString();
     },
-    handlePageChange({ page, size }) {
+    handlePageChange({ page, pageSize }) {
       page && (this.pageData.page = page);
-      size && (this.pageData.size = size);
+      pageSize && (this.pageData.pageSize = pageSize);
       this.fetchData();
     },
     handleSelectionChange(val) {
@@ -195,7 +195,6 @@ export default {
 
       params.start = queryForm.dateRange[0];
       params.end = queryForm.dateRange[1];
-      params.rstart = this.pageData.page - 1;
 
 			return params;
 		},
@@ -205,9 +204,14 @@ export default {
 
       this.isLoading = true;
       this.tableData = [];
+
+      let params = this.createParams();
+      params.rstart = this.pageData.page - 1;
+      params.number = this.pageData.pageSize;
+
       const data = await this.fetchFuzz({
         url: "/fuzz/page/view/system/syslog!findAllLogs.action",
-        params: this.createParams(),
+        params: params,
         vm: this
       });
       

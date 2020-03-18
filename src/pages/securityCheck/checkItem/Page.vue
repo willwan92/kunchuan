@@ -26,7 +26,7 @@
                 tooltip-effect="dark"
                 style="width: 100%;margin-top: 20px;"
               >
-                <el-table-column type="selection" width="55"></el-table-column>
+                <!-- <el-table-column type="selection" width="55"></el-table-column> -->
                 <el-table-column
                   prop="num"
                   label="核查项编号"
@@ -57,7 +57,7 @@
               </el-table>
               <app-pagination
                 :pageData="tablePageData"
-                @change="handleCurrentChange"
+                @change="handlePageChange"
               ></app-pagination>
             </template>
             <template v-else>
@@ -231,6 +231,7 @@ export default {
       treeId: "",
       tablePageData: {
         page: 1,
+        pageSize: 10,
         total: 0
       }, // 分页数据
       label: "",
@@ -290,7 +291,8 @@ export default {
      *table 分页
      * val 分页数据
      */
-    handleCurrentChange({page}) {
+    handlePageChange({page, pageSize}) {
+      this.tablePageData.pageSize = pageSize;
       this.tablePageData.page = page;
       this.getTableData(this.talbeDataId);
     },
@@ -302,13 +304,14 @@ export default {
         this.itemDetail = false;
         this.treeId = data.id;
         this.talbeDataId = data.id;
+        this.tablePageData.page = 1;
         this.getTableData(data.id);
       }
     },
     getTableData(id) {
       this.isLoading = true;
       this.tableData = [];
-      this.tablePageData.page = 1;
+      let pageData = this.tablePageData;
       this.postFuzz({
         url: "/fuzz/page/view/checkItem!findAliasByid.action",
         params: { id },
@@ -320,11 +323,12 @@ export default {
         this.fetchFuzz({
           url: "/fuzz/page/view/checkItem!check_itemDetail.action",
           params: {
-            start: parseInt(this.tablePageData.page - 1) * 10,
             t: Math.random(),
             alias,
             stype,
-            id: _id
+            id: _id,
+            number: pageData.pageSize,
+            start: parseInt(pageData.page - 1) * pageData.pageSize,
           },
           vm: this
         }).then(res => {

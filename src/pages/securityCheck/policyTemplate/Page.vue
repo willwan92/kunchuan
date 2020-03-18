@@ -28,11 +28,11 @@
               tooltip-effect="dark"
               style="width: 100%;margin-top: 20px;"
             >
-              <el-table-column
+              <!-- <el-table-column
                 type="selection"
                 :selectable="selectable"
                 width="55"
-              ></el-table-column>
+              ></el-table-column> -->
               <el-table-column
                 prop="name"
                 label="策略模板名称"
@@ -46,10 +46,10 @@
                 label="模板属性"
                 width="100"
               ></el-table-column>
-              <el-table-column prop="edit" label="编辑" width="80">
+              <!-- <el-table-column prop="edit" label="编辑" width="80">
                 <template slot-scope="">{{ "-" }}</template>
-              </el-table-column>
-              <el-table-column prop="custom" label="自定义参数" width="110">
+              </el-table-column> -->
+              <el-table-column prop="custom" label="参数" width="110">
                 <template slot-scope="scope">
                   <i
                     class="el-icon-s-tools cursor-point"
@@ -68,7 +68,7 @@
             
             <app-pagination
               :pageData="tablePageData"
-              @change="({page}) => handleCurrentChange(page, 'table')"
+              @change="({page, pageSize}) => handleCurrentChange(page, pageSize, 'table')"
             ></app-pagination>
           </template>
 
@@ -109,7 +109,7 @@
 
             <app-pagination
               :pageData="tplDetailPageData"
-              @change="({page}) => handleCurrentChange(page, 'detail')"
+              @change="({page, pageSize}) => handleCurrentChange(page, pageSize, 'detail')"
             ></app-pagination>
 
             <!-- 检查项详情 -->
@@ -302,7 +302,7 @@
 
       <app-pagination
         :pageData="customArgsPageData"
-        @change="({page}) => handleCurrentChange(page, 'check')"
+        @change="({page, pageSize}) => handleCurrentChange(page, pageSize, 'check')"
       ></app-pagination>
       <!-- <div slot="footer" class="dialog-footer" style="text-align: center;">-->
         <!-- <el-button @click="setArguments('close')">取 消</el-button>-->
@@ -319,21 +319,19 @@ export default {
       isLoading: false,
       isLoadingTplDetail: false,
       isLoadingCustomData: false,
-      // isLoading
-      pageData: {
-        page: 1,
-        total: 0
-      },
       customArgsPageData: {
         page: 1,
+        pageSize: 10,
         total: 0
       },
       tplDetailPageData: {
         page: 1,
+        pageSize: 10,
         total: 0
       },
       tablePageData: {
         page: 1,
+        pageSize: 10,
         total: 0
       }, // 分页数据
       tableData: [], // 默认表格数据
@@ -390,9 +388,14 @@ export default {
     async getTableList(id) {
       this.tableData  = [];
       this.isLoading = true;
+      let tablePageData = this.tablePageData;
       await this.postFuzz({
         url: "/fuzz/page/view/checkmanage/strategy!searchTypeBygroupid.action",
-        params: { start: parseInt(this.tablePageData.page - 1) * 10, group_id: id },
+        params: { 
+          group_id: id,
+          number: tablePageData.pageSize,
+          start: parseInt(tablePageData.page - 1) * tablePageData.pageSize
+        },
         vm: this
       }).then(({reu}) => {
         this.isLoading = false;
@@ -403,7 +406,7 @@ export default {
               name: item[1],
               type: item[2],
               attr: item[3] === 1 ? '预定义' : '',
-              is_buildin: _this.data[0]["children"][index]["is_buildin"],
+              // is_buildin: _this.data[0]["children"][index]["is_buildin"],
               id: item[4]
             };
           });
@@ -456,9 +459,14 @@ export default {
     async getArgumentsList(cs_id) {
       this.checkData = [];
       this.isLoadingCustomData = true;
+      let customArgsPageData = this.customArgsPageData;
       await this.fetchFuzz({
         url: "/fuzz/page/view/strategy!findSelfDefinedById.action",
-        params: { cs_id, start: parseInt(this.customArgsPageData.page - 1) * 10 },
+        params: { 
+          cs_id,
+          number: customArgsPageData.pageSize,
+          start: parseInt(customArgsPageData.page - 1) * customArgsPageData.pageSize 
+        },
         vm: this
       }).then(res => {
         this.isLoadingCustomData = false;
@@ -482,6 +490,8 @@ export default {
       this.itemDetailTitle = `${row.name}的检查项列表`;
       this.tablePageData.page = 1;
       this.getDetailItem(row.id);
+
+      // 获取数据总条数
       this.getTotalNumber(row.id, "cs_id").then(response => {
         this.tplDetailPageData.total = response.total;
       });
@@ -492,11 +502,13 @@ export default {
     async getDetailItem(cs_id) {
       this.csId = cs_id;
       this.isLoadingTplDetail = true;
+      let tplDetailPageData = this.tplDetailPageData;
       await this.fetchFuzz({
         url: "/fuzz/page/view/checkmanage/strategy!findStrategyById.action",
         params: {
           cs_id,
-          start: parseInt(this.tablePageData.page - 1) * 10,
+          start: parseInt(tplDetailPageData.page - 1) * tplDetailPageData.pageSize,
+          number: tplDetailPageData.pageSize,
           t: Math.random()
         },
         vm: this
@@ -603,18 +615,18 @@ export default {
      * @param val 当前页码
      * @param type 判断是默认列表or详情列表
      */
-    handleCurrentChange(page, type) {
-      if (type === "check") {
-        this.customArgsPageData.page = page;
-      } else {
+    handleCurrentChange(page, pageSize, type) {
+      if (type === "table") { // 策略模板列表
         this.tablePageData.page = page;
-      }
-
-      if (type === "table") {
+        this.tablePageData.pageSize = pageSize;
         this.getTableList(this.activeLabel.id);
-      } else if (type === "check") {
+      } else if (type === "check") { // 策略模板参数——检查项列表
+        this.customArgsPageData.page = page;
+        this.customArgsPageData.pageSize = pageSize;
         this.getArgumentsList(this.lastId);
-      } else {
+      } else { // 策略模板详情——检查项列表
+        this.tplDetailPageData.page = page;
+        this.tplDetailPageData.pageSize = pageSize;
         this.getDetailItem(this.csId);
       }
     },
