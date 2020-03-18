@@ -69,22 +69,52 @@ export default {
         cancelButtonText: "取消",
         type: "warning"
       })
-        .then(() => {
-          callback && callback();
-        })
-        .catch(() => {});
+      .then(() => {
+        callback && callback();
+      })
+      .catch(() => {});
     },
     async reboot() {
+      const loading = this.$loading({
+        lock: true,
+        text: `正在重启，30秒后将自动跳转到登录页。请您重新登录！`,
+        spinner: 'el-icon-loading',
+        background: 'rgba(0, 0, 0, 0.7)'
+      });
+
       const data = await this.fetchFuzz({
         url: "/fuzz/page/sysconfig!reboot.action",
         vm: this
       });
+
+      const timer = setTimeout(() => {
+        loading.close();
+        clearTimeout(timer);
+        this.$router.push('/login');
+        window.location.reload(true);
+      }, 30000);
     },
     async shutdown() {
+      const loading = this.$loading({
+        lock: true,
+        text: `正在关机...`,
+        spinner: 'el-icon-loading',
+        background: 'rgba(0, 0, 0, 0.7)'
+      });
+
       const data = await this.fetchFuzz({
         url: "/fuzz/page/sysconfig!shutdown.action",
         vm: this
       });
+
+      const timer = setTimeout(() => {
+        this.$message({
+          type: 'info',
+          duration: 0,
+          message: '已关机，页面已不可用，请关闭浏览器窗口。'
+        });
+        clearTimeout(timer);
+      }, 8000)
     }
   },
   watch: {
