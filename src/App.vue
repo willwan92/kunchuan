@@ -24,5 +24,6 @@ export default {
 /* 自定义ip表格样式bug修复 */
 .page-custom-ip .el-table .cell {
   word-break: normal;
+  line-height: 1;
 }
 </style>
