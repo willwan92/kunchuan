@@ -238,16 +238,20 @@ export default {
   },
   methods: {
 		async fetchData() {
-			await this.fetchTableData('tableData1');
-			await this.fetchTableData('tableData2');
-			await this.fetchTableData('tableData3');
+			const ret = await this.fetchTableData('tableData1');
+			
+			if (ret !== false) {
+				this.fetchTableData('tableData2');
+				this.fetchTableData('tableData3');
+			}
 		},
 		async fetchTableData(table) {
+			
 			const pjId = this.getPjId;
 
 			if (!pjId) {
 				this.$message.info("请选择项目");
-				return;
+				return false;
 			}
 
 			let url = '';
