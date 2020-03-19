@@ -77,7 +77,7 @@ export default {
     async reboot() {
       const loading = this.$loading({
         lock: true,
-        text: `正在重启，30秒后将自动跳转到登录页。请您重新登录！`,
+        text: `正在重启，大约需要60秒。60秒后将自动跳转到登录页，请您重新登录！`,
         spinner: 'el-icon-loading',
         background: 'rgba(0, 0, 0, 0.7)'
       });
@@ -90,9 +90,8 @@ export default {
       const timer = setTimeout(() => {
         loading.close();
         clearTimeout(timer);
-        this.$router.push('/login');
-        window.location.reload(true);
-      }, 30000);
+        window.location.href = window.location.href.split('#')[0] + '#/login';
+      }, 60000);
     },
     async shutdown() {
       const loading = this.$loading({
