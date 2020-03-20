@@ -3,6 +3,7 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
+import store from './store'
 import lodash from "lodash"
 import moment from "moment"
 import cookies from 'js-cookies'
@@ -35,6 +36,7 @@ Object.keys(Components).forEach(key => {
 new Vue({
     el: '#app',
     router,
+    store,
     components: { App },
     template: '<App/>'
 })
