@@ -22,7 +22,7 @@
         <el-button @click="asyncAdd">asyncAdd</el-button>
       </p>
       <p>
-        <!-- double count: <el-input v-model="doubleCount" placeholder=""></el-input> -->
+        doubleCount: {{doubleCount}}
       </p>
 
       <el-table :data="tableData" border v-loading="isLoading">
@@ -101,8 +101,10 @@
 </template>
 
 <script>
-import { mapState, mapGetters, mapMutations, mapActions } from 'vuex';
+import { createNamespacedHelpers } from 'vuex';
 import { toNumberArr } from "common/utils";
+
+const  { mapState, mapGetters, mapMutations, mapActions } = createNamespacedHelpers('project');
 
 export default {
   data() {
@@ -126,12 +128,8 @@ export default {
     };
   },
   computed: {
-    ...mapState({
-      count: state => state.project.count
-    }),
-    ...mapGetters({
-      // doubleCount: getters => getters.project.doubleCount
-    }),
+    ...mapState(['count']),
+    ...mapGetters(['doubleCount']),
     pjOptions() {
       let options = null;
       if (this.pjTreeData) {
@@ -150,10 +148,10 @@ export default {
     this.fetchPjTreeData();
   },
   methods: {
-    ...mapMutations('project', [
+    ...mapMutations([
       'increment'
     ]),
-    ...mapActions('project',{
+    ...mapActions({
       'asyncAdd': 'asyncIncrement'
     }),
     initData() {
