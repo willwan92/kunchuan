@@ -5,31 +5,55 @@
 import { axiosClient, axiosClientFuzz } from 'common/axiosClient';
 
 export const fetch = async({ url, params = {}, type = 'post', vm }) => {
-    const data = await axiosClient[type](url, params);
-    if (Number(data.status) === 200) {
-        return data.data
-    } else {
-        vm.$message.error(data.statusText)
-    }
+    let data;
+
+    await axiosClient[type](url, params)
+        .then(res => {
+            if (Number(res.status) === 200) {
+                data = res.data;
+            } else {
+                vm.$message.error(res.statusText)
+            }
+        })
+        .catch(err => {
+            vm.$message.error('服务器错误，请检查输入或稍后重试！');
+        });
+
+    return data;
 }
 
 export const fetchFuzz = async({ url, params = {}, type = 'get', vm }) => {
-    const data = await axiosClientFuzz[type](url, {
-        'params': params
-    });
+    let data;
 
-    if (Number(data.status) === 200) {
-        return data.data
-    } else {
-        vm.$message.error(data.statusText)
-    }
+    await axiosClientFuzz[type](url, {
+            'params': params
+        }).then(res => {
+            if (Number(res.status) === 200) {
+                data = res.data;
+            } else {
+                vm.$message.error(res.statusText)
+            }
+        })
+        .catch(err => {
+            vm.$message.error('服务器错误，请检查输入或稍后重试！');
+        });
+
+    return data;
 }
 
 export const postFuzz = async({ url, params = {}, type = 'post', vm }) => {
-    const data = await axiosClientFuzz[type](url, params);
-    if (Number(data.status) === 200) {
-        return data.data
-    } else {
-        vm.$message.error(data.statusText)
-    }
+    let data;
+    await axiosClientFuzz[type](url, params)
+        .then(res => {
+            if (Number(res.status) === 200) {
+                data = res.data;
+            } else {
+                vm.$message.error(res.statusText)
+            }
+        })
+        .catch(err => {
+            vm.$message.error('服务器错误，请检查输入或稍后重试！');
+        });
+
+    return data;
 }
