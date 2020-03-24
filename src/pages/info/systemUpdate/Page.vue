@@ -16,11 +16,8 @@
 					<el-form-item label="">
 						<el-upload
 							action=""
-							:on-remove="0"
 							multiple
-							:limit="1"
-							:on-exceed="0"
-							:file-list="0">
+							:limit="1">
 							<el-button type="primary">点击上传</el-button>
 							<!-- <div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过500kb</div> -->
 						</el-upload>
@@ -58,56 +55,13 @@
 </template>
 
 <script>
-	import searchImg from 'assets/sousuo.png'
 	import { judgeGender, deepCopy, commonExport } from 'common/utils'
 
 	export default {
 		data() {
 			return {
-				searchImg,
-				listImg,
-				fileName: '',
-				searchParams: {
-					account: '',
-					mobile: '',
-					brmid: '',
-					nickname: ''
-				}
+				fileName: ''
 			}
-		},
-		methods: {
-			handleCurrentChange(page) {
-				this.currentPage = page;
-				this.fetchData();
-			},
-			//查询
-			search(){
-				this.fetchData();
-			},
-			reset() {
-				let searchParams = this.searchParams;
-				for (let item in searchParams) {
-					searchParams[item] = '';
-				}
-			},
-			createParams() {
-				let params = deepCopy(this.searchParams);
-				params.pageNum = this.currentPage;
-				return params;
-			}
-			
-		},
-		beforeRouteEnter(to, from, next) {
-			next( vm => {
-				vm.$nextTick( () => {
-					vm.fetchData();
-				});
-			})
-		},
-		mounted() {
-			this.$nextTick(() => {
-				this.fetchData();
-			})
 		}
 	}
 </script>
