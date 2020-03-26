@@ -1,23 +1,35 @@
+import { fetch } from 'common/request';
+import { formatTreeData } from "common/utils";
+
 export const project = {
     namespaced: true,
     state: {
         projectList: [],
     },
     getters: {
-        // doubleCount(state) {
-        //     return state.count * 2;
-        // }
+        pjTreeData(state) {
+            return formatTreeData(state.projectList);
+        }
     },
     mutations: {
-        SET_PROJECT_LIST(state, projectList) {
-            console.log(fetch);
-
-            state.projectList = projectList;
+        SET_PROJECT_LIST(state, playload) {
+            state.projectList = playload.projectList;
         }
     },
     actions: {
-        getProjectList(context, playload) {
+        async getProjectList({ commit }, playload) {
+            const data = await fetch({
+                url: "/projectInfo/getEnableRole",
+                params: {
+                    enablerole: `(${playload.roleId})`
+                },
+                vm: null
+            });
 
+            commit({
+                type: 'SET_PROJECT_LIST',
+                projectList: data
+            });
         }
     }
 }

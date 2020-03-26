@@ -5,7 +5,7 @@
         <el-scrollbar>
           <el-tree
              v-loading="isLoading"
-            :data="pjTreeData"
+            :data="pjTree"
             :props="defaultProps"
             @node-click="handleNodeClick"
           ></el-tree>
@@ -65,10 +65,9 @@
 </template>
 
 <script>
-import { formatTreeData } from "common/utils";
 import { createNamespacedHelpers } from "vuex";
-
 const  { mapState, mapGetters, mapMutations, mapActions } = createNamespacedHelpers('project');
+const roleId = sessionStorage.getItem('roleId');
 
 export default {
   data() {
@@ -85,7 +84,6 @@ export default {
         phone: "",
         description: ""
       },
-      pjTreeData: [],
       defaultProps: {
         children: "children",
         label: "pjname"
@@ -123,17 +121,19 @@ export default {
     };
   },
   created() {
-    this.fetchPjTreeData();
-    this.SET_PROJECT_LIST();
+    this.getProjectList({roleId});
   },
   computed: {
+    ...mapGetters({
+      pjTree: 'pjTreeData'
+    }),
     getPjType() {
       return this.form.pjtype && this.form.pjtype.charAt(0);
     }
   },
   methods: {
-    ...mapMutations([
-      'SET_PROJECT_LIST'
+    ...mapActions([
+      'getProjectList'
     ]),
     //查询
     search() {
@@ -141,18 +141,6 @@ export default {
     },
     handleNodeClick(nodeData) {
       this.form = nodeData;
-    },
-    async fetchPjTreeData() {
-			const roleId = sessionStorage.getItem('roleId');
-
-      const data = await this.fetch({
-				url: "/projectInfo/getEnableRole",
-				params: {
-					enablerole: `(${roleId})`
-				},
-        vm: this
-      });
-			this.pjTreeData = formatTreeData(data, 0);
     },
     async handleSaveClick() {
       const params = {
@@ -164,7 +152,7 @@ export default {
         description: this.form.description
       };
      
-     this.isLoading = true;
+      this.isLoading = true;
       const data = await this.fetch({
         url: "/projectInfo/getProjectInfoUpAdd",
         params: params,
@@ -173,6 +161,7 @@ export default {
       this.isLoading = false;
       if (data === 1) {
         this.$message.success("保存成功！");
+        this.getProjectList({roleId});
       } else {
         this.$message.error("保存失败！");
       }
@@ -192,40 +181,7 @@ export default {
       });
 
       return tmpArr;
-    },
-    handleOperate(row, type, target) {
-      this.editItem({ id: row.id });
-    },
-    editItem(id) {},
-    createParams() {
-      let params = deepCopy(this.searchParams);
-      params.pageNum = this.currentPage;
-      return params;
-    },
-    // 请求列表数据
-    fetchData() {
-      //
-    },
-    viewDetail(row) {
-      this.$router.push({
-        path: "/user/userDetail",
-        query: {
-          id: row.userId
-        }
-      });
     }
-  },
-  beforeRouteEnter(to, from, next) {
-    next(vm => {
-      vm.$nextTick(() => {
-        vm.fetchData();
-      });
-    });
-  },
-  mounted() {
-    this.$nextTick(() => {
-      this.fetchData();
-    });
   }
 };
 </script>

@@ -3,6 +3,8 @@
  */
 
 import { axiosClient, axiosClientFuzz } from 'common/axiosClient';
+import { Message } from 'element-ui';
+
 
 export const fetch = async({ url, params = {}, type = 'post', vm }) => {
     let data;
@@ -12,11 +14,11 @@ export const fetch = async({ url, params = {}, type = 'post', vm }) => {
             if (Number(res.status) === 200) {
                 data = res.data;
             } else {
-                vm.$message.error(res.statusText)
+                Message.error(res.statusText)
             }
         })
         .catch(err => {
-            vm.$message.error('服务器错误，请检查输入或稍后重试！');
+            Message.error('服务器错误，请检查输入或稍后重试！');
         });
 
     return data;
@@ -31,11 +33,11 @@ export const fetchFuzz = async({ url, params = {}, type = 'get', vm }) => {
             if (Number(res.status) === 200) {
                 data = res.data;
             } else {
-                vm.$message.error(res.statusText)
+                Message.error(res.statusText)
             }
         })
         .catch(err => {
-            vm.$message.error('服务器错误，请检查输入或稍后重试！');
+            Message.error('服务器错误，请检查输入或稍后重试！');
         });
 
     return data;

@@ -16,15 +16,6 @@
         >
       </div>
 
-      <p>
-        count: <span>{{count}}</span>
-        <el-button type="primary" @click="increment">add</el-button>
-        <el-button @click="asyncAdd">asyncAdd</el-button>
-      </p>
-      <p>
-        doubleCount: {{doubleCount}}
-      </p>
-
       <el-table :data="tableData" border v-loading="isLoading">
         <el-table-column label="名称" prop="pjname"></el-table-column>
         <el-table-column label="类型" prop="">{{
@@ -101,10 +92,7 @@
 </template>
 
 <script>
-import { createNamespacedHelpers } from 'vuex';
 import { toNumberArr } from "common/utils";
-
-const  { mapState, mapGetters, mapMutations, mapActions } = createNamespacedHelpers('project');
 
 export default {
   data() {
@@ -128,8 +116,6 @@ export default {
     };
   },
   computed: {
-    ...mapState(['count']),
-    ...mapGetters(['doubleCount']),
     pjOptions() {
       let options = null;
       if (this.pjTreeData) {
@@ -148,12 +134,6 @@ export default {
     this.fetchPjTreeData();
   },
   methods: {
-    ...mapMutations([
-      'increment'
-    ]),
-    ...mapActions({
-      'asyncAdd': 'asyncIncrement'
-    }),
     initData() {
       this.fetchTableData();
       this.fetchPjTreeData();
