@@ -221,27 +221,27 @@ export default {
         vm: this
       });
 
-      if (data.data && data.data.length) {
-        this.tableData = data.data.map((item, idx) => {
-          return {
-            index: idx,
-            ip: item["0"],
-            port: item["1"],
-            protoName: item["2"],
-            protoType: item["3"],
-            result: "",
-            deviceType: "",
-            cveId: ""
-          };
-        });
-      } else {
-        this.timer && this.$message.info("扫描结束，未发现开放端口!");
-      }
-
       if (data.state && data.state === 1) {
         this.isLoading = false;
         this.timer && clearInterval(this.timer);
         this.timer = null;
+
+        if (data.data && data.data.length) {
+          this.tableData = data.data.map((item, idx) => {
+            return {
+              index: idx,
+              ip: item["0"],
+              port: item["1"],
+              protoName: item["2"],
+              protoType: item["3"],
+              result: "",
+              deviceType: "",
+              cveId: ""
+            };
+          });
+        } else {
+          this.timer && this.$message.info("扫描结束，未发现开放端口!");
+        }
       }
     }
   }
