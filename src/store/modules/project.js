@@ -1,23 +1,23 @@
 export const project = {
     namespaced: true,
     state: {
-        count: 1
+        projectList: [],
     },
     getters: {
-        doubleCount(state) {
-            return state.count * 2;
-        }
+        // doubleCount(state) {
+        //     return state.count * 2;
+        // }
     },
     mutations: {
-        increment(state) {
-            state.count++;
+        SET_PROJECT_LIST(state, projectList) {
+            console.log(fetch);
+
+            state.projectList = projectList;
         }
     },
     actions: {
-        asyncIncrement(context, playload) {
-            setTimeout(() => {
-                context.commit('increment');
-            }, 2000)
+        getProjectList(context, playload) {
+
         }
     }
 }

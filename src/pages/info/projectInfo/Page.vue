@@ -66,6 +66,9 @@
 
 <script>
 import { formatTreeData } from "common/utils";
+import { createNamespacedHelpers } from "vuex";
+
+const  { mapState, mapGetters, mapMutations, mapActions } = createNamespacedHelpers('project');
 
 export default {
   data() {
@@ -121,6 +124,7 @@ export default {
   },
   created() {
     this.fetchPjTreeData();
+    this.SET_PROJECT_LIST();
   },
   computed: {
     getPjType() {
@@ -128,6 +132,9 @@ export default {
     }
   },
   methods: {
+    ...mapMutations([
+      'SET_PROJECT_LIST'
+    ]),
     //查询
     search() {
       this.fetchData();
