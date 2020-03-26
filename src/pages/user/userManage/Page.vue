@@ -113,6 +113,9 @@ export default {
 			userRules: {
 				userName: [
 					{ required: true, message: '请输入用户名', trigger: 'blur' }
+        ],
+        roleType: [
+					{ required: true, message: '请选择所属角色', trigger: 'blur' }
 				]
 			},
       tableData: [],
