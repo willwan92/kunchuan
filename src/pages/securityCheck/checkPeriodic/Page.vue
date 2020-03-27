@@ -153,7 +153,7 @@
           <el-form-item label="任务名称" prop="name">
             <el-input
               v-model="addTaskForm.name"
-               class="width-508"
+              class="width-508"
             ></el-input>
           </el-form-item>
           <el-form-item label="项目选择">
@@ -298,7 +298,7 @@ export default {
           vm: this
         }).then(res => {
           if (res.success === "failure") {
-            callback(new Error("任务名称重复"));
+            callback(new Error("与已有的实时任务或周期任务名称重复，请重新输入"));
           } else {
             callback();
           }
