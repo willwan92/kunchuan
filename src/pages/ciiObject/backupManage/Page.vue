@@ -48,18 +48,26 @@
         <el-table-column label="备份位置" prop="filepath"></el-table-column>
         <el-table-column label="操作">
           <template slot-scope="scope">
-            <el-button
-              size="mini"
-              type="primary"
-              @click="handleDownload(scope.row)"
-              >下载</el-button
-            >
-            <el-button
-              size="mini"
-              type="danger"
-              @click="handleDelete(scope.row)"
-              >删除</el-button
-            >
+            <div>
+              <span v-if="scope.row.isUploading">
+                上传进度：
+                <el-progress :percentage="scope.row.progress"></el-progress>
+              </span>
+              <span v-else>
+                <el-button
+                  size="mini"
+                  type="primary"
+                  @click="handleDownload(scope.row)"
+                  >下载</el-button
+                >
+                <el-button
+                  size="mini"
+                  type="danger"
+                  @click="handleDelete(scope.row)"
+                  >删除</el-button
+                >
+              </span>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -105,9 +113,12 @@ export default {
     },
     beforeUpload(file) {
       const fileName = file.name;
-      let isRepeat = this.tableData.find(item => item.filename === fileName);
+      const isRepeat = this.tableData.find(item => item.filename === fileName);
+      const size = (file.size / 1024 /1024).toFixed(1);
       if (isRepeat) {
         this.$message.warning('所选文件重复，请重新选择！');
+      } else if (size > 1000) {
+        this.$message.warning('所选文件超出最大限制（1000MB），请重新选择！');
       } else {
         this.uploadFile(file);
       }
@@ -116,16 +127,36 @@ export default {
     },
     async uploadFile(file) {
       let params = new FormData();
-      
+      const backuptime = this.moment().format('YYYY-MM-DD HH:mm:ss');
+      const filepath = this.getFilePath();
+      let progress = 0;
+
       params.append('file', file);
       params.append('deviceid', this.deviceid);
-      params.append('backuptime', this.moment().format('YYYY-MM-DD HH:mm:ss'));
-      params.append('filepath', this.getFilePath());
+      params.append('backuptime', backuptime);
+      params.append('filepath', filepath);
+
+      this.tableData.push({
+        id: null,
+        deviceid: this.deviceid,
+        filename: file.name,
+        filepath: filepath,
+        backuptime: backuptime,
+        isUploading: true,
+        progress: progress
+      });
 
       this.isUploading = true;
-      const { data } = await axiosClientUpload.post("/uploadinsert", params);
+
+      const { data } = await axiosClientUpload.post("/uploadinsert", params, {
+        onUploadProgress: (progressEvent) => {
+          progress = parseInt(100 * progressEvent.loaded / progressEvent.total);
+          this.tableData[this.tableData.length - 1].progress = progress;
+        }
+      });
       
       this.isUploading = false;
+
       if  (data && data.code === 10000) {
 				this.$message.success("上传备份成功");
 				this.fetchTableData();
