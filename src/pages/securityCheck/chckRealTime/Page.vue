@@ -8,7 +8,7 @@
         <el-button 
 					type="danger"
 					size="small"
-           @click="deleteRealTime"
+           @click="handleDeleteClick"
         >删除</el-button>
       </p>
 
@@ -136,32 +136,34 @@
               class="width-508"
             ></el-input>
           </el-form-item>
-          <el-form-item label="项目选择">
-            <el-cascader class="width-508"
-              :show-all-levels="false"
-              :options="pjOptions"
-              :props="{ expandTrigger: 'hover' }"
-              filterable
-              v-model="pjValue"
-              @change="getAssetList"
-            ></el-cascader>
-          </el-form-item>
           <el-form-item label="核查方式">
             <el-select class="width-508" v-model="addTaskForm.type" placeholder="请选择" disabled>
               <el-option label="实时任务" value="1"></el-option>
               <!--<el-option label="公网" value="2"></el-option>-->
             </el-select>
           </el-form-item>
-          <el-form-item label="策略模板">
+          <el-form-item label="策略模板" prop="selectedPolicy">
             <el-cascader class="width-508"
               filterable
               :options="policyOptions"
-              v-model="selectedPolicy"
+              v-model="addTaskForm.selectedPolicy"
               @expand-change="handlePolicyExpend"
             >
             </el-cascader>
           </el-form-item>
-          <el-form-item label="资产列表">
+          
+          <el-form-item label="项目选择" prop="pjValue">
+            <el-cascader class="width-508"
+              :show-all-levels="false"
+              :options="pjOptions"
+              :props="{ expandTrigger: 'hover' }"
+              filterable
+              v-model="addTaskForm.pjValue"
+              @change="getAssetList"
+            ></el-cascader>
+          </el-form-item>
+
+          <el-form-item label="资产列表(请勾选要核查的资产)">
             <el-table
               style="max-height: 350px; overflow: auto;"
               v-loading="isLoadingAssets"
@@ -187,8 +189,8 @@
         </el-form>
       </div>
       <span slot="footer" class="dialog-footer">
-        <el-button :disabled="isAdding" type="primary" @click="submitAddTask">保 存</el-button>
-        <el-button :disabled="isAdding" type="primary" @click="addTask = false">关 闭</el-button>
+        <el-button :disabled="isAdding" size="small" type="primary" @click="handleSaveClick">保 存</el-button>
+        <el-button :disabled="isAdding" size="small" @click="addTask = false">取 消</el-button>
       </span>
     </el-dialog>
   </div>
@@ -196,6 +198,7 @@
 
 <script>
 import { FUZZ_URL } from "common/axiosClient";
+import { debounce } from "lodash";
 import {
   getCascaderOptions,
   downloadFileByUrl,
@@ -226,21 +229,23 @@ export default {
       isLoadingAssets: false,
       isFinished: true,
       policyOptions: [],
-      selectedPolicy: [],
       rules: {
-        name: [{ required: false, validator: validateName, trigger: ["blur"] }]
+        name: [{ required: true, validator: validateName, trigger: ["blur"] }],
+        pjValue: [{ required: true, message: '请选择项目', trigger: ["blur"] }],
+        selectedPolicy: [{ required: true, message: '请选择策略模板', trigger: ["blur"] }]
       }, // 添加任务任务名称重复验证
       pjOptions: null, // 添加任务项目下拉选择
-      pjValue: [],
       assetList: [], // 添加任务资产列表
       tableData: [],
       multipleSelection: [],
-      addSelected: [],
       dialogVisible: false, // 下载报告
       addTask: false,
       addTaskForm: {
         name: "",
+        pjValue: [],
         type: "1",
+        selectedPolicy: [],
+        selectedAssets: [],
       },
       reportTaskId: null, // 下载和预览报告taskid
       fileType: "HTML",
@@ -258,8 +263,8 @@ export default {
   computed: {
     getPjId() {
       let id;
-      if (this.pjValue && this.pjValue[0]) {
-        id = this.pjValue.slice(-1)[0];
+      if (this.addTaskForm.pjValue && this.addTaskForm.pjValue[0]) {
+        id = this.addTaskForm.pjValue.slice(-1)[0];
       } else {
         id = null;
       }
@@ -304,8 +309,8 @@ export default {
     },
 
     resetTaskForm() {
-      this.pjValue = [];
-      this.selectedPolicy = [];
+      this.addTaskForm.pjValue = [];
+      this.addTaskForm.selectedPolicy = [];
       this.addTaskForm.name = '';
       this.assetList = [];
     },
@@ -384,32 +389,32 @@ export default {
       });
     },
     /**
+     * 添加任务时，点击保存
+     * debounce 防止用户连续点击导致重复执行
+     */
+    handleSaveClick: debounce(function () {
+      this.$refs['addTaskForm'].validate(valid => {
+        if (!valid) return;
+
+        if (this.addTaskForm.selectedAssets.length === 0) {
+          return this.$message.error('请勾选要核查的资产');
+        } 
+        
+        this.submitAddTask();
+      })
+    }, 1000),
+    /**
      * 保存实时任务
      */
     submitAddTask() {
-      this.$refs['addTaskForm'].validate(valid => {
-        if (!valid) return;
-      })
-
-      if (!this.getPjId) {
-        this.$message.warning('请选择项目');
-        return;
-      }
-
-      if (!this.selectedPolicy.length) {
-        this.$message.warning('请选择策略模板');
-        return;
-      }
-
       let str = [];
-      this.addSelected.forEach(item => {
+      this.addTaskForm.selectedAssets.forEach(item => {
         str.push(item.ip);
       });
 
       let params = {
         taskname: this.addTaskForm.name, // 任务名称
-        template: this.selectedPolicy.slice(-1)[0], // 策略模板 id 主机 3
-        // 'autoupload' : 0, // 已取消 autoupload=1 为自动上传界面打钩；界面不打勾autoupload=0(非自动上传)
+        template: this.addTaskForm.selectedPolicy.slice(-1)[0], // 策略模板 id 主机 3
         pjid: this.getPjId, // 项目名称 id
         str: str.join(",") //  资产列表中选中列ip地址的值,逗号拼接
       };
@@ -422,6 +427,7 @@ export default {
         vm: this
       }).then(res => {
         this.isAdding = false;
+
         if (res.success === "success") {
           this.$message({
             message: "任务添加成功!",
@@ -433,53 +439,67 @@ export default {
       });
     },
     /**
-     * 删除实时任务
+     * 点击删除
      */
-    deleteRealTime() {
+    handleDeleteClick() {
       if (this.multipleSelection.length === 0) {
-        this.$message({
-          message: "您还没有选中任务",
+        return this.$message({
+          message: "您还没有选中任务或核查记录",
           type: "warning"
         });
-      } else {
-        this.$confirm("是否确认删除选中项?", "确认", {
-          confirmButtonText: "确定",
-          cancelButtonText: "取消",
-          type: "warning"
-        })
-          .then(() => {
-            let taskids = [];
-            
-            this.multipleSelection.forEach(item => {
-              let taskname = item.taskname;
-              this.fetchFuzz({
-                url: "fuzz/view/page/VerificationTasks!stopTask.action",
-                params: { taskname },
-                vm: this
-              }).then(res => {});
-              taskids.push(item.taskid);
-            });
-            this.fetchFuzz({
-              url: "fuzz/view/page/VerificationTasks!delTasks.action",
-              params: { taskids: taskids.join(",") },
-              vm: this
-            }).then(res => {
-              if (res.success === "success") {
-                this.$message({
-                  message: "任务删除成功",
-                  type: "success"
-                });
-                this.getTableData();
-              }
-            });
-          })
-          .catch(() => {
-            this.$message({
-              type: "info",
-              message: "已取消删除"
-            });
-          });
       }
+
+      this.$confirm("是否确认删除选中项?", "确认", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+      .then(() => {
+        this.deleteRealTime();
+      })
+      .catch(() => {
+        this.$message({
+          type: "info",
+          message: "已取消删除"
+        });
+      });
+    },
+    /**
+     * 删除实时任务或核查记录
+     */
+    async deleteRealTime() {
+      let taskids = [];
+      let taskname = '';
+      const multipleSelection = this.multipleSelection;
+
+      for (let i = 0, len = multipleSelection.length; i < len; i++) {
+        taskids.push(multipleSelection[i].taskid);
+
+        // 如果是核查任务，先停止任务
+        if (multipleSelection[i].groupid === 0) {
+          taskname = multipleSelection[i].taskname;
+          await this.fetchFuzz({
+            url: "fuzz/view/page/VerificationTasks!stopTask.action",
+            params: { taskname },
+            vm: this
+          })
+        }
+      }
+
+      // 然后删除核查任务和记录
+      this.fetchFuzz({
+        url: "fuzz/view/page/VerificationTasks!delTasks.action",
+        params: { taskids: taskids.join(",") },
+        vm: this
+      }).then(res => {
+        if (res.success === "success") {
+          this.$message({
+            message: "任务删除成功",
+            type: "success"
+          });
+          this.getTableData();
+        }
+      });
     },
     /**
      * 核查报告预览
@@ -534,7 +554,7 @@ export default {
      * @param val
      */
     handleSelectionAsset(val) {
-      this.addSelected = val;
+      this.addTaskForm.selectedAssets = val;
     },
     /**
      * 获取默认首页table数据
