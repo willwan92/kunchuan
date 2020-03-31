@@ -5,11 +5,6 @@
         <el-button type="primary" size="small" @click="addTaskFun"
           >添加</el-button
         >
-        <el-button 
-					type="danger"
-					size="small"
-           @click="handleDeleteClick"
-        >删除</el-button>
       </p>
 
       <!-- 任务列表 -->
@@ -20,11 +15,9 @@
         border
         default-expand-all
         :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
-        @selection-change="handleSelectionChange"
       >
-        <el-table-column type="selection" width="55"></el-table-column>
         <el-table-column
-          prop="taskname"
+          prop="name"
           label="任务名称"
           width="250"
         ></el-table-column>
@@ -63,23 +56,23 @@
         </el-table-column>
         <el-table-column fixed="right" label="操作" width="100">
           <template slot-scope="scope">
-            <p v-if="scope.row.level === 1">
-              <i
-                v-if="scope.row.progress >= 100"
-                class="el-icon-video-play icon cursor-point"
-                title="再次执行"
-                @click="handleClick(scope.row, 'play')"
-                style="color: #009688;"
-              ></i>
-              <i 
-                v-else
-                class="el-icon-video-pause icon cursor-point"
-                @click="handleClick(scope.row, 'stop')"
-                style="color: red;"
-              ></i>
-              <!-- <el-button type="text" @click="">任务详情</el-button> -->
-            </p>
-            <P v-else>
+            <span v-if="scope.row.level === 1">
+              <el-button  v-if="scope.row.progress >= 100" type="text" @click="handlePlayClick(scope.row)">
+                <i
+                  class="el-icon-video-play icon cursor-point"
+                  title="再次执行"
+                  style="color: #009688;"
+                ></i>
+              </el-button>
+              <el-button v-else type="text" @click="handleStopClick(scope.row)">
+                <i 
+                  class="el-icon-video-pause icon cursor-point"
+                  title="停止任务"
+                  style="color: red;"
+                ></i>
+              </el-button>
+            </span>
+            <span v-else>
               <el-button type="text" 
                 :disabled="scope.row.progress < 100" 
                 @click="openDownload(scope.row)" 
@@ -88,7 +81,13 @@
                   class="el-icon-document icon"
                 ></i>
               </el-button>
-            </P>
+            </span>
+            <i
+              class="icon el-icon-delete cursor-point"
+              @click="handleDeleteClick(scope.row)"
+              style="color: red;"
+              title="删除"
+            ></i>
           </template>
         </el-table-column>
       </el-table>
@@ -198,7 +197,6 @@
 
 <script>
 import { FUZZ_URL } from "common/axiosClient";
-import { debounce } from "lodash";
 import {
   getCascaderOptions,
   downloadFileByUrl,
@@ -237,7 +235,6 @@ export default {
       pjOptions: null, // 添加任务项目下拉选择
       assetList: [], // 添加任务资产列表
       tableData: [],
-      multipleSelection: [],
       dialogVisible: false, // 下载报告
       addTask: false,
       addTaskForm: {
@@ -258,7 +255,7 @@ export default {
     this.getPjOptions();
   },
   beforeDestroy() {
-    clearInterval(this.timer);
+    this.timer && clearInterval(this.timer);
   },
   computed: {
     getPjId() {
@@ -390,19 +387,25 @@ export default {
     },
     /**
      * 添加任务时，点击保存
-     * debounce 防止用户连续点击导致重复执行
      */
-    handleSaveClick: debounce(function () {
+    handleSaveClick () {
+      this.isAdding = true;
+
       this.$refs['addTaskForm'].validate(valid => {
-        if (!valid) return;
+        if (!valid) {
+          this.isAdding = false;
+          return false;
+        };
 
         if (this.addTaskForm.selectedAssets.length === 0) {
-          return this.$message.error('请勾选要核查的资产');
+          this.isAdding = false;
+          this.$message.error('请勾选要核查的资产');
+          return false;
         } 
         
         this.submitAddTask();
       })
-    }, 1000),
+    },
     /**
      * 保存实时任务
      */
@@ -418,8 +421,6 @@ export default {
         pjid: this.getPjId, // 项目名称 id
         str: str.join(",") //  资产列表中选中列ip地址的值,逗号拼接
       };
-
-      this.isAdding = true;
 
       this.fetchFuzz({
         url: "fuzz/view/page/VerificationTasks!addAcTask.action",
@@ -441,21 +442,14 @@ export default {
     /**
      * 点击删除
      */
-    handleDeleteClick() {
-      if (this.multipleSelection.length === 0) {
-        return this.$message({
-          message: "您还没有选中任务或核查记录",
-          type: "warning"
-        });
-      }
-
+    handleDeleteClick(item) {
       this.$confirm("是否确认删除选中项?", "确认", {
         confirmButtonText: "确定",
         cancelButtonText: "取消",
         type: "warning"
       })
       .then(() => {
-        this.deleteRealTime();
+        this.deleteTask(item);
       })
       .catch(() => {
         this.$message({
@@ -467,29 +461,21 @@ export default {
     /**
      * 删除实时任务或核查记录
      */
-    async deleteRealTime() {
-      let taskids = [];
-      let taskname = '';
-      const multipleSelection = this.multipleSelection;
-
-      for (let i = 0, len = multipleSelection.length; i < len; i++) {
-        taskids.push(multipleSelection[i].taskid);
-
-        // 如果是核查任务，先停止任务
-        if (multipleSelection[i].groupid === 0) {
-          taskname = multipleSelection[i].taskname;
-          await this.fetchFuzz({
-            url: "fuzz/view/page/VerificationTasks!stopTask.action",
-            params: { taskname },
-            vm: this
-          })
-        }
+    async deleteTask(item) {
+      // 如果任务正在进行，先停止任务
+      if (item.progress < 100) {
+        const taskname = item.taskname;
+        await this.fetchFuzz({
+          url: "fuzz/view/page/VerificationTasks!stopTask.action",
+          params: { taskname },
+          vm: this
+        })
       }
 
-      // 然后删除核查任务和记录
+      // 然后删除核查任务或记录
       this.fetchFuzz({
         url: "fuzz/view/page/VerificationTasks!delTasks.action",
-        params: { taskids: taskids.join(",") },
+        params: { taskids: item.taskid },
         vm: this
       }).then(res => {
         if (res.success === "success") {
@@ -543,13 +529,6 @@ export default {
       this.dialogVisible = false;
     },
     /**
-     * 首页table selected 返回值
-     * @param val
-     */
-    handleSelectionChange(val) {
-      this.multipleSelection = val;
-    },
-    /**
      * 添加实时任务select
      * @param val
      */
@@ -574,6 +553,7 @@ export default {
           if (item.groupid === 0) {
             item.id = i;
             item.level = 1;
+            item.name = item.taskname;
             item.children = [];
             taskArr.push(item);
           }
@@ -590,7 +570,7 @@ export default {
               let _data = data[i];
               _data.id = "a" + index + i;
               _data.level = 2;
-              _data.taskname = `${_data["taskname"]}[${_data.taskid}]`;
+              _data.name = `${_data["taskname"]}[${_data.taskid}]`;
               item["children"].push(_data);
             }
           }
@@ -598,33 +578,45 @@ export default {
 
         if (this.isFinished) {
           this.timer && clearInterval(this.timer);
+          this.timer = null;
         } else {
-          !this.timer && (this.timer = setInterval(this.getTableData, 2000));
+          if (!this.timer) {
+            this.timer = setInterval(this.getTableData, 2000);
+          }
         }
 
         this.tableData = taskArr;
       });
     },
     /**
-     * 执行或者停止任务
+     * 停止核查任务
      */
-    handleClick(row, type) {
-      let taskname = row.taskname;
-      let url =
-        type === "play"
-          ? "VerificationTasks!reExecution.action"
-          : "VerificationTasks!stopTask.action";
+    handleStopClick(row) {
+      row.progress = 100;
+      
       this.fetchFuzz({
-        url: "fuzz/view/page/" + url,
-        params: { taskname },
+        url: "fuzz/view/page/" + "VerificationTasks!stopTask.action",
+        params: { taskname:  row.taskname },
         vm: this
       }).then(res => {
         if (res.success === "success") {
-          if (type === "stop") {
-            this.timer && clearInterval(this.timer);
-          } else {
-            this.getTableData();
-          }
+          this.getTableData();
+        }
+      });
+    },
+    /**
+     * 再次执行核查任务
+     */
+    handlePlayClick(row) {
+      row.progress = 0;
+      
+      this.fetchFuzz({
+        url: "fuzz/view/page/" + "VerificationTasks!reExecution.action",
+        params: { taskname:  row.taskname },
+        vm: this
+      }).then(res => {
+        if (res.success === "success") {
+          this.getTableData();
         }
       });
     },

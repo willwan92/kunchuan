@@ -17,7 +17,7 @@
         :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
       >
         <el-table-column
-          prop="taskname"
+          prop="name"
           label="任务名称"
           width="270"
         ></el-table-column>
@@ -60,20 +60,20 @@
         <el-table-column fixed="right" label="操作" width="100">
           <template slot-scope="scope">
             <span v-if="scope.row.level === 1">
-              <i
-                class="icon el-icon-video-play cursor-point"
-                v-if="scope.row.progress >= 100"
-                @click="handleClick(scope.row, 'play')"
-                style="color: #009688;"
-                title="开始任务"
-              ></i>
-              <i
-                class="icon el-icon-video-pause cursor-point"
-                v-else
-                @click="handleClick(scope.row, 'stop')"
-                style="color: red;"
-                title="停止任务"
-              ></i>
+              <el-button  v-if="scope.row.progress >= 100" type="text" @click="handlePlayClick(scope.row)">
+                <i
+                  class="el-icon-video-play icon cursor-point"
+                  title="再次执行"
+                  style="color: #009688;"
+                ></i>
+              </el-button>
+              <el-button v-else type="text" @click="handleStopClick(scope.row)">
+                <i 
+                  class="el-icon-video-pause icon cursor-point"
+                  title="停止任务"
+                  style="color: red;"
+                ></i>
+              </el-button>
             </span>
             <span v-else>
               <el-button type="text" 
@@ -266,7 +266,6 @@
 
 <script>
 import { FUZZ_URL } from "common/axiosClient";
-import { debounce } from "lodash";
 import { getCascaderOptions, formatTreeData, downloadFileByUrl } from "common/utils";
 
 export default {
@@ -307,7 +306,6 @@ export default {
       assetList: [], // 添加任务资产列表
       assetListDialog: false, //添加任务资产列表操作弹框
       tableData: [],
-      multipleSelection: [],
       dialogVisible: false, // 下载报告
       fileType: "HTML",
       addTask: false,
@@ -345,7 +343,6 @@ export default {
     this.getTableData();
     this.getPolicyOptionsData();
     this.getPjOptions();
-    this.timer = setInterval(this.getTableData, 4000);
   },
   beforeDestroy() {
     this.timer && clearInterval(this.timer);
@@ -486,19 +483,25 @@ export default {
     },
     /**
      * 添加任务时，点击保存
-     * debounce 防止用户连续点击导致重复执行
      */
-    handleSaveClick: debounce(function () {
+    handleSaveClick () {
+      this.isAdding = true;
+
       this.$refs['addTaskForm'].validate(valid => {
-        if (!valid) return;
+        if (!valid) {
+          this.isAdding = false;
+          return;
+        };
 
         if (this.addTaskForm.selectedAssets.length === 0) {
-          return this.$message.error('请勾选要核查的资产');
+          this.isAdding = false;
+          this.$message.error('请勾选要核查的资产');
+          return;
         } 
 
         this.submitAddTask();
       })
-    }, 1000),
+    },
     /**
      * 保存周期任务
      */
@@ -541,8 +544,6 @@ export default {
         data.day = null;
       }
 
-      this.isAdding = true;
-
       this.fetchFuzz({
         url: "fuzz/view/page/VerificationTasks!addCircleTask.action",
         params: data,
@@ -583,9 +584,9 @@ export default {
      * 删除任务
      */
     async deleteTask(item) {
-      // 如果是核查任务，先停止任务
-      if (item.groupid === 0) {
-        let taskname = item.taskname;
+      // 如果任务正在进行，先停止任务
+      if (item.progress < 100) {
+        const taskname = item.taskname;
         await this.fetchFuzz({
           url: "fuzz/view/page/VerificationTasks!stopTask.action",
           params: { taskname },
@@ -650,14 +651,6 @@ export default {
       this.dialogVisible = false;
     },
     /**
-     * 首页table selected 返回值
-     * @param val
-     */
-    handleSelectionChange(val) {
-      // console.log(val, 'multipleSelection')
-      this.multipleSelection = val;
-    },
-    /**
      * 添加任务select
      * @param val
      */
@@ -666,9 +659,10 @@ export default {
     },
     /**
      * 获取默认首页table数据
-     * @param _index tableData 对应的index
      */
-    getTableData(_index) {
+    getTableData() {
+      this.isFinished = true;
+
       this.fetchFuzz({
         url: "fuzz/view/page/VerificationTasks!loaddatas.action",
         params: { circletask: "1" },
@@ -681,6 +675,7 @@ export default {
           if (item.groupid === 0) {
             item.id = i;
             item.level = 1;
+            item.name = item.taskname;
             item.children = [];
             taskArr.push(item);
           }
@@ -688,44 +683,67 @@ export default {
         });
 
         taskArr.forEach((item, index) => {
+          if (item.progress < 100) {
+            this.isFinished = false;
+          }
 
           for (let i = 0, len = data.length; i < len; i++) {
             if (data[i]["groupid"] === item.taskid) {
               let _data = data[i];
               _data.id = "a" + index + i;
               _data.level = 2;
-              _data.taskname = `${_data["taskname"]}[${_data.taskid}]`;
+              _data.name = `${_data["taskname"]}[${_data.taskid}]`;
               item["children"].push(_data);
             }
           }
         });
 
+        if (this.isFinished) {
+          this.timer && clearInterval(this.timer);
+          this.timer = null;
+        } else {
+          if (!this.timer) {
+            this.timer = setInterval(this.getTableData, 3000);
+          }
+        }
+
         this.tableData = taskArr;
       });
     },
-    
     /**
-     * 执行或者停止任务
+     * 再次执行核查任务
      */
-    handleClick(row, type) {
-      let taskname = row.taskname;
-      let url =
-        type === "play"
-          ? "VerificationTasks!reExecution.action"
-          : "VerificationTasks!stopTask.action";
-      let data = { taskname };
-      type === "play" ? (data.task = "circleTask") : data;
+    handlePlayClick(row) {
+      row.progress = 0;
+      
       this.fetchFuzz({
-        url: "fuzz/view/page/" + url,
-        params: data,
+        url: "fuzz/view/page/" + "VerificationTasks!reExecution.action",
+        params: { 
+          taskname:  row.taskname,
+          task: 'circleTask'
+        },
         vm: this
       }).then(res => {
         if (res.success === "success") {
-          if (type === "stop") {
-            // this.$set(this.tableData[row.id], "progress", row.progress + 200);
-          } else {
-            
-          }
+          this.getTableData();
+        }
+      });
+    },
+    /**
+     * 停止核查任务
+     */
+    handleStopClick(row, type) {
+      row.progress = 100;
+
+      this.fetchFuzz({
+        url: "fuzz/view/page/" + "VerificationTasks!stopTask.action",
+        params: { 
+          taskname:  row.taskname
+        },
+        vm: this
+      }).then(res => {
+        if (res.success === "success") {
+          this.getTableData();
         }
       });
     },
