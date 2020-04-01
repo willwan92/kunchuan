@@ -4,8 +4,10 @@
 
 import AppTable from './AppTable'
 import AppPagination from './AppPagination'
+import CveDetail from './CveDetail'
 
 export {
-  AppTable,
-  AppPagination
+    AppTable,
+    AppPagination,
+    CveDetail
 }
