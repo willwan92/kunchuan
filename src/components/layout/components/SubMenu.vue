@@ -25,14 +25,14 @@ export default {
 
 <style lang="less">
 .menu-link {
-  color: #ffffffb3;
+	color: #c0c4cc;
 }
 
 .active-menu-link {
-  color: #fff;
+  color: #ffffff;
 }
 
 .el-submenu__title i {
-    color: #ffffffb3;
+	color: #c0c4cc;
 }
 </style>
