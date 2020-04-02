@@ -100,12 +100,14 @@
         </el-table-column>
       </el-table>
     </div>
-    <el-dialog title="添加" :visible.sync="dialogVisible" width="600px">
-      <el-form class="dialog-form" label-width="120px" ref="form" :model="form">
-        <el-form-item label="漏洞名称" prop="bugName">
+
+		<!-- 添加补丁dialog -->
+    <el-dialog title="添加补丁" :visible.sync="dialogVisible" width="600px">
+      <el-form class="dialog-form" label-width="120px" ref="form" :model="form" :rules="rules">
+        <el-form-item label="漏洞名称" prop="bugname">
           <el-input v-model="form.bugname"></el-input>
         </el-form-item>
-        <el-form-item label="资产类型" prop="">
+        <el-form-item label="资产类型" prop="devtype">
           <el-select
             placeholder="请选择"
             v-model="form.devtype"
@@ -120,7 +122,7 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="厂家名称" prop="">
+        <el-form-item label="厂家名称" prop="vendor">
           <el-select
             placeholder="请选择"
             v-model="form.vendor"
@@ -135,10 +137,10 @@
             </el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="设备型号" prop="">
+        <el-form-item label="设备型号" prop="name">
           <el-input v-model="form.name" placeholder=""></el-input>
         </el-form-item>
-        <el-form-item label="操作系统" prop="">
+        <el-form-item label="操作系统" prop="os">
           <el-select
             placeholder="请选择"
             v-model="form.os"
@@ -156,12 +158,12 @@
         <el-form-item label="解决方案" prop="solution">
           <el-input v-model="form.solution"></el-input>
         </el-form-item>
-        <el-form-item label="补丁下载地址" prop="load">
+        <el-form-item label="补丁下载地址" prop="cveurl">
           <el-input v-model="form.cveurl"></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="submit">保存</el-button>
-          <el-button type="primary" @click="dialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="handleSaveClick">保 存</el-button>
+          <el-button @click="dialogVisible = false">取 消</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -183,6 +185,17 @@ export default {
         solution: "",
         cveurl: "",
       },
+			rules: {
+        bugname: [
+					{ required: true, message: '请输入漏洞名称', trigger: 'blur' }
+				],
+				devtype: [
+					{ required: true, message: '请选择资产类型', trigger: 'blur' }
+				],
+				cveurl: [
+					{ required: true, message: '请输入补丁下载地址', trigger: 'blur' }
+				]
+			},
       queryForm: {
         devtype: "",
         vendor: "",
@@ -207,8 +220,26 @@ export default {
   },
   methods: {
     add() {
-      this.dialogVisible = true;
-    },
+			this.dialogVisible = true;
+			
+			this.$nextTick(() => {
+				// dialog内的子组件form渲染完成后才能被获取到
+				this.$refs['form'].resetFields();
+			})
+		},
+		/**
+		 * 点击保存
+		 */
+		handleSaveClick() {
+			this.$refs['form'].validate(valid => {
+				if (valid) {
+					this.submit();
+				}
+			})
+		},
+		/**
+		 * 提交保存
+		 */
     async submit() {
       const data = await this.fetch({
         url: "/back/getBackAdd",
