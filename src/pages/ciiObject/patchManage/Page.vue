@@ -161,11 +161,13 @@
         <el-form-item label="补丁下载地址" prop="cveurl">
           <el-input v-model="form.cveurl"></el-input>
         </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="handleSaveClick">保 存</el-button>
-          <el-button @click="dialogVisible = false">取 消</el-button>
-        </el-form-item>
       </el-form>
+
+			
+			<span slot="footer">
+				<el-button @click="dialogVisible = false">取 消</el-button>
+				<el-button type="primary" @click="handleSaveClick">保 存</el-button>
+			</span>
     </el-dialog>
   </div>
 </template>
