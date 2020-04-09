@@ -39,25 +39,46 @@
 			<!-- <app-table :table-data="tableData" :table-titles="tableTitles" @operate="handleOperate"></app-table> -->
 
 			<el-table :data="tableData" border :span-method="objectSpanMethod" v-loading="isLoading" :element-loading-text="loadingText">
-				<el-table-column label="IP地址" prop="ip"></el-table-column>
-				<el-table-column label="端口" prop="port"></el-table-column>
+				<el-table-column label="IP地址" prop="ip" width="135"></el-table-column>
+				<el-table-column label="端口" prop="port" width="70"></el-table-column>
 				<el-table-column label="协议名称" prop="protoName"></el-table-column>
-				<el-table-column label="协议类型" prop="protoType"></el-table-column>
-				<el-table-column label="协议分析" prop="">
+				<el-table-column label="协议类型" prop="protoType" width="90"></el-table-column>
+				<el-table-column label="协议分析" prop="" width="108">
 					<template slot-scope="scope">
 						<el-button type="text" @click="handleProtoClick(scope.row.index)">网络类型分析</el-button>
 					</template>
 				</el-table-column>
 				<el-table-column label="确认结果" prop="result"></el-table-column>
-				<el-table-column label="内容分析" prop="">
+				<el-table-column label="内容分析" prop="" width="108">
 					<template slot-scope="scope">
 						<el-button type="text" @click="handleContentClick(scope.row.index)">网络资产确认</el-button>
 					</template>
 				</el-table-column>
 				<el-table-column label="设备类型" prop="deviceType"></el-table-column>
-				<el-table-column label="CVE ID" prop="cveId"></el-table-column>
+				<el-table-column label="CVE ID" prop="">
+					<template slot-scope="scope">
+            <span v-if="Array.isArray(scope.row.cveId)">
+							<el-link type="primary"
+								v-for="(item, index) in scope.row.cveId" 
+								:key="item"
+								@click="checkCveDetail(scope.row, index)"
+								style="margin-right: 10px;"
+							>{{item}}</el-link>
+						</span>
+						<span v-else>{{scope.row.cveId}}</span>
+          </template>
+				</el-table-column>
 			</el-table>
 		</div>
+
+		<!-- cve漏洞详情（弹窗） -->
+    <cve-detail
+      :detail-data="detailData"
+      :is-loading-detail="isLoadingDetail"
+      :dialog-visible="dialogVisible"
+			:hasIp="false"
+      @close="handleDialogClose"
+    ></cve-detail>
 	</div>
 </template>
 
@@ -67,6 +88,8 @@
 	export default {
 		data() {
 			return {
+				dialogVisible: false,
+				isLoadingDetail: false,
 				isLoading: false,
 				timer: null,
 				loadingText: '正在扫描',
@@ -93,12 +116,41 @@
 				},
 				tableData: [],
 				currentRowIp: '',
+				detailData: {}
 			}
 		},
 		created() {
 			this.fetchScanResult();
 		},
 		methods: {
+			handleDialogClose() {
+				this.dialogVisible = false;
+			},
+			/**
+			 * cve详情
+			 * @param row 表格的行数据
+			 * @param index 当前cveid在数组中的索引
+			 */
+			async checkCveDetail(row, index) {
+				this.dialogVisible = true;
+				this.isLoadingDetail = true;
+
+				this.fetchFuzz({
+					url: "/fuzz/page/view/scanner!findbugList.action",
+					params: {
+						vendors: row.vendors,
+						product_name: row.devDesc ? row.devDesc : row.productName ? row.productName : null
+					},
+					vm: this
+				}).then(res => {
+					this.isLoadingDetail = false;
+					const data = res.data;
+					
+					if (data && data[index]) {
+						this.detailData = data[index];
+					}
+				});
+			},
 			objectSpanMethod({ row, column, rowIndex, columnIndex }) {
 				if (columnIndex > 5) {
 					if(rowIndex === 0 || row.ip !== this.tableData[rowIndex - 1].ip) {
@@ -140,6 +192,9 @@
 				this.isLoading = false;
 				
 				this.tableData[index].deviceType = data.name;
+				this.tableData[index].vendors = data.vendors;
+				this.tableData[index].productName = data.product_name;
+				this.tableData[index].devDesc = data.dev_desc;
 				this.tableData[index].cveId = data.cveid;
 				// if (data.state === 1) {
 					

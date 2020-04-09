@@ -104,7 +104,7 @@
         <el-table-column label="端口" prop="port" width="70"></el-table-column>
         <el-table-column label="协议名称" prop="protoName"></el-table-column>
         <el-table-column label="TCP/UDP" prop="protoType" width="90"></el-table-column>
-        <el-table-column label="协议分析" prop="" width="100">
+        <el-table-column label="协议分析" prop="" width="108">
           <template slot-scope="scope">
             <el-button type="text" @click="handleProtoClick(scope.row.index)"
               >网络类型分析</el-button
@@ -112,7 +112,7 @@
           </template>
         </el-table-column>
         <el-table-column label="确认协议" prop="result"></el-table-column>
-        <el-table-column label="资产确认" prop=""  width="100">
+        <el-table-column label="资产确认" prop=""  width="108">
           <template slot-scope="scope">
             <el-button type="text" @click="handleAssetClick(scope.row.index)"
               >网络资产确认</el-button

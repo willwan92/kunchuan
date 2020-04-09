@@ -3,13 +3,13 @@
  */
 <template>
     <div>
-        <el-dialog title="详细" :visible.sync="visible">
+        <el-dialog title="详细" :visible.sync="visible" :close-on-click-modal="false">
             <el-form :model="detailData" :disabled="true" v-loading="isLoadingDetail">
                 <el-form-item label="CVE ID" :label-width="formLabelWidth">
-                <el-input v-model="detailData.cveid" autocomplete="off"></el-input>
+                	<el-input v-model="detailData.cveid" autocomplete="off"></el-input>
                 </el-form-item>
-                <el-form-item label="IP" :label-width="formLabelWidth">
-                <el-input v-model="detailData.ip" autocomplete="off"></el-input>
+                <el-form-item v-if="hasIp" label="IP" :label-width="formLabelWidth">
+                	<el-input v-model="detailData.ip" autocomplete="off"></el-input>
                 </el-form-item>
                 <el-form-item label="漏洞名称" :label-width="formLabelWidth">
                 <el-input v-model="detailData.name" autocomplete="off"></el-input>
@@ -155,7 +155,11 @@ export default {
         formLabelWidth: {
             type: String,
             default: "120px"
-        }
+        },
+				hasIp: {
+					type: Boolean,
+					default: true
+				}
     },
     computed: {
         visible: {
