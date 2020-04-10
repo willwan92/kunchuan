@@ -45,11 +45,11 @@
         width="600px"
         @close="dialogShow = false"
       >
-        <el-form  v-loading="isUpdate" :model="form" ref="form" label-width="100px">
-          <el-form-item label="名称">
+        <el-form  v-loading="isUpdate" :model="form" :rules="rules" ref="form" label-width="100px">
+          <el-form-item label="名称" prop="pjname">
             <el-input v-model="form.pjname"></el-input>
           </el-form-item>
-          <el-form-item label="路径">
+          <el-form-item label="路径" prop="pjtype">
             <el-cascader
               class="auto-width"
               :disabled="Boolean(this.id)"
@@ -110,7 +110,15 @@ export default {
         address: "",
         description: "",
         ip: ""
-      },
+			},
+			rules: {
+				pjname: [{
+					required: true, message: '请输入项目名称', trigger: 'blur'
+				}],
+				pjtype: [{
+					required: true, message: '请选择项目路径', trigger: 'blur'
+				}]
+			},
       pjTreeData: null,
       tableData: []
     };
@@ -187,8 +195,15 @@ export default {
     },
     handleClick(tab) {
       this.fetchTableData();
-    },
-    async handleComfirmClick() {
+		},
+		handleComfirmClick() {
+			this.$refs['form'].validate(valid => {
+				if (valid) {
+					this.submit();
+				}
+			});
+		},
+    async submit() {
       let url = "/projectInfo/getProjectInfoAdd";
       let params = this._.clone(this.form);
 
@@ -203,7 +218,7 @@ export default {
       params.isleaf = this.isLeaf;
       params.pjtype = params.pjtype.join("/");
        
-       this.isUpdate = true;
+      this.isUpdate = true;
       const data = await this.fetch({
         url: url,
         params: params,
@@ -219,7 +234,7 @@ export default {
         this.dialogShow = false;
         this.initData();
       } else {
-        this.$message.success(data.message);
+        this.$message.error(data.message);
       }
     },
     async handleAddClick() {

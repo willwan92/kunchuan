@@ -19,7 +19,7 @@ const axiosClient = axios.create({
         'Content-Type': 'application/x-www-form-urlencoded'
     },
     transformRequest: [
-        function (data, headers) {
+        function(data, headers) {
             return qs.stringify(data);
         }
     ]
@@ -27,7 +27,7 @@ const axiosClient = axios.create({
 
 const axiosClientUpload = axios.create({
     baseURL: HOST === HOST_DEVELOPMENT ? '/api' : URL_PRODUCTION,
-    timeout: 100000,
+    timeout: 0,
     responseType: 'json',
     headers: {
         'Content-Type': 'multipart/form-data'
@@ -42,7 +42,7 @@ const axiosClientFuzz = axios.create({
         'Content-Type': 'application/x-www-form-urlencoded'
     },
     transformRequest: [
-        function (data, headers) {
+        function(data, headers) {
             return qs.stringify(data);
         }
     ]
@@ -50,7 +50,7 @@ const axiosClientFuzz = axios.create({
 
 const axiosUploadFuzz = axios.create({
     baseURL: HOST === HOST_DEVELOPMENT ? '/fuzzApi' : URL_PRODUCTION_FUZZ,
-    timeout: 100000,
+    timeout: 0,
     responseType: 'json',
     headers: {
         'Content-Type': 'multipart/form-data'
