@@ -138,7 +138,7 @@ export default {
     async fetchPjTreeData() {
 			const roleId = sessionStorage.getItem('roleId');
 
-      const data = await this.fetch({
+      const data = await this.post({
 				url: "/projectInfo/getEnableRole",
 				params: {
 					enablerole: `(${roleId})`
@@ -158,7 +158,7 @@ export default {
       };
      
      this.isLoading = true;
-      const data = await this.fetch({
+      const data = await this.post({
         url: "/projectInfo/getProjectInfoUpAdd",
         params: params,
         vm: this

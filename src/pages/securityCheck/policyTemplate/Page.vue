@@ -425,7 +425,7 @@ export default {
       if (type === "ok") {
         let cs_id = "",
           data = {};
-        this.fetch({
+        this.post({
           url: "/fuzz/page/view/strategy!insertSelfDefined.action",
           params: { cs_id, data },
           vm: this
@@ -460,7 +460,7 @@ export default {
       this.checkData = [];
       this.isLoadingCustomData = true;
       let customArgsPageData = this.customArgsPageData;
-      await this.fetchFuzz({
+      await this.getFuzz({
         url: "/fuzz/page/view/strategy!findSelfDefinedById.action",
         params: { 
           cs_id,
@@ -503,7 +503,7 @@ export default {
       this.csId = cs_id;
       this.isLoadingTplDetail = true;
       let tplDetailPageData = this.tplDetailPageData;
-      await this.fetchFuzz({
+      await this.getFuzz({
         url: "/fuzz/page/view/checkmanage/strategy!findStrategyById.action",
         params: {
           cs_id,
@@ -530,7 +530,7 @@ export default {
      * 树形结构数据初始化数据
      */
     async initData() {
-      const { data } = await this.fetchFuzz({
+      const { data } = await this.getFuzz({
         url: "/fuzz/page/view/strategy!strategyTree.action",
         vm: this
       });
@@ -595,7 +595,7 @@ export default {
     getItemView(checkid, type, scriptId) {
       let params = { checkid };
       scriptId ? (params.script_id = scriptId) : params;
-      this.fetchFuzz({
+      this.getFuzz({
         url: `/fuzz/page/view/checkmanage/checkItem!${type}.action`,
         params: params,
         vm: this

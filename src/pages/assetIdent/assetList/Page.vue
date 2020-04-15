@@ -310,7 +310,7 @@ export default {
     async fetchPjTreeData() {
 			const roleId = sessionStorage.getItem('roleId');
 
-      const data = await this.fetch({
+      const data = await this.post({
 				url: "/projectInfo/getEnableRole",
 				params: {
 					enablerole: `(${roleId})`
@@ -335,7 +335,7 @@ export default {
         return;
       }
       this.isLoading = true;
-      const { data } = await this.fetchFuzz({
+      const { data } = await this.getFuzz({
         url: "/fuzz/page/view/station/device!getAssetsListByPjID.action",
         params: {
           pjid: pjId
@@ -360,7 +360,7 @@ export default {
       });
     },
     async fetchAssetsTypeData() {
-      const { data } = await this.fetchFuzz({
+      const { data } = await this.getFuzz({
         url: "/fuzz/page/view/station/device!findAllDevtype.action",
         vm: this
       });
@@ -378,7 +378,7 @@ export default {
       }
     },
     async fetchVendorsData() {
-      const { data } = await this.fetchFuzz({
+      const { data } = await this.getFuzz({
         url: "/fuzz/page/view/station/device!findVendorByType.action",
         params: {
           devtype: ""
@@ -394,7 +394,7 @@ export default {
       });
     },
     async fetchOsData() {
-      const { list } = await this.fetchFuzz({
+      const { list } = await this.getFuzz({
         url: "/fuzz/page/view/station/device!loadOsDatas.action",
         vm: this
       });
@@ -439,7 +439,7 @@ export default {
       }
 
       this.isUpdate = true;
-      const data = await this.fetchFuzz({
+      const data = await this.getFuzz({
         url: `/fuzz/page/view/station/device!${action}`,
         params: params,
         vm: this
@@ -481,7 +481,7 @@ export default {
     async handleEditClick(id) {
       this.assetsId = id;
       this.dialogShow = true;
-      const { data } = await this.fetchFuzz({
+      const { data } = await this.getFuzz({
         url: "/fuzz/page/view/station/device!getAssetsListByDevID.action",
         params: { deviceid: id },
         vm: this
@@ -509,7 +509,7 @@ export default {
       this.dialogForm = Object.assign({}, this.dialogForm, formData);
     },
     async handleDelClick(id) {
-      const data = await this.fetchFuzz({
+      const data = await this.getFuzz({
         url: "/fuzz/page/view/station/device!deldevice.action",
         params: { deviceid: id },
         vm: this

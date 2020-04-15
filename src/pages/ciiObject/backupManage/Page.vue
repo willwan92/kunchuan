@@ -176,7 +176,7 @@ export default {
     
       this.isLoading = true;
       this.tableData = [];
-      const data = await this.fetch({
+      const data = await this.post({
         url: "/back/getSelectByDeviceid",
         params: {
           deviceid: this.deviceid
@@ -199,7 +199,7 @@ export default {
       
     },
     async fetchAssetSignOptions() {
-      const data = await this.fetch({
+      const data = await this.post({
         url: "/back/getSelectByPjid",
         params: {
           pjid: this.getPjId
@@ -219,7 +219,7 @@ export default {
     async fetchPjTreeData() {
 			const roleId = sessionStorage.getItem('roleId');
 
-      const data = await this.fetch({
+      const data = await this.post({
 				url: "/projectInfo/getEnableRole",
 				params: {
 					enablerole: `(${roleId})`
@@ -250,7 +250,7 @@ export default {
       });
     },
     async deleteFile(row) {
-      const data = await this.fetch({
+      const data = await this.post({
         url: "/deleteFileName",
         params: {
           filePath: this.getFilePath(),

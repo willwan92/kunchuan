@@ -4,7 +4,7 @@
 
 import { axiosClient, axiosClientFuzz } from 'common/axiosClient';
 
-export const fetch = async({ url, params = {}, type = 'post', vm }) => {
+export const post = async({ url, params = {}, type = 'post', vm }) => {
     let data;
 
     await axiosClient[type](url, params)
@@ -22,7 +22,7 @@ export const fetch = async({ url, params = {}, type = 'post', vm }) => {
     return data;
 }
 
-export const fetchFuzz = async({ url, params = {}, type = 'get', vm }) => {
+export const getFuzz = async({ url, params = {}, type = 'get', vm }) => {
     let data;
 
     await axiosClientFuzz[type](url, {

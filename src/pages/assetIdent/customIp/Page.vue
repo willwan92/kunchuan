@@ -284,7 +284,7 @@ export default {
       this.loadingText = "正在确认...";
       this.isLoading = true;
 
-      const { data } = await this.fetchFuzz({
+      const { data } = await this.getFuzz({
         url: "/fuzz/page/view/scanstation!confirm_propertis.action",
         params: params,
         type: "get",
@@ -314,7 +314,7 @@ export default {
       this.loadingText = "正在分析...";
       this.isLoading = true;
 
-      const data = await this.fetchFuzz({
+      const data = await this.getFuzz({
         url: "/fuzz/page/view/scanstation!analyze.action",
         params: params,
         type: "get",
@@ -333,7 +333,7 @@ export default {
         pjid: this.getPjId
       };
 
-      const { data } = await this.fetchFuzz({
+      const { data } = await this.getFuzz({
         url: "/fuzz/page/view/scanstation!findScanDatas.action",
         params: params,
         vm: this
@@ -370,7 +370,7 @@ export default {
         port_type: searchParams.portMethod
       };
 
-      const data = await this.fetchFuzz({
+      const data = await this.getFuzz({
         url: "/fuzz/page/view/scanstation!stopSend.action",
         params: params,
         vm: this
@@ -406,7 +406,7 @@ export default {
       this.loadingText = "正在扫描...";
       this.isLoading = true;
 
-      const data = await this.fetchFuzz({
+      const data = await this.getFuzz({
         url: "/fuzz/page/view/scanner/scanstation!startBtnMe.action",
         params: params,
         vm: this
@@ -419,7 +419,7 @@ export default {
       }
     },
     async getPjDetail() {
-      const data = await this.fetch({
+      const data = await this.post({
         url: "/projectInfo/getSelectProjectById",
         params: {
           id: this.getPjId
@@ -434,7 +434,7 @@ export default {
     async fetchPjTreeData() {
 			const roleId = sessionStorage.getItem('roleId');
 
-      const data = await this.fetch({
+      const data = await this.post({
 				url: "/projectInfo/getEnableRole",
 				params: {
 					enablerole: `(${roleId})`

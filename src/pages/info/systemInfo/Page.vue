@@ -81,7 +81,7 @@
 			async fetchData() {
 				this.isFetchingData = true;
 
-				const data = await this.fetchFuzz({
+				const data = await this.getFuzz({
 					url: '/fuzz/page/view/sysconfig/sysconfig!getDiskSpace.action',
 					vm: this
 				});

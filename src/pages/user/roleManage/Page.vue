@@ -163,7 +163,7 @@ export default {
       return ids.toString();
     },
     async fetchPjTreeData() {
-      const { data } = await this.fetch({
+      const { data } = await this.post({
         url: "/porject/getProjectList",
         vm: this
       });
@@ -289,7 +289,7 @@ export default {
 
       this.isLoading = true;
 
-      const { data } = await this.fetchFuzz({
+      const { data } = await this.getFuzz({
         url: "/fuzz/page/view/system/user!getAllRole.action",
         params: params,
         vm: this

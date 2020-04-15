@@ -131,7 +131,7 @@ export default {
 	},
   methods: {
     async fetchTplOptions() {
-      const data = await this.fetch({
+      const data = await this.post({
         url: "/file/fileNameUrlPath",
         params: {
           urlPath: path
@@ -160,7 +160,7 @@ export default {
       }
       this.isLoading = true;
       this.tableData = [];
-      const { data } = await this.fetchFuzz({
+      const { data } = await this.getFuzz({
         url: url,
         params: params,
         vm: this
@@ -183,7 +183,7 @@ export default {
       }
 		},
 		async handleScoreClick(row) {
-			const data = await this.fetch({
+			const data = await this.post({
 				url: "/back/selectSafetypojoId",
 				params: {
 					id: row.id
@@ -219,7 +219,7 @@ export default {
     async fetchPjTreeData() {
 			const roleId = sessionStorage.getItem('roleId');
 
-      const data = await this.fetch({
+      const data = await this.post({
 				url: "/projectInfo/getEnableRole",
 				params: {
 					enablerole: `(${roleId})`
@@ -248,7 +248,7 @@ export default {
 			let params = this.dialogForm;
 			params.checklist = this.formatCheckListForm(this.checkListForm);
       this.isUpdate = true;
-			const data = await this.fetch({
+			const data = await this.post({
 				url: "/back/updateSafetypojoId",
 				params: params,
         vm: this

@@ -243,7 +243,7 @@ export default {
 		 * 提交保存
 		 */
     async submit() {
-      const data = await this.fetch({
+      const data = await this.post({
         url: "/back/getBackAdd",
         params: this.form,
         vm: this
@@ -284,7 +284,7 @@ export default {
 
       this.isLoading = true;
       this.tableData = [];
-      const data = await this.fetch({
+      const data = await this.post({
         url: "/back/getSelect",
         params: params,
         vm: this
@@ -303,7 +303,7 @@ export default {
       }
     },
     async fetchAssetTypeOptions() {
-      const { data } = await this.fetchFuzz({
+      const { data } = await this.getFuzz({
         url: "/fuzz/page/view/station/device!findAllDevtype.action",
         vm: this
       });
@@ -318,7 +318,7 @@ export default {
       }
     },
     async fetchDevTypeOptions() {
-      const data = await this.fetch({
+      const data = await this.post({
         url: "/back/selectBackByName",
         vm: this
       });
@@ -333,7 +333,7 @@ export default {
       }
     },
     async fetchVendorOptions() {
-      const { data } = await this.fetchFuzz({
+      const { data } = await this.getFuzz({
         url: "/fuzz/page/view/station/device!findVendorByType.action",
         params: {
           devtype: ""
@@ -351,7 +351,7 @@ export default {
       }
     },
     async fetchOsOptions() {
-      const { list } = await this.fetchFuzz({
+      const { list } = await this.getFuzz({
         url: "/fuzz/page/view/station/device!loadOsDatas.action",
         vm: this
       });
@@ -366,7 +366,7 @@ export default {
       }
     },
     async delPatchById(id) {
-      const data = await this.fetch({
+      const data = await this.post({
         url: "/back/deleteById",
         params: {
           id: id

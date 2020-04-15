@@ -273,7 +273,7 @@ export default {
 		},
 		async getInterfaceConfig() {
 			this.tableData = [];
-			const data = await this.fetchFuzz({
+			const data = await this.getFuzz({
 				url: "/fuzz/page/view/sysconfig/sysconfig!loadConfigInterface.action",
 				vm: this
 			});
@@ -310,7 +310,7 @@ export default {
 			}
 		},
 		async getRouteConfig() {
-			const data = await this.fetchFuzz({
+			const data = await this.getFuzz({
 				url: "/fuzz/page/view/sysconfig/sysconfig!loadConfigRoute.action",
 				vm: this
 			});

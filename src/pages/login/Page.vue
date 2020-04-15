@@ -65,7 +65,7 @@ export default {
      * 获取当前用户信息
      */
     async getUserInfo() {
-      const userInfo = await this.fetchFuzz({
+      const userInfo = await this.getFuzz({
         url: '/fuzz/page/login!getUser.action',
         vm: this
       });
@@ -81,7 +81,7 @@ export default {
      * 获取当前用户所属角色信息
      */
     async getRoleInfo() {
-      const data = await this.fetch({
+      const data = await this.post({
         url: '/role/getRoleListId',
         params: {
           roleid: this.userInfo.role_id

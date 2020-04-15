@@ -73,7 +73,7 @@ export default {
 	},
   methods: {
     async handleKbChange(row) {
-      const data = await this.fetch({
+      const data = await this.post({
         url: "/device/getDeviceByKbname",
         params: {
           deviceid: row.id,
@@ -93,7 +93,7 @@ export default {
       sessionStorage.setItem('pjValue', JSON.stringify(this.pjValue));
     },
     async fetchbusinessOptionsData() {
-      const { data } = await this.fetch({
+      const { data } = await this.post({
         url: "/keybusiness/getKeybusinessList",
         params: {
           pjid: 22
@@ -110,7 +110,7 @@ export default {
 		async fetchPjTreeData() {
 			const roleId = sessionStorage.getItem('roleId');
 
-      const data = await this.fetch({
+      const data = await this.post({
 				url: "/projectInfo/getEnableRole",
 				params: {
 					enablerole: `(${roleId})`
@@ -132,7 +132,7 @@ export default {
 
       this.isLoading = true;
       this.tableData = [];
-      const data = await this.fetch({
+      const data = await this.post({
         url: "/device/getDeviceinfoBypjname",
         params: {
           pjid: pjId

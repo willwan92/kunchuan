@@ -143,7 +143,7 @@ export default {
         role_name: ''
       };
 
-      const { data } = await this.fetchFuzz({
+      const { data } = await this.getFuzz({
         url: "/fuzz/page/view/system/user!getAllRole.action",
         params: params,
         vm: this
@@ -269,7 +269,7 @@ export default {
 
       this.isLoading = true;
 
-      const { data } = await this.fetchFuzz({
+      const { data } = await this.getFuzz({
         url: "/fuzz/page/view/system/user!getAllUser.action",
         params: params,
         vm: this

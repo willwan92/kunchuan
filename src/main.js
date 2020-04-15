@@ -11,7 +11,7 @@ import './assets/styles/common.less'
 import './theme/index.css'
 import ElementUI from 'element-ui'
 import * as Components from '@/components'
-import { fetch, fetchFuzz, postFuzz } from "common/request"
+import { post, getFuzz, postFuzz } from "common/request"
 import './assets/iconfont/iconfont.css'
 
 
@@ -21,9 +21,9 @@ Vue.config.productionTip = false;
 
 Vue.prototype._ = lodash;
 Vue.prototype.$cookies = cookies;
-Vue.prototype.fetch = fetch;
+Vue.prototype.post = post;
 Vue.prototype.moment = moment;
-Vue.prototype.fetchFuzz = fetchFuzz;
+Vue.prototype.getFuzz = getFuzz;
 Vue.prototype.postFuzz = postFuzz;
 
 Object.keys(Components).forEach(key => {

@@ -135,7 +135,7 @@
 				this.dialogVisible = true;
 				this.isLoadingDetail = true;
 
-				this.fetchFuzz({
+				this.getFuzz({
 					url: "/fuzz/page/view/scanner!findbugList.action",
 					params: {
 						vendors: row.vendors,
@@ -182,7 +182,7 @@
 				this.loadingText = '正在确认...';
 				this.isLoading = true;
 
-				const data = await this.fetchFuzz({
+				const data = await this.getFuzz({
 					url: '/fuzz/page/view/scanner!assetsConfirm.action',
 					params: params,
 					type: 'get',
@@ -215,7 +215,7 @@
 				this.loadingText = '正在分析...';
 				this.isLoading = true;
 
-				const data = await this.fetchFuzz({
+				const data = await this.getFuzz({
 					url: '/fuzz/page/view/scanner!procotolConfirm.action',
 					params: params,
 					type: 'get',
@@ -235,7 +235,7 @@
 			async stopScan(){
 				this.isLoading = false;
 
-				const data = await this.fetchFuzz({
+				const data = await this.getFuzz({
 					url: '/fuzz/page/view/scanner!scannerStopPort.action',
 					type: 'get',
 					vm: this
@@ -254,7 +254,7 @@
 				this.loadingText = '正在扫描...';
 				this.isLoading = true;
 				
-				const data = await this.fetchFuzz({
+				const data = await this.getFuzz({
 					url: '/fuzz/page/view/scanner!scannerPort.action',
 					params: this.searchParams,
 					type: 'get',
@@ -276,7 +276,7 @@
 				
 				this.isLoading = true;
 				
-				const data = await this.fetchFuzz({
+				const data = await this.getFuzz({
 					url: '/fuzz/page/view/scanner!scannerResult.action',
 					params: params,
 					type: 'get',

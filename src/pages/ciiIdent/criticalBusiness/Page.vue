@@ -107,7 +107,7 @@ export default {
       return ids;
     },
     async save() {
-      const data = await this.fetchFuzz({
+      const data = await this.getFuzz({
         url: "/fuzz/page/view/CIIidentification!keyServiceIdentificationSave.action",
         params: {
           ids: this.getIds().toString()
@@ -143,7 +143,7 @@ export default {
     },
     async loadExcel() {
       this.tableData = [];
-      const { data } = await this.fetchFuzz({
+      const { data } = await this.getFuzz({
         url: "/fuzz/page/view/CIIidentification!getInfoByReadFile.action",
         params: {
           excelType: 1,
@@ -167,7 +167,7 @@ export default {
     },
     async fetchFileList() {
       this.isLoading = true;
-      const data = await this.fetch({
+      const data = await this.post({
         url: "/file/fileName",
         vm: this
       });

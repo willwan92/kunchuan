@@ -142,7 +142,7 @@ export default {
 			.catch(() => {});
 		},
 		async delLog(idStr) {
-      const data = await this.fetchFuzz({
+      const data = await this.getFuzz({
 				url: "/fuzz/page/view/system/syslog!deleteLogs.action",
 				params: {
 					id: idStr
@@ -209,7 +209,7 @@ export default {
       params.rstart = this.pageData.page - 1;
       params.number = this.pageData.pageSize;
 
-      const data = await this.fetchFuzz({
+      const data = await this.getFuzz({
         url: "/fuzz/page/view/system/syslog!findAllLogs.action",
         params: params,
         vm: this
