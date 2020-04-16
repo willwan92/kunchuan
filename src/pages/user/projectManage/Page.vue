@@ -155,7 +155,7 @@ export default {
 
       
       this.isLoading = true;
-      const data = await this.fetch({ 
+      const data = await this.post({ 
 				url: url, 
 				params: {
 					enablerole: `(${this.roleId})`
@@ -168,7 +168,7 @@ export default {
     },
 
     async fetchPjTreeData() {
-      const { data } = await this.fetch({
+      const { data } = await this.post({
         url: "/porject/getProjectSelectByIsleaf",
         vm: this
       });
@@ -219,7 +219,7 @@ export default {
       params.pjtype = params.pjtype.join("/");
        
       this.isUpdate = true;
-      const data = await this.fetch({
+      const data = await this.post({
         url: url,
         params: params,
         vm: this
@@ -257,7 +257,7 @@ export default {
     async handleEditClick(id) {
       this.dialogShow = true;
       this.id = id;
-      const data = await this.fetch({
+      const data = await this.post({
         url: "/projectInfo/getProjectInfoFind",
         params: { id: id },
         vm: this
@@ -274,7 +274,7 @@ export default {
       this.isLeaf = pjData.isleaf;
     },
     async handleDelClick(id) {
-      const data = await this.fetch({
+      const data = await this.post({
         url: "/projectInfo/getProjectInfoDeleteid",
         params: { id: id },
         vm: this

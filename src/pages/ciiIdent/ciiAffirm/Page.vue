@@ -34,7 +34,7 @@
 					<template slot-scope="scope">
             <el-autocomplete
               v-model="scope.row.kbValue"
-              :fetch-suggestions="querySearch"
+              :post-suggestions="querySearch"
               placeholder="例：ABCB"
             >
               <template slot="append">
@@ -106,7 +106,7 @@ export default {
       };
     },
     async startAffirm() {
-      const data = await this.fetch({
+      const data = await this.post({
         url: "/device/getSelectByKeyChoise",
         params: {
           pjid: this.getPjId,
@@ -124,7 +124,7 @@ export default {
       
     },
     async updateKbValue(row) {
-      const data = await this.fetch({
+      const data = await this.post({
         url: "/device/getUpdateByKeyChoice",
         params: {
           deviceid: row.id,
@@ -140,7 +140,7 @@ export default {
 			}
 		},
     async fetchbusinessOptionsData() {
-      const { data } = await this.fetch({
+      const { data } = await this.post({
         url: "/keybusiness/getKeybusinessList",
         params: {
           pjid: this.getPjId
@@ -157,7 +157,7 @@ export default {
     async fetchPjTreeData() {
 			const roleId = sessionStorage.getItem('roleId');
 
-      const data = await this.fetch({
+      const data = await this.post({
 				url: "/projectInfo/getEnableRole",
 				params: {
 					enablerole: `(${roleId})`
@@ -179,7 +179,7 @@ export default {
       this.tableData = [];
       this.isLoading = true;
       
-      const data = await this.fetch({
+      const data = await this.post({
         url: "/device/getDeviceinfoFindAll",
         params: {
           pjid: pjId

@@ -209,7 +209,7 @@ export default {
       if (value === "") {
         callback(new Error("请输入任务名称"));
       } else {
-        this.fetchFuzz({
+        this.getFuzz({
           url: "/fuzz/page/view/VerificationTasks!findTaskName.action",
           params: { taskname: value },
           vm: this
@@ -316,7 +316,7 @@ export default {
      * 树形结构数据初始化数据
      */
     async getPolicyOptionsData() {
-      const { data } = await this.fetchFuzz({
+      const { data } = await this.getFuzz({
         url: "/fuzz/page/view/strategy!strategyTree.action",
         vm: this
       });
@@ -344,7 +344,7 @@ export default {
     async getPjOptions() {
       const roleId = sessionStorage.getItem("roleId");
 
-      const data = await this.fetch({
+      const data = await this.post({
         url: "/projectInfo/getEnableRole",
         params: {
           enablerole: `(${roleId})`
@@ -367,7 +367,7 @@ export default {
     getAssetList() {
       let pjid = this.getPjId;
       this.isLoadingAssets = true;
-      this.fetchFuzz({
+      this.getFuzz({
         url: "fuzz/view/page/VerificationTasks!showAllProList.action",
         params: { t: Math.random(), pjid },
         vm: this
@@ -422,7 +422,7 @@ export default {
         str: str.join(",") //  资产列表中选中列ip地址的值,逗号拼接
       };
 
-      this.fetchFuzz({
+      this.getFuzz({
         url: "fuzz/view/page/VerificationTasks!addAcTask.action",
         params: params,
         vm: this
@@ -465,7 +465,7 @@ export default {
       // 如果任务正在进行，先停止任务
       if (item.progress < 100) {
         const taskname = item.taskname;
-        await this.fetchFuzz({
+        await this.getFuzz({
           url: "fuzz/view/page/VerificationTasks!stopTask.action",
           params: { taskname },
           vm: this
@@ -473,7 +473,7 @@ export default {
       }
 
       // 然后删除核查任务或记录
-      this.fetchFuzz({
+      this.getFuzz({
         url: "fuzz/view/page/VerificationTasks!delTasks.action",
         params: { taskids: item.taskid },
         vm: this
@@ -492,7 +492,7 @@ export default {
      */
     openHTML() {
       let taskid = this.reportTaskId;
-      this.fetchFuzz({
+      this.getFuzz({
         url: "fuzz/view/page/VerificationTasks!preview.action",
         params: { taskid },
         vm: this
@@ -514,7 +514,7 @@ export default {
     downloadReport() {
       let taskid = this.reportTaskId;
       let fileType = this.fileType;
-      this.fetchFuzz({
+      this.getFuzz({
         url: "fuzz/view/page/VerificationTasks!judgeJSON.action",
         params: { taskid },
         vm: this
@@ -541,7 +541,7 @@ export default {
     getTableData() {
       this.isFinished = true;
 
-      this.fetchFuzz({
+      this.getFuzz({
         url: "fuzz/view/page/VerificationTasks!loaddatas.action",
         params: { actask: "1" },
         vm: this
@@ -594,7 +594,7 @@ export default {
     handleStopClick(row) {
       row.progress = 100;
       
-      this.fetchFuzz({
+      this.getFuzz({
         url: "fuzz/view/page/" + "VerificationTasks!stopTask.action",
         params: { taskname:  row.taskname },
         vm: this
@@ -610,7 +610,7 @@ export default {
     handlePlayClick(row) {
       row.progress = 0;
       
-      this.fetchFuzz({
+      this.getFuzz({
         url: "fuzz/view/page/" + "VerificationTasks!reExecution.action",
         params: { taskname:  row.taskname },
         vm: this

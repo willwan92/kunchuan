@@ -43,7 +43,7 @@
 </template>
 
 <script>
-import { fetchFuzz } from "common/request";
+import { getFuzz } from "common/request";
 
 export default {
   data() {
@@ -82,7 +82,7 @@ export default {
         background: 'rgba(0, 0, 0, 0.7)'
       });
 
-      const data = await this.fetchFuzz({
+      const data = await this.getFuzz({
         url: "/fuzz/page/sysconfig!reboot.action",
         vm: this
       });
@@ -101,7 +101,7 @@ export default {
         background: 'rgba(0, 0, 0, 0.7)'
       });
 
-      const data = await this.fetchFuzz({
+      const data = await this.getFuzz({
         url: "/fuzz/page/sysconfig!shutdown.action",
         vm: this
       });

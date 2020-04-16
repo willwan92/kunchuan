@@ -168,7 +168,7 @@ export default {
 
       this.isLoading = true;
       this.tableData = [];
-      const res = await this.fetchFuzz({
+      const res = await this.getFuzz({
         url: "/fuzz/page/view/system/dictionary!query.action",
         params: params,
         vm: this
@@ -212,7 +212,7 @@ export default {
     },
     async getPolicyData() {
       this.disUser = [];
-      const policyData = await this.fetchFuzz({
+      const policyData = await this.getFuzz({
         url: "/fuzz/page/view/system/dictionary!find.action",
         vm: this
       });
@@ -236,7 +236,7 @@ export default {
         user_name: ""
       };
 
-      const { data } = await this.fetchFuzz({
+      const { data } = await this.getFuzz({
         url: "/fuzz/page/view/system/user!getAllUser.action",
         params: params,
         vm: this

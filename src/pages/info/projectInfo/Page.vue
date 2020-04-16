@@ -152,8 +152,8 @@ export default {
         description: this.form.description
       };
      
-      this.isLoading = true;
-      const data = await this.fetch({
+     this.isLoading = true;
+      const data = await this.post({
         url: "/projectInfo/getProjectInfoUpAdd",
         params: params,
         vm: this

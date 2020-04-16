@@ -264,7 +264,7 @@ export default {
 			}
 
 			this.isLoading = true;
-			const data = await this.fetch({
+			const data = await this.post({
 				url: url,
 				params: {
 					pjid: pjId
@@ -319,7 +319,7 @@ export default {
 		async fetchDataAssetsInfoById(id) {
 			let url = '/device/selectDataId';
 
-			const data = await this.fetch({
+			const data = await this.post({
 				url: url,
 				params: {
 					deviceid: id
@@ -349,7 +349,7 @@ export default {
 				url = "/device/selectNetworkId";
 			}
 
-			const data = await this.fetch({
+			const data = await this.post({
 				url: url,
 				params: {
 					deviceid: id
@@ -406,7 +406,7 @@ export default {
 			let params = this._.clone(this.form2);
 			params.deviceid = this.assetsId;
 			
-			const data = await this.fetch({
+			const data = await this.post({
 				url: "/device/updateDataId",
 				params: params,
         vm: this
@@ -433,7 +433,7 @@ export default {
 			}
 			
 			this.isUpdate = true;
-			const data = await this.fetch({
+			const data = await this.post({
 				url: url,
 				params: params,
         vm: this
@@ -458,7 +458,7 @@ export default {
     async fetchPjTreeData() {
 			const roleId = sessionStorage.getItem('roleId');
 
-      const data = await this.fetch({
+      const data = await this.post({
 				url: "/projectInfo/getEnableRole",
 				params: {
 					enablerole: `(${roleId})`

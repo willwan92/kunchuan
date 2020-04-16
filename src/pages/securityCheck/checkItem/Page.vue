@@ -320,7 +320,7 @@ export default {
         let alias = res.alias,
           stype = res.name,
           _id = res.id;
-        this.fetchFuzz({
+        this.getFuzz({
           url: "/fuzz/page/view/checkItem!check_itemDetail.action",
           params: {
             t: Math.random(),
@@ -362,7 +362,7 @@ export default {
       this.isLoadingDetail = true;
       let params = { checkid };
       scriptId ? (params.script_id = scriptId) : params;
-      this.fetchFuzz({
+      this.getFuzz({
         url: `/fuzz/page/view/checkmanage/checkItem!${type}.action`,
         params: params,
         vm: this
@@ -397,7 +397,7 @@ export default {
      * @returns {Promise<void>}
      */
     initData() {
-      this.fetchFuzz({
+      this.getFuzz({
         url: "/fuzz/page/view/checkItem!checkItemTree.action",
         vm: this
       }).then(res => {

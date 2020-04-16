@@ -76,7 +76,7 @@ export default {
     async fetchTableData() {
       this.isLoading = true;
       this.tableData = [];
-      const data = await this.fetch({
+      const data = await this.post({
         url: '/file/fileNameUrlPath',
         params: {
           urlPath: path
@@ -94,7 +94,7 @@ export default {
 			}
     },
     async delFile(filename) {
-      const data = await this.fetch({
+      const data = await this.post({
         url: '/deleteFileName',
         params: {
           filePath: path,

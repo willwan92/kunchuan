@@ -131,7 +131,7 @@ export default {
 		async handleComfirmClick() {
 			this.isUpdate = true;
 			const dialogForm = this.dialogForm;
-			const data = await this.fetch({
+			const data = await this.post({
 				url: "/keyrules/getUpdateId",
 				params: {
 					name: dialogForm.name,
@@ -157,7 +157,7 @@ export default {
 		async fetchRules() {
 			this.isLoading = true;
 			this.ruleTableData = [];
-			const data = await this.fetch({
+			const data = await this.post({
 				url: "/keyrules/getSelect",
 				vm: this
 			});
@@ -178,7 +178,7 @@ export default {
 		},
 		async handleEditClick(id) {
 			this.dialogShow = true;
-			const data = await this.fetch({
+			const data = await this.post({
 				url: "/keyrules/getSelectById",
 				params: {
 					id: id
@@ -195,7 +195,7 @@ export default {
 			}
 		},
 		async fetchFileList() {
-      const data = await this.fetch({
+      const data = await this.post({
         url: "/file/fileNameUrl",
         vm: this
 			});
@@ -213,7 +213,7 @@ export default {
 		},
 		async loadExcel() {
 			this.tableData = [];
-      const { data } = await this.fetchFuzz({
+      const { data } = await this.getFuzz({
         url: "/fuzz/page/view/CIIidentification!getInfoByReadFile.action",
         params: {
 					excelType: 2,

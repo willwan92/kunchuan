@@ -142,7 +142,7 @@ export default {
       }
     },
 		async getSystemTime() {
-			const data = await this.fetchFuzz({
+			const data = await this.getFuzz({
 				url: "/fuzz/page/view/sysconfig/sysconfig!getSystemTime.action",
 				vm: this
 			});

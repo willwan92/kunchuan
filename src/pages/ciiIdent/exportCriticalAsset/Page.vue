@@ -114,7 +114,7 @@ export default {
 			const roleId = sessionStorage.getItem('roleId');
 
      this.isLoading = true;
-      const data = await this.fetch({
+      const data = await this.post({
 				url: "/projectInfo/getEnableRole",
 				params: {
 					enablerole: `(${roleId})`
