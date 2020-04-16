@@ -26,7 +26,10 @@ export const getFuzz = async({ url, params = {}, type = 'get', vm }) => {
     let data;
 
     await axiosClientFuzz[type](url, {
-            'params': params
+            'params': {
+							...params,
+							timestamp: Date.now()
+						}
         }).then(res => {
             if (Number(res.status) === 200) {
                 data = res.data;
