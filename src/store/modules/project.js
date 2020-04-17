@@ -1,4 +1,4 @@
-import { fetch } from 'common/request';
+import { post } from 'common/request';
 import { formatTreeData } from "common/utils";
 
 export const project = {
@@ -18,7 +18,7 @@ export const project = {
     },
     actions: {
         async getProjectList({ commit }, playload) {
-            const data = await fetch({
+            const data = await post({
                 url: "/projectInfo/getEnableRole",
                 params: {
                     enablerole: `(${playload.roleId})`
