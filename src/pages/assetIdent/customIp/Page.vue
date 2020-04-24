@@ -100,8 +100,8 @@
         :span-method="objectSpanMethod"
         :element-loading-text="loadingText"
       >
-        <el-table-column label="IP地址" prop="ip" width="135"></el-table-column>
-        <el-table-column label="端口" prop="port" width="70"></el-table-column>
+        <el-table-column fixed label="IP地址" prop="ip" width="135"></el-table-column>
+        <el-table-column fixed label="端口" prop="port" width="70"></el-table-column>
         <el-table-column label="协议名称" prop="protoName"></el-table-column>
         <el-table-column label="TCP/UDP" prop="protoType" width="90"></el-table-column>
         <el-table-column label="协议分析" prop="" width="108">
@@ -124,6 +124,7 @@
         <el-table-column label="设备型号" prop="deviceNum"></el-table-column>
         <el-table-column label="版本号" prop="version"></el-table-column>
         <el-table-column
+					fixed="right"
           label="操作系统"
           prop="deviceOs"
         ></el-table-column>
