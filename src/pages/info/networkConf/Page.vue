@@ -5,6 +5,7 @@
         <span>网卡设置</span>
         <el-button
           class="operate-btn"
+					size="small"
           type="primary"
           @click="handleSaveInterfaceClick"
           >保存设置</el-button
@@ -37,6 +38,9 @@
     <div class="section list">
       <div class="section-title">
         <span>路由设置</span>
+				<el-button class="operate-btn" 
+					size="small" type="primary" @click="handleSaveRouteClick"
+            >保存设置</el-button>
       </div>
       <el-form
         width="600px"
@@ -53,11 +57,6 @@
         </el-form-item>
         <el-form-item label="下一跳地址" prop="nexthopip">
           <el-input v-model="routeForm.nexthopip"></el-input>
-        </el-form-item>
-        <el-form-item label="">
-          <el-button type="primary" @click="handleSaveRouteClick"
-            >保存设置</el-button
-          >
         </el-form-item>
       </el-form>
     </div>
