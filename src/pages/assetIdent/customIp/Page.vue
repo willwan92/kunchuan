@@ -93,6 +93,9 @@
         <br />
       </el-form>
 
+			<el-row v-show="isLoading">
+				<el-progress :percentage="percentage"></el-progress>
+			</el-row>
       <el-table
         :data="tableData"
         border
@@ -136,11 +139,14 @@
 <script>
 import { getCascaderOptions, formatTreeData } from "common/utils";
 
+let timer; // 获取扫描进度定时器
+
 export default {
   data() {
     return {
       isLoading: false,
-      loadingText: "正在扫描",
+			loadingText: "正在扫描",
+			percentage: 0,
       searchParams: {
         pjValue: [],
         ipRange: "",
@@ -361,6 +367,7 @@ export default {
       }
 
       this.isLoading = false;
+			this.percentage = 0;
     },
     async stopScan() {
       let searchParams = this.searchParams;
@@ -380,17 +387,38 @@ export default {
       if (data.success === "success") {
 				this.$message.info("扫描已停止！");
 				this.isLoading = false;
+				this.percentage = 0;
+				
+				clearInterval(timer);
       }
 		},
 		handleStartClick() {
 			this.$refs['searchParams'].validate(valid => {
 				if (valid) {
-					this.startScan();
+					this.startScan().then(res => {
+						if (res) {
+							timer = setInterval(this.getScanProgress, 2000);
+						}
+					})
 				}
 			})
 		},
+		async getScanProgress() {
+			const data = await this.getFuzz({
+        url: "/fuzz/page/view/scanstation!scanProgress.action",
+        vm: this
+      });
+			
+			this.percentage = data.percent;
+
+			if (data.percent >= 100) {
+				this.fetchScanResult();
+				clearInterval(timer);
+			}
+		},
     async startScan() {
-      let searchParams = this.searchParams;
+			let searchParams = this.searchParams;
+			let res = false;
 
       const params = {
         id: this.getPjId,
@@ -401,11 +429,11 @@ export default {
         port_vales: searchParams.port,
         propertiesd: Number(searchParams.autoIdentAsset),
         scanMethod: searchParams.scanMethod
-      };
-
+			};
+			
       this.tableData = [];
-      this.loadingText = "正在扫描...";
-      this.isLoading = true;
+			this.loadingText = "正在扫描...";
+			this.isLoading = true;
 
       const data = await this.getFuzz({
         url: "/fuzz/page/view/scanner/scanstation!startBtnMe.action",
@@ -413,11 +441,14 @@ export default {
         vm: this
       });
 
-      if (data.success === "success") {
-        this.fetchScanResult(1);
-      } else {
-        this.$message.error("扫描失败，请稍后再试！");
-      }
+      if (data.msg === "success") {
+				res = true;
+			} else {
+				this.isLoading = false;
+				this.$message.error("扫描失败，请稍后再试！");
+			}
+
+			return res;
     },
     async getPjDetail() {
       const data = await this.post({
