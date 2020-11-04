@@ -25,9 +25,8 @@
       </el-form>
 
       <el-row class="max-width">
-        <el-col :span="10">
+        <el-col :span="10" class="business-info-table">
           <el-table
-            class="business-info-table"
             :data="isVisiableTableData"
             @selection-change="handleTablebSelectionChange"
             ref="table"
@@ -47,9 +46,8 @@
           <p><el-button type="info" @click="toRight">&gt;&gt;</el-button></p>
           <p><el-button type="info" @click="toLeft">&lt;&lt;</el-button></p>
         </el-col>
-        <el-col :span="10">
+        <el-col :span="10" class="business-info-table">
           <el-table
-            class="business-info-table"
             ref="KbTable"
             :data="KbTableData"
             border
@@ -230,5 +228,6 @@ export default {
 .business-info-table {
   height: 600px;
   overflow: auto;
+  border: 1px solid #DCDFE6;
 }
 </style>
