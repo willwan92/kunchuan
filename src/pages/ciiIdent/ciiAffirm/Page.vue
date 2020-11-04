@@ -32,15 +32,19 @@
         </el-table-column>
         <el-table-column label="关键性（4方面）" prop="" width="220px">
 					<template slot-scope="scope">
-            <el-autocomplete
-              v-model="scope.row.kbValue"
-              :post-suggestions="querySearch"
-              placeholder="例：ABCB"
-            >
-              <template slot="append">
-                <el-button type="default" @click="updateKbValue(scope.row)">保存</el-button>
-              </template>
-            </el-autocomplete>
+            <el-select 
+              v-model="scope.row.kbValue" 
+              filterable
+              @change="updateKbValue(scope.row)"
+              placeholder="请选择">
+              <el-option
+                v-for="item in kbOptions"
+                :key="item"
+                :label="item"
+                :value="item"
+              >
+              </el-option>
+            </el-select>
           </template>
 				</el-table-column>
       </el-table>
@@ -51,25 +55,37 @@
 <script>
 import { getCascaderOptions, formatTreeData } from "common/utils";
 
+const kbOptions = []
+
+function createKbOptions() {
+  const items = ['A', 'B', 'C']
+  let options = []
+  let option = new Array(4)
+
+  items.forEach(item0 => {
+    let option = new Array(4)
+    option[0] = item0
+    items.forEach(item1 => {
+      option[1] = item1
+      items.forEach(item2 => {
+        option[2] = item2
+        items.forEach(item3 => {
+          option[3] = item3
+          options.push(option.join(''))
+        })
+      })
+    })
+  })
+
+  return options
+}
+
 export default {
   data() {
     return {
       isLoading: false,
       pjValue: [],
-      kbOptions: [
-        {
-          value: 'AAAA',
-          label: 'AAAA'
-        },
-        {
-          value: 'BBBB',
-          label: 'BBBB'
-        },
-        {
-          value: 'CCCC',
-          label: 'CCCC'
-        }
-      ],
+      kbOptions: Object.freeze(createKbOptions()),
       businessOptions: [],
 			pjOptions: [],
       tableData: []
@@ -94,17 +110,6 @@ export default {
     }
   },
   methods: {
-    querySearch(queryString, cb) {
-      var kbOptions = this.kbOptions;
-      var results = queryString ? kbOptions.filter(this.createFilter(queryString)) : kbOptions;
-      // 调用 callback 返回建议列表的数据
-      cb(results);
-    },
-    createFilter(queryString) {
-      return (kbOptions) => {
-        return (kbOptions.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
-      };
-    },
     async startAffirm() {
       const data = await this.post({
         url: "/device/getSelectByKeyChoise",
@@ -134,9 +139,9 @@ export default {
       });
 
       if (data.code === 10000) {
-				this.$message.success("保存成功！");
+				this.$message.success("关键性修改成功！");
 			} else {
-				this.$message.error('保存失败，请稍后再试！');
+				this.$message.error('关键性修改失败，请稍后再试！');
 			}
 		},
     async fetchbusinessOptionsData() {
