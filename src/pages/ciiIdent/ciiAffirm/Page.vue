@@ -211,19 +211,6 @@ export default {
       } else {
         this.tableData = [];
       }
-    },
-    //导出列表
-    exportList(item) {
-      let params = {};
-      if (this.goodsNumber) {
-        params.id = this.goodsNumber;
-      }
-      if (this.goodsName) {
-        params.name = this.goodsName;
-      }
-      params.page = 2;
-      let url = "/api/pj-operation/goods/exportInfo";
-      commonExport(params, "回收站商品列表", url);
     }
   }
 };
