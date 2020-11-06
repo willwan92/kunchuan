@@ -1,5 +1,4 @@
-import axios from 'axios';
-
+import { axiosDownloadFuzz } from './axiosClient.js'
 const TokenKey = 'Admin-Token'
 
 function getToken() {
@@ -92,30 +91,41 @@ function checkIp(value) {
 	return true;
 }
 
-function commonExport(params, name, url, type) {
-  let _type = type ? type : '.xls'
-	axios({
-		method: 'get',
-		url: url,
-		params: params,
-		responseType: 'blob',
-		headers: { "Authorization": 'Bearer ' + sessionStorage.getItem('Admin-Token') }
+
+function downloadFile({ url, params, filename }) {
+	axiosDownloadFuzz.get(url, {
+		params: params
 	}).then(response => {
-		download(response, name + _type)
-	}).catch()
+    if (response.status == 200) {
+      download(response.data, filename)
+    } else {
+      alert('文件可能不存在，请检查后重试！');
+    }
+  }).catch(err => {
+    console.log(err);
+  })
 }
 
-function download(data, name) {
+function download(data, filename) {
 	if (!data) {
 		return
-	}
-	let url = window.URL.createObjectURL(new Blob([data.data], { type: 'application/octet-stream' }))
-	let link = document.createElement('a')
-	link.style.display = 'none'
-	link.href = url
-	link.setAttribute('download', name)
-	document.body.appendChild(link)
-	link.click()
+  }
+  
+  let fileBlob = new Blob([data], { type: 'text/plain' })
+  if (navigator.msSaveBlob) {
+    // for IE
+    navigator.msSaveBlob(fileBlob, filename);
+  } else {
+    let url = window.URL.createObjectURL(fileBlob)
+    let link = document.createElement('a')
+    link.style.display = 'none'
+    link.href = url
+    link.setAttribute('download', filename)
+    document.body.appendChild(link)
+    link.click()
+    window.URL.revokeObjectURL(url)
+    document.body.removeChild(link)
+  }
 }
 
 function downloadFileByUrl(url) {
@@ -127,7 +137,8 @@ function downloadFileByUrl(url) {
 	link.href = url
 	link.setAttribute('type', 'download');
 	document.body.appendChild(link)
-	link.click()
+  link.click()
+  document.body.removeChild(link);
 }
 
 function toNumberArr(arr) {
@@ -233,7 +244,7 @@ export {
 	compare,
 	judgePayStatus,
 	judgeLogisticsStatus,
-	commonExport,
+	downloadFile,
 	download
 }
 

@@ -17,9 +17,10 @@
         <el-table :data="tableData" border v-loading="isLoading">
           <el-table-column label="序号" width="100" prop="index"></el-table-column>
           <el-table-column label="业务信息库名称" prop="filename"></el-table-column>
-          <el-table-column label="操作"  width="100">
+          <el-table-column label="操作"  width="160">
             <template slot-scope="scope">
               <el-button size="mini" type="danger" @click="handleDelete(scope.row)">删除</el-button>
+              <el-button size="mini" type="" @click="handleExport(scope.row)">导出</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -30,7 +31,7 @@
 
 <script>
 import { axiosClientUpload } from "common/axiosClient";
-import { checkFileType } from "common/utils";
+import { checkFileType, downloadFile } from "common/utils";
 const path = '/cfgtools/usr/local/businessfile/';
 
 export default {
@@ -110,6 +111,15 @@ export default {
 			} else {
 				this.$message.error("业务信息库删除失败，请稍后再试")
 			}
+    },
+    handleExport(row) {
+      downloadFile({
+        url: '/fuzz/page/view/system/syslog!downloadFile.action', 
+        params: {
+          downloadFile: `${path}${row.filename}`
+        },
+        filename: row.filename
+      })
     },
     handleDelete(row) {
       this.$confirm("确定删除吗？", "提示", {

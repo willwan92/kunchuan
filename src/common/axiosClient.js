@@ -48,6 +48,16 @@ const axiosClientFuzz = axios.create({
     ]
 });
 
+const axiosDownloadFuzz = axios.create({
+  baseURL: HOST === HOST_DEVELOPMENT ? '/fuzzApi' : URL_PRODUCTION_FUZZ,
+  responseType: 'blob',
+  transformRequest: [
+      function(data) {
+          return qs.stringify(data);
+      }
+  ]
+});
+
 const axiosUploadFuzz = axios.create({
     baseURL: HOST === HOST_DEVELOPMENT ? '/fuzzApi' : URL_PRODUCTION_FUZZ,
     timeout: 0,
@@ -89,4 +99,4 @@ axiosClient.interceptors.request.use(
 // })
 
 
-export { axiosClient, axiosClientFuzz, FUZZ_URL, API_URL, axiosClientUpload, axiosUploadFuzz };
+export { axiosClient, axiosClientFuzz, FUZZ_URL, API_URL, axiosClientUpload, axiosUploadFuzz, axiosDownloadFuzz };
