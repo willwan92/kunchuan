@@ -49,7 +49,6 @@
 </template>
 
 <script>
-import { judgeGender, deepCopy, commonExport } from 'common/utils'
 
 export default {
 	data() {

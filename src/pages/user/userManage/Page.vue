@@ -89,7 +89,6 @@
 <script>
 import sha1 from 'js-sha1';
 import md5 from 'md5';
-import { judgeGender, deepCopy, commonExport } from "common/utils";
 
 export default {
   data() {
